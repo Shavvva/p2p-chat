@@ -3,8 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Локальный чат (P2P)</title>
+    <title>P2P Чат (WebRTC)</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://unpkg.com/peerjs@1.4.7/dist/peerjs.min.js"></script>
     <style>
         * {
             margin: 0;
@@ -109,12 +110,13 @@
             font-size: 1.2rem;
         }
         
-        input, button {
+        input, button, select {
             padding: 12px 15px;
             border-radius: 8px;
             border: 1px solid #ddd;
             font-size: 1rem;
             width: 100%;
+            margin-bottom: 10px;
         }
         
         button {
@@ -124,7 +126,7 @@
             cursor: pointer;
             font-weight: bold;
             transition: all 0.3s;
-            margin-top: 10px;
+            margin-top: 5px;
             display: flex;
             align-items: center;
             justify-content: center;
@@ -261,6 +263,22 @@
             font-size: 0.9rem;
         }
         
+        .peer-id-container {
+            display: flex;
+            gap: 5px;
+            margin-top: 10px;
+        }
+        
+        #my-id-input {
+            flex: 1;
+            background-color: #eee;
+        }
+        
+        #copy-id-btn {
+            width: auto;
+            padding: 12px;
+        }
+        
         @media (max-width: 768px) {
             .main-content {
                 flex-direction: column;
@@ -275,14 +293,52 @@
             .container {
                 height: 95vh;
             }
+            
+            .peer-id-container {
+                flex-direction: column;
+            }
+            
+            #copy-id-btn {
+                width: 100%;
+            }
+        }
+        
+        /* Уведомление */
+        .notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: #4CAF50;
+            color: white;
+            padding: 12px 20px;
+            border-radius: 5px;
+            z-index: 1000;
+            box-shadow: 0 3px 10px rgba(0,0,0,0.2);
+            animation: fadeInOut 3s ease-in-out;
+        }
+        
+        @keyframes fadeInOut {
+            0% { opacity: 0; transform: translateY(-20px); }
+            15% { opacity: 1; transform: translateY(0); }
+            85% { opacity: 1; transform: translateY(0); }
+            100% { opacity: 0; transform: translateY(-20px); }
+        }
+        
+        .error {
+            background-color: #f8d7da;
+            color: #721c24;
+            padding: 10px;
+            border-radius: 5px;
+            margin-top: 10px;
+            display: none;
         }
     </style>
 </head>
 <body>
     <div class="container">
         <header>
-            <h1><i class="fas fa-comments"></i> P2P Чат</h1>
-            <p class="subtitle">Локальное общение без сервера и хранения истории</p>
+            <h1><i class="fas fa-comments"></i> P2P WebRTC Чат</h1>
+            <p class="subtitle">Настоящий P2P чат с WebRTC для связи между устройствами</p>
         </header>
         
         <div class="main-content">
@@ -303,19 +359,32 @@
                         <input type="text" id="username-input" placeholder="Введите ваше имя" value="Пользователь 1">
                     </div>
                     
-                    <div style="margin-top: 15px;">
-                        <label for="peer-id-input">ID подключения:</label>
+                    <div>
+                        <label for="server-select">Сервер сигнализации:</label>
+                        <select id="server-select">
+                            <option value="0.peerjs.com">Бесплатный сервер 1</option>
+                            <option value="1.peerjs.com">Бесплатный сервер 2</option>
+                            <option value="2.peerjs.com">Бесплатный сервер 3</option>
+                            <option value="peerjs-server.herokuapp.com">Альтернативный сервер</option>
+                        </select>
+                    </div>
+                    
+                    <div style="margin-top: 10px;">
+                        <label for="peer-id-input">ID собеседника:</label>
                         <input type="text" id="peer-id-input" placeholder="Введите ID собеседника">
                         <button id="connect-btn"><i class="fas fa-link"></i> Подключиться</button>
                     </div>
                     
-                    <div style="margin-top: 15px;">
+                    <div>
                         <p style="margin-bottom: 5px; font-size: 0.9rem;">Ваш ID для подключения:</p>
-                        <div style="display: flex; gap: 5px;">
-                            <input type="text" id="my-id-input" readonly style="background-color: #eee;">
+                        <div class="peer-id-container">
+                            <input type="text" id="my-id-input" readonly>
                             <button id="copy-id-btn" title="Копировать ID"><i class="far fa-copy"></i></button>
                         </div>
+                        <button id="generate-id-btn"><i class="fas fa-redo"></i> Сгенерировать новый ID</button>
                     </div>
+                    
+                    <div class="error" id="error-message"></div>
                     
                     <button id="disconnect-btn" disabled><i class="fas fa-unlink"></i> Отключиться</button>
                 </div>
@@ -326,24 +395,30 @@
                         <li>Введите ваше имя</li>
                         <li>Скопируйте ваш ID и отправьте собеседнику</li>
                         <li>Введите ID собеседника и нажмите "Подключиться"</li>
-                        <li>Начните общение в реальном времени</li>
+                        <li>Начните общение между устройствами!</li>
                     </ol>
+                    <p style="margin-top: 10px; font-size: 0.8rem; color: #666;">
+                        <i class="fas fa-exclamation-triangle"></i> Для работы нужен HTTPS (GitHub Pages его предоставляет)
+                    </p>
                 </div>
             </div>
             
             <div class="chat-area">
-                <h3 style="margin-bottom: 15px; color: #2575fc;"><i class="fas fa-comment-dots"></i> Чат</h3>
+                <h3 style="margin-bottom: 15px; color: #2575fc;">
+                    <i class="fas fa-comment-dots"></i> Чат
+                    <span id="peer-name" style="font-size: 1rem; color: #666; margin-left: 10px;"></span>
+                </h3>
                 
                 <div class="messages-container" id="messages-container">
                     <div class="message received">
                         <div class="sender">Система</div>
-                        <div>Добро пожаловать в P2P чат! Для начала общения подключитесь к собеседнику.</div>
+                        <div>Добро пожаловать в WebRTC P2P чат! Для начала общения подключитесь к собеседнику.</div>
                         <div class="message-time">Только что</div>
                     </div>
                     
                     <div class="message received">
                         <div class="sender">Система</div>
-                        <div>Все сообщения хранятся только в памяти браузера и исчезнут после обновления страницы.</div>
+                        <div>Сообщения передаются напрямую между устройствами без сервера.</div>
                         <div class="message-time">Только что</div>
                     </div>
                 </div>
@@ -356,30 +431,36 @@
         </div>
         
         <footer>
-            <p>P2P Чат &copy; 2023 | Сообщения не сохраняются на сервере | Для работы нужен обмен ID между участниками</p>
+            <p>WebRTC P2P Чат &copy; 2023 | Использует PeerJS для WebRTC соединений | Сообщения не сохраняются</p>
         </footer>
     </div>
 
     <script>
-        // Эмуляция P2P соединения с использованием localStorage для передачи данных
-        // В реальном приложении здесь использовался бы WebRTC
-        class P2PChat {
+        class WebRTCChat {
             constructor() {
+                this.peer = null;
+                this.connection = null;
                 this.peerId = this.generateId();
-                this.connectedPeerId = null;
                 this.username = "Пользователь 1";
+                this.connectedPeerId = null;
+                this.connectedPeerName = null;
                 this.isConnected = false;
                 this.messageCount = 0;
                 
                 this.initElements();
                 this.setupEventListeners();
                 this.updateUI();
-                this.startPolling();
+                this.initPeer();
             }
             
             // Генерация случайного ID
             generateId() {
-                return Math.random().toString(36).substring(2, 10).toUpperCase();
+                const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+                let result = '';
+                for (let i = 0; i < 8; i++) {
+                    result += chars.charAt(Math.floor(Math.random() * chars.length));
+                }
+                return result;
             }
             
             initElements() {
@@ -388,18 +469,22 @@
                 this.peerIdInput = document.getElementById('peer-id-input');
                 this.myIdInput = document.getElementById('my-id-input');
                 this.messageInput = document.getElementById('message-input');
+                this.serverSelect = document.getElementById('server-select');
                 
                 // Кнопки
                 this.connectBtn = document.getElementById('connect-btn');
                 this.disconnectBtn = document.getElementById('disconnect-btn');
                 this.sendBtn = document.getElementById('send-btn');
                 this.copyIdBtn = document.getElementById('copy-id-btn');
+                this.generateIdBtn = document.getElementById('generate-id-btn');
                 
                 // Отображение
                 this.userAvatar = document.getElementById('user-avatar');
                 this.usernameDisplay = document.getElementById('username-display');
                 this.userStatus = document.getElementById('user-status');
                 this.messagesContainer = document.getElementById('messages-container');
+                this.peerNameDisplay = document.getElementById('peer-name');
+                this.errorMessage = document.getElementById('error-message');
                 
                 // Установка начальных значений
                 this.myIdInput.value = this.peerId;
@@ -411,23 +496,11 @@
                     this.username = this.usernameInput.value || "Пользователь 1";
                     this.usernameDisplay.textContent = this.username;
                     this.userAvatar.textContent = this.username.substring(0, 2).toUpperCase();
-                    this.saveToStorage();
                 });
                 
                 // Подключение к собеседнику
                 this.connectBtn.addEventListener('click', () => {
-                    const peerId = this.peerIdInput.value.trim();
-                    if (!peerId) {
-                        alert('Введите ID собеседника');
-                        return;
-                    }
-                    
-                    if (peerId === this.peerId) {
-                        alert('Нельзя подключиться к самому себе');
-                        return;
-                    }
-                    
-                    this.connectToPeer(peerId);
+                    this.connectToPeer();
                 });
                 
                 // Отключение
@@ -453,68 +526,182 @@
                     document.execCommand('copy');
                     this.showNotification('ID скопирован в буфер обмена');
                 });
+                
+                // Генерация нового ID
+                this.generateIdBtn.addEventListener('click', () => {
+                    this.regeneratePeerId();
+                });
+            }
+            
+            // Инициализация PeerJS
+            initPeer() {
+                try {
+                    const server = this.serverSelect.value;
+                    const config = {
+                        host: server,
+                        port: server.includes('herokuapp') ? 443 : 443,
+                        path: '/',
+                        debug: 2,
+                        config: {
+                            'iceServers': [
+                                { urls: 'stun:stun.l.google.com:19302' },
+                                { urls: 'stun:global.stun.twilio.com:3478' }
+                            ]
+                        }
+                    };
+                    
+                    // Создаем нового Peer с нашим ID
+                    this.peer = new Peer(this.peerId, config);
+                    
+                    this.peer.on('open', (id) => {
+                        console.log('Peer подключен с ID:', id);
+                        this.myIdInput.value = id;
+                        this.userStatus.textContent = 'Готов к подключению';
+                        this.userStatus.className = 'status connecting';
+                    });
+                    
+                    this.peer.on('connection', (conn) => {
+                        console.log('Входящее подключение от:', conn.peer);
+                        this.handleIncomingConnection(conn);
+                    });
+                    
+                    this.peer.on('error', (err) => {
+                        console.error('PeerJS ошибка:', err);
+                        this.showError(`Ошибка PeerJS: ${err.type}. Попробуйте другой сервер.`);
+                        
+                        // Попробуем переподключиться через 3 секунды
+                        setTimeout(() => {
+                            if (this.peer && this.peer.disconnected) {
+                                this.peer.reconnect();
+                            }
+                        }, 3000);
+                    });
+                    
+                    this.peer.on('disconnected', () => {
+                        console.log('Peer отключен');
+                        this.userStatus.textContent = 'Отключен от сервера сигнализации';
+                        this.userStatus.className = 'status disconnected';
+                    });
+                    
+                } catch (error) {
+                    console.error('Ошибка инициализации PeerJS:', error);
+                    this.showError('Не удалось инициализировать WebRTC соединение. Проверьте подключение к интернету.');
+                }
             }
             
             // Подключение к другому пользователю
-            connectToPeer(peerId) {
-                this.connectedPeerId = peerId;
-                this.isConnected = true;
+            async connectToPeer() {
+                const peerId = this.peerIdInput.value.trim();
+                if (!peerId) {
+                    this.showError('Введите ID собеседника');
+                    return;
+                }
                 
-                // Сохраняем информацию о подключении в localStorage
-                // В реальном P2P приложении здесь было бы установление WebRTC соединения
-                this.saveToStorage();
+                if (peerId === this.peerId) {
+                    this.showError('Нельзя подключиться к самому себе');
+                    return;
+                }
                 
-                // Отправляем сигнал подключения
-                this.sendSignal('connect', { from: this.peerId, username: this.username });
+                this.showError('');
+                this.userStatus.textContent = 'Подключаемся...';
+                this.userStatus.className = 'status connecting';
                 
-                this.updateUI();
-                this.addSystemMessage(`Подключение к ${peerId} установлено. Начинайте общение!`);
+                try {
+                    // Создаем подключение DataChannel
+                    this.connection = this.peer.connect(peerId, {
+                        reliable: true,
+                        metadata: {
+                            username: this.username
+                        }
+                    });
+                    
+                    this.setupConnectionHandlers(this.connection);
+                    
+                } catch (error) {
+                    console.error('Ошибка подключения:', error);
+                    this.showError(`Ошибка подключения: ${error.message}`);
+                    this.userStatus.textContent = 'Ошибка подключения';
+                    this.userStatus.className = 'status disconnected';
+                }
             }
             
-            // Отправка сигнала (эмулируем через localStorage)
-            sendSignal(type, data) {
-                const signal = {
-                    type,
-                    data,
-                    timestamp: Date.now(),
-                    to: this.connectedPeerId,
-                    from: this.peerId
-                };
+            // Обработка входящего подключения
+            handleIncomingConnection(conn) {
+                this.connection = conn;
+                this.setupConnectionHandlers(conn);
+            }
+            
+            // Настройка обработчиков подключения
+            setupConnectionHandlers(conn) {
+                conn.on('open', () => {
+                    console.log('Подключение установлено с:', conn.peer);
+                    this.isConnected = true;
+                    this.connectedPeerId = conn.peer;
+                    this.connectedPeerName = conn.metadata.username || 'Неизвестный';
+                    
+                    this.updateUI();
+                    this.addSystemMessage(`Подключение к ${this.connectedPeerName} установлено. Начинайте общение!`);
+                    this.showNotification(`Подключен к ${this.connectedPeerName}`);
+                });
                 
-                // Сохраняем сигнал в localStorage
-                // В реальном приложении сигналы передавались бы через сервер сигнализации или WebSocket
-                localStorage.setItem(`p2p_signal_${this.connectedPeerId}`, JSON.stringify(signal));
+                conn.on('data', (data) => {
+                    console.log('Получены данные:', data);
+                    this.handleIncomingData(data);
+                });
                 
-                // Устанавливаем таймер для очистки сигнала
-                setTimeout(() => {
-                    localStorage.removeItem(`p2p_signal_${this.connectedPeerId}`);
-                }, 5000);
+                conn.on('close', () => {
+                    console.log('Подключение закрыто');
+                    this.handleDisconnection();
+                });
+                
+                conn.on('error', (err) => {
+                    console.error('Ошибка подключения:', err);
+                    this.showError(`Ошибка соединения: ${err.message}`);
+                });
+            }
+            
+            // Обработка входящих данных
+            handleIncomingData(data) {
+                try {
+                    const message = JSON.parse(data);
+                    
+                    if (message.type === 'message') {
+                        this.addMessage({
+                            text: message.text,
+                            username: message.username,
+                            timestamp: message.timestamp
+                        }, false);
+                    } else if (message.type === 'system') {
+                        this.addSystemMessage(message.text);
+                    }
+                } catch (error) {
+                    console.error('Ошибка обработки данных:', error);
+                }
             }
             
             // Отправка сообщения
             sendMessage() {
                 const messageText = this.messageInput.value.trim();
-                if (!messageText || !this.isConnected) return;
+                if (!messageText || !this.isConnected || !this.connection) {
+                    return;
+                }
                 
-                // Создаем сообщение
                 const message = {
+                    type: 'message',
                     text: messageText,
-                    from: this.peerId,
-                    to: this.connectedPeerId,
                     username: this.username,
-                    timestamp: Date.now(),
-                    id: ++this.messageCount
+                    timestamp: Date.now()
                 };
                 
-                // Отображаем сообщение
-                this.addMessage(message, true);
-                
-                // Отправляем сообщение (через localStorage)
-                this.sendSignal('message', message);
-                
-                // Очищаем поле ввода
-                this.messageInput.value = '';
-                this.messageInput.focus();
+                try {
+                    this.connection.send(JSON.stringify(message));
+                    this.addMessage(message, true);
+                    this.messageInput.value = '';
+                    this.messageInput.focus();
+                } catch (error) {
+                    console.error('Ошибка отправки сообщения:', error);
+                    this.showError('Не удалось отправить сообщение. Проверьте соединение.');
+                }
             }
             
             // Добавление сообщения в чат
@@ -522,7 +709,10 @@
                 const messageElement = document.createElement('div');
                 messageElement.className = `message ${isSent ? 'sent' : 'received'}`;
                 
-                const time = new Date(message.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+                const time = new Date(message.timestamp).toLocaleTimeString([], { 
+                    hour: '2-digit', 
+                    minute: '2-digit' 
+                });
                 
                 messageElement.innerHTML = `
                     <div class="sender">${isSent ? 'Вы' : message.username}</div>
@@ -549,173 +739,118 @@
                 this.messagesContainer.scrollTop = this.messagesContainer.scrollHeight;
             }
             
-            // Проверка входящих сообщений (опрос localStorage)
-            startPolling() {
-                // Проверяем наличие входящих сообщений каждые 500мс
-                setInterval(() => {
-                    this.checkForIncomingMessages();
-                }, 500);
-            }
-            
-            // Проверка входящих сообщений
-            checkForIncomingMessages() {
-                // Проверяем, есть ли сигналы для нас
-                const signalKey = `p2p_signal_${this.peerId}`;
-                const signalData = localStorage.getItem(signalKey);
+            // Обработка отключения
+            handleDisconnection() {
+                if (this.isConnected && this.connectedPeerName) {
+                    this.addSystemMessage(`Соединение с ${this.connectedPeerName} разорвано.`);
+                }
                 
-                if (signalData) {
-                    const signal = JSON.parse(signalData);
-                    
-                    // Обрабатываем сигнал в зависимости от типа
-                    switch(signal.type) {
-                        case 'connect':
-                            this.handleConnectSignal(signal);
-                            break;
-                        case 'message':
-                            this.handleMessageSignal(signal);
-                            break;
-                        case 'disconnect':
-                            this.handleDisconnectSignal(signal);
-                            break;
-                    }
-                    
-                    // Удаляем обработанный сигнал
-                    localStorage.removeItem(signalKey);
-                }
-            }
-            
-            // Обработка сигнала подключения
-            handleConnectSignal(signal) {
-                if (!this.isConnected) {
-                    this.connectedPeerId = signal.data.from;
-                    this.isConnected = true;
-                    
-                    // Автоматически отправляем ответное подключение
-                    this.sendSignal('connect', { from: this.peerId, username: this.username });
-                    
-                    this.updateUI();
-                    this.addSystemMessage(`Пользователь ${signal.data.username} (${signal.data.from}) подключился к вам.`);
-                }
-            }
-            
-            // Обработка входящего сообщения
-            handleMessageSignal(signal) {
-                if (this.isConnected && signal.data.from === this.connectedPeerId) {
-                    this.addMessage(signal.data, false);
-                }
-            }
-            
-            // Обработка сигнала отключения
-            handleDisconnectSignal(signal) {
-                if (this.isConnected && signal.data.from === this.connectedPeerId) {
-                    this.disconnect();
-                    this.addSystemMessage(`Пользователь ${signal.data.username} отключился.`);
-                }
+                this.isConnected = false;
+                this.connectedPeerId = null;
+                this.connectedPeerName = null;
+                this.connection = null;
+                
+                this.updateUI();
             }
             
             // Отключение
             disconnect() {
+                if (this.connection) {
+                    this.connection.close();
+                }
+                this.handleDisconnection();
+            }
+            
+            // Генерация нового ID
+            regeneratePeerId() {
                 if (this.isConnected) {
-                    // Отправляем сигнал отключения
-                    this.sendSignal('disconnect', { from: this.peerId, username: this.username });
-                    
-                    this.isConnected = false;
-                    this.connectedPeerId = null;
-                    this.updateUI();
-                    this.addSystemMessage('Вы отключились от собеседника.');
+                    this.showError('Сначала отключитесь от текущего собеседника');
+                    return;
                 }
-            }
-            
-            // Сохранение данных в localStorage
-            saveToStorage() {
-                const data = {
-                    peerId: this.peerId,
-                    username: this.username
-                };
-                localStorage.setItem('p2p_chat_data', JSON.stringify(data));
-            }
-            
-            // Загрузка данных из localStorage
-            loadFromStorage() {
-                const data = localStorage.getItem('p2p_chat_data');
-                if (data) {
-                    const parsed = JSON.parse(data);
-                    this.username = parsed.username || this.username;
-                    this.peerId = parsed.peerId || this.peerId;
-                    
-                    this.usernameInput.value = this.username;
-                    this.myIdInput.value = this.peerId;
-                    this.usernameDisplay.textContent = this.username;
-                    this.userAvatar.textContent = this.username.substring(0, 2).toUpperCase();
+                
+                const newId = this.generateId();
+                this.peerId = newId;
+                
+                if (this.peer) {
+                    this.peer.destroy();
                 }
+                
+                this.initPeer();
+                this.showNotification('Новый ID сгенерирован');
             }
             
             // Обновление интерфейса
             updateUI() {
                 if (this.isConnected) {
-                    this.userStatus.textContent = `Подключен к ${this.connectedPeerId}`;
+                    this.userStatus.textContent = `Подключен к ${this.connectedPeerName}`;
                     this.userStatus.className = 'status connected';
+                    this.peerNameDisplay.textContent = `Собеседник: ${this.connectedPeerName}`;
                     
                     this.connectBtn.disabled = true;
                     this.disconnectBtn.disabled = false;
                     this.messageInput.disabled = false;
                     this.sendBtn.disabled = false;
                     this.peerIdInput.disabled = true;
+                    this.usernameInput.disabled = true;
+                    this.generateIdBtn.disabled = true;
                 } else {
-                    this.userStatus.textContent = 'Не подключен';
+                    this.userStatus.textContent = 'Готов к подключению';
                     this.userStatus.className = 'status disconnected';
+                    this.peerNameDisplay.textContent = '';
                     
                     this.connectBtn.disabled = false;
                     this.disconnectBtn.disabled = true;
                     this.messageInput.disabled = true;
                     this.sendBtn.disabled = true;
                     this.peerIdInput.disabled = false;
+                    this.usernameInput.disabled = false;
+                    this.generateIdBtn.disabled = false;
                 }
             }
             
             // Показать уведомление
             showNotification(message) {
-                // Создаем временное уведомление
                 const notification = document.createElement('div');
+                notification.className = 'notification';
                 notification.textContent = message;
-                notification.style.cssText = `
-                    position: fixed;
-                    top: 20px;
-                    right: 20px;
-                    background: #4CAF50;
-                    color: white;
-                    padding: 12px 20px;
-                    border-radius: 5px;
-                    z-index: 1000;
-                    box-shadow: 0 3px 10px rgba(0,0,0,0.2);
-                    animation: fadeInOut 3s ease-in-out;
-                `;
                 
                 document.body.appendChild(notification);
                 
-                // Удаляем уведомление через 3 секунды
                 setTimeout(() => {
                     notification.remove();
                 }, 3000);
+            }
+            
+            // Показать ошибку
+            showError(message) {
+                this.errorMessage.textContent = message;
+                this.errorMessage.style.display = message ? 'block' : 'none';
+                
+                if (message) {
+                    setTimeout(() => {
+                        this.errorMessage.style.display = 'none';
+                        this.errorMessage.textContent = '';
+                    }, 5000);
+                }
             }
         }
         
         // Инициализация чата при загрузке страницы
         document.addEventListener('DOMContentLoaded', () => {
-            // Добавляем стили для анимации уведомлений
-            const style = document.createElement('style');
-            style.textContent = `
-                @keyframes fadeInOut {
-                    0% { opacity: 0; transform: translateY(-20px); }
-                    15% { opacity: 1; transform: translateY(0); }
-                    85% { opacity: 1; transform: translateY(0); }
-                    100% { opacity: 0; transform: translateY(-20px); }
-                }
-            `;
-            document.head.appendChild(style);
+            // Проверяем, работает ли в iframe (GitHub Pages Preview)
+            if (window.self !== window.top) {
+                console.log('Работает в iframe, может потребоваться разрешить камеру/микрофон');
+            }
             
             // Создаем экземпляр чата
-            window.chatApp = new P2PChat();
+            window.chatApp = new WebRTCChat();
+            
+            // Добавляем обработчик смены сервера
+            document.getElementById('server-select').addEventListener('change', function() {
+                if (window.chatApp && window.chatApp.peer) {
+                    window.chatApp.showNotification('Смена сервера вступит в силу после перезагрузки страницы');
+                }
+            });
         });
     </script>
 </body>
