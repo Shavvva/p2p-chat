@@ -609,9 +609,9 @@
     <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-database-compat.js"></script>
 
     <script>
-        // Конфигурация Firebase с вашей базой данных
+        // Конфигурация Firebase с новой базой данных
         const firebaseConfig = {
-            databaseURL: "https://nexus-a9180-default-rtdb.europe-west1.firebasedatabase.app/"
+            databaseURL: "https://chat-c54e2-default-rtdb.europe-west1.firebasedatabase.app/"
         };
 
         // Инициализация Firebase
@@ -897,6 +897,7 @@
             console.log('Ваш ID:', userId);
             console.log('Ваше имя:', userName);
             console.log('Открыт чат на:', window.innerWidth + 'x' + window.innerHeight);
+            console.log('Firebase URL:', firebaseConfig.databaseURL);
         });
 
         // Обработка видимости страницы
@@ -953,6 +954,29 @@
                 messageInput.blur();
             }
         }, { passive: true });
+
+        // Показать уведомление о новом сообщении (экспериментально)
+        let lastMessageCount = 0;
+        messagesRef.on('value', (snapshot) => {
+            if (!snapshot.exists()) return;
+            
+            const messageCount = snapshot.numChildren();
+            if (messageCount > lastMessageCount && lastMessageCount > 0) {
+                // Новое сообщение
+                if (document.hidden) {
+                    // Страница не активна - можно показать уведомление
+                    if (Notification.permission === "granted") {
+                        new Notification("Новое сообщение в чате");
+                    }
+                }
+            }
+            lastMessageCount = messageCount;
+        });
+
+        // Запрос разрешения на уведомления
+        if ("Notification" in window && Notification.permission === "default") {
+            Notification.requestPermission();
+        }
     </script>
 </body>
 </html>
