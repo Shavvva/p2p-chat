@@ -3,396 +3,575 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Общий чат</title>
+    <title>P2P Чат с обнаружением</title>
     <style>
         body {
             font-family: Arial, sans-serif;
             margin: 20px;
-            background: #f0f0f0;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
         }
         #container {
-            max-width: 600px;
+            max-width: 800px;
             margin: 0 auto;
             background: white;
             padding: 20px;
-            border-radius: 8px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
         }
         h1 {
             text-align: center;
             color: #333;
-            margin-bottom: 10px;
+            margin-bottom: 20px;
         }
-        #shareSection {
-            background: #e8f5e9;
-            padding: 10px;
-            border-radius: 5px;
-            margin-bottom: 15px;
-            border: 1px solid #c8e6c9;
+        #onlineUsers {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            border: 2px solid #e9ecef;
         }
-        #chatUrl {
-            width: 100%;
-            padding: 8px;
-            margin: 5px 0;
-            border: 1px solid #ddd;
-            border-radius: 3px;
+        #usersList {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-top: 10px;
+        }
+        .user-card {
             background: white;
+            padding: 10px 15px;
+            border-radius: 20px;
+            border: 2px solid #007bff;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            animation: fadeIn 0.3s ease-in;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .user-avatar {
+            width: 24px;
+            height: 24px;
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            border-radius: 50%;
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 12px;
+        }
+        .user-online {
+            width: 8px;
+            height: 8px;
+            background: #28a745;
+            border-radius: 50%;
+            animation: pulse 2s infinite;
+        }
+        @keyframes pulse {
+            0% { opacity: 1; }
+            50% { opacity: 0.5; }
+            100% { opacity: 1; }
+        }
+        .user-you {
+            background: #e3f2fd;
+            border-color: #2196f3;
+        }
+        #setup {
+            background: #e8f5e9;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            border: 2px solid #c8e6c9;
+        }
+        input, button {
+            padding: 12px;
+            margin: 5px 0;
+            border-radius: 8px;
+            border: 1px solid #ddd;
+            font-size: 16px;
+        }
+        input {
+            width: calc(100% - 24px);
+            background: white;
+        }
+        button {
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            color: white;
+            border: none;
+            cursor: pointer;
+            transition: transform 0.2s;
+            width: 100%;
+        }
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+        button:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+        #chatSection {
+            display: none;
         }
         #chat {
             height: 300px;
             overflow-y: auto;
-            border: 1px solid #ddd;
-            padding: 10px;
-            margin-bottom: 10px;
-            background: #f9f9f9;
-            border-radius: 5px;
+            border: 2px solid #e9ecef;
+            border-radius: 10px;
+            padding: 15px;
+            margin: 15px 0;
+            background: #f8f9fa;
         }
         .message {
-            margin-bottom: 8px;
-            padding: 8px;
-            border-radius: 5px;
+            margin: 10px 0;
+            padding: 12px;
+            border-radius: 10px;
+            max-width: 70%;
             word-wrap: break-word;
+            animation: slideIn 0.3s ease-out;
+        }
+        @keyframes slideIn {
+            from { opacity: 0; transform: translateX(-10px); }
+            to { opacity: 1; transform: translateX(0); }
         }
         .my-message {
-            background-color: #d4edda;
-            margin-left: 20%;
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            color: white;
+            margin-left: auto;
             text-align: right;
         }
-        .other-message {
-            background-color: #e2e3e5;
-            margin-right: 20%;
+        .their-message {
+            background: #e9ecef;
+            color: #333;
+            margin-right: auto;
         }
-        .message-info {
+        .message-sender {
+            font-size: 0.9em;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+        .message-time {
             font-size: 0.8em;
-            color: #666;
-            margin-top: 3px;
-        }
-        #input-area {
-            display: flex;
-            gap: 10px;
+            opacity: 0.8;
+            margin-top: 5px;
         }
         #messageInput {
-            flex: 1;
-            padding: 10px;
-            border: 1px solid #ddd;
-            border-radius: 3px;
+            width: calc(100% - 100px);
+            display: inline-block;
         }
         #sendButton {
-            padding: 10px 20px;
-            background-color: #007bff;
-            color: white;
-            border: none;
-            border-radius: 3px;
-            cursor: pointer;
-        }
-        #sendButton:hover {
-            background-color: #0056b3;
-        }
-        #sendButton:disabled {
-            background-color: #ccc;
-            cursor: not-allowed;
-        }
-        #userName {
-            width: 100%;
-            padding: 10px;
-            margin: 10px 0;
-            border: 1px solid #ddd;
-            border-radius: 3px;
+            width: 90px;
+            display: inline-block;
+            margin-left: 10px;
         }
         .status {
-            padding: 5px;
+            padding: 10px;
             text-align: center;
+            border-radius: 8px;
+            margin: 10px 0;
+            font-weight: bold;
+        }
+        .online { background: #d4edda; color: #155724; }
+        .offline { background: #f8d7da; color: #721c24; }
+        .connecting { background: #fff3cd; color: #856404; }
+        #connectionInfo {
             font-size: 0.9em;
-            border-radius: 3px;
-            margin: 5px 0;
-        }
-        .online {
-            background: #d4edda;
-            color: #155724;
-        }
-        .offline {
-            background: #f8d7da;
-            color: #721c24;
+            color: #666;
+            text-align: center;
+            margin-top: 10px;
+            padding: 10px;
+            background: #f8f9fa;
+            border-radius: 8px;
         }
     </style>
 </head>
 <body>
     <div id="container">
-        <h1>Общий чат</h1>
+        <h1>📱 P2P Чат с обнаружением</h1>
         
-        <div id="shareSection">
-            <div class="status" id="connectionStatus">Ожидание подключения...</div>
-            <div>1. Откройте эту ссылку на другом устройстве:</div>
-            <input type="text" id="chatUrl" readonly>
-            <button onclick="copyUrl()">Копировать ссылку</button>
-            <div>2. Или откройте ссылку с другого устройства здесь:</div>
-            <input type="text" id="remoteUrl" placeholder="Вставьте ссылку с другого устройства">
-            <button onclick="connectToRemote()">Подключиться</button>
+        <div id="onlineUsers">
+            <h3>👥 Сейчас онлайн: <span id="usersCount">0</span></h3>
+            <div id="usersList">
+                <!-- Список пользователей будет здесь -->
+            </div>
         </div>
         
-        <div>
-            <label>Ваше имя:</label>
-            <input type="text" id="userName" placeholder="Введите ваше имя" onchange="updateUserName()">
+        <div id="setup">
+            <h3>🚀 Настройка подключения</h3>
+            <input type="text" id="userName" placeholder="Введите ваше имя" maxlength="20">
+            <div style="display: flex; gap: 10px;">
+                <button onclick="hostRoom()">🎮 Создать комнату</button>
+                <button onclick="joinRoom()">🔗 Присоединиться</button>
+            </div>
+            <div id="roomCodeSection" style="display: none; margin-top: 15px;">
+                <input type="text" id="roomCodeInput" placeholder="Введите код комнаты">
+                <button onclick="connectToRoom()">Подключиться</button>
+            </div>
+            <div id="connectionInfo">
+                💡 <strong>Быстрый старт:</strong> Создайте комнату и отправьте код другу
+            </div>
         </div>
         
-        <div id="chat"></div>
-        
-        <div id="input-area">
-            <input type="text" id="messageInput" placeholder="Введите сообщение..." disabled>
-            <button id="sendButton" onclick="sendMessage()" disabled>Отправить</button>
+        <div id="chatSection">
+            <div class="status" id="chatStatus">Чат активен</div>
+            <div id="chat"></div>
+            <div>
+                <input type="text" id="messageInput" placeholder="Введите сообщение..." disabled>
+                <button id="sendButton" onclick="sendMessage()" disabled>📨 Отправить</button>
+            </div>
+            <button onclick="leaveRoom()" style="background: #dc3545; margin-top: 10px;">🚪 Покинуть комнату</button>
         </div>
-        
-        <div class="status" id="syncStatus">Синхронизация: ожидание</div>
     </div>
 
     <script>
         // Глобальные переменные
         let userName = '';
         let userId = '';
-        let chatId = '';
-        let remoteWindow = null;
-        let isConnected = false;
+        let roomCode = '';
+        let isHost = false;
+        let connections = new Map(); // userId -> connection
+        let users = new Map(); // userId -> user data
         
         // DOM элементы
+        const usersList = document.getElementById('usersList');
+        const usersCount = document.getElementById('usersCount');
         const chatDiv = document.getElementById('chat');
         const messageInput = document.getElementById('messageInput');
         const sendButton = document.getElementById('sendButton');
         const userNameInput = document.getElementById('userName');
-        const chatUrlInput = document.getElementById('chatUrl');
-        const remoteUrlInput = document.getElementById('remoteUrl');
-        const connectionStatus = document.getElementById('connectionStatus');
-        const syncStatus = document.getElementById('syncStatus');
+        const roomCodeInput = document.getElementById('roomCodeInput');
+        const roomCodeSection = document.getElementById('roomCodeSection');
+        const setupDiv = document.getElementById('setup');
+        const chatSection = document.getElementById('chatSection');
+        const chatStatus = document.getElementById('chatStatus');
 
-        // Инициализация
-        function init() {
-            // Генерация уникального ID пользователя
-            userId = 'user_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
-            
-            // Проверяем, есть ли chatId в URL
-            const urlParams = new URLSearchParams(window.location.search);
-            const urlChatId = urlParams.get('chat');
-            
-            if (urlChatId) {
-                // Присоединяемся к существующему чату
-                chatId = urlChatId;
-                updateUrlDisplay();
-                enableChat();
-                updateStatus('Подключен к чату', true);
-            } else {
-                // Создаем новый чат
-                chatId = generateChatId();
-                updateUrlDisplay();
-                updateStatus('Создан новый чат. Откройте ссылку на другом устройстве', false);
-            }
-            
-            // Загружаем имя из localStorage
-            const savedName = localStorage.getItem('chat_user_name');
-            if (savedName) {
-                userName = savedName;
-                userNameInput.value = userName;
-            }
-            
-            // Настройка обработчиков событий
-            setupEventListeners();
-            
-            // Настройка сообщений между вкладками
-            setupBroadcastChannel();
-            
-            // Периодическая проверка сообщений
-            setInterval(checkForMessages, 1000);
+        // Генерация ID пользователя
+        function generateUserId() {
+            return 'user_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
         }
 
-        // Генерация ID чата
-        function generateChatId() {
-            return 'chat_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
+        // Генерация кода комнаты
+        function generateRoomCode() {
+            return Math.random().toString(36).substr(2, 6).toUpperCase();
         }
 
-        // Обновление отображения URL
-        function updateUrlDisplay() {
-            const url = window.location.origin + window.location.pathname + '?chat=' + chatId;
-            chatUrlInput.value = url;
-        }
-
-        // Настройка обработчиков событий
-        function setupEventListeners() {
-            // Отправка сообщения по Enter
-            messageInput.addEventListener('keypress', (e) => {
-                if (e.key === 'Enter') {
-                    sendMessage();
-                }
-            });
+        // Обновление списка пользователей
+        function updateUsersList() {
+            usersList.innerHTML = '';
+            usersCount.textContent = users.size;
             
-            // Автофокус на поле ввода при клике в чат
-            chatDiv.addEventListener('click', () => {
-                if (!messageInput.disabled) {
-                    messageInput.focus();
-                }
-            });
-        }
-
-        // Настройка Broadcast Channel для связи между вкладками
-        function setupBroadcastChannel() {
-            // Этот метод работает только между вкладками одного браузера
-            if ('BroadcastChannel' in window) {
-                try {
-                    const channel = new BroadcastChannel('chat_channel_' + chatId);
-                    channel.onmessage = (event) => {
-                        if (event.data.type === 'message' && event.data.userId !== userId) {
-                            displayMessage(event.data);
-                        }
-                    };
-                } catch (e) {
-                    console.log('BroadcastChannel не поддерживается');
-                }
-            }
-        }
-
-        // Копирование ссылки
-        function copyUrl() {
-            chatUrlInput.select();
-            document.execCommand('copy');
-            alert('Ссылка скопирована! Откройте ее на другом устройстве.');
-        }
-
-        // Подключение к удаленному чату
-        function connectToRemote() {
-            const remoteUrl = remoteUrlInput.value.trim();
-            if (!remoteUrl) return;
-            
-            try {
-                const url = new URL(remoteUrl);
-                const remoteChatId = url.searchParams.get('chat');
+            users.forEach((userData, id) => {
+                const userCard = document.createElement('div');
+                userCard.className = `user-card ${id === userId ? 'user-you' : ''}`;
                 
-                if (remoteChatId && remoteChatId !== chatId) {
-                    chatId = remoteChatId;
-                    // Обновляем URL без перезагрузки
-                    window.history.replaceState({}, '', `?chat=${chatId}`);
-                    updateUrlDisplay();
-                    enableChat();
-                    updateStatus('Подключен к удаленному чату', true);
-                    
-                    // Очищаем чат
-                    chatDiv.innerHTML = '';
-                    
-                    // Сообщаем об успешном подключении
-                    addSystemMessage('Вы подключились к чату!');
-                }
-            } catch (e) {
-                alert('Неверная ссылка');
-            }
+                const avatar = document.createElement('div');
+                avatar.className = 'user-avatar';
+                avatar.textContent = userData.name ? userData.name[0].toUpperCase() : '?';
+                
+                const name = document.createElement('span');
+                name.textContent = userData.name || 'Аноним';
+                if (id === userId) name.textContent += ' (Вы)';
+                
+                const onlineDot = document.createElement('div');
+                onlineDot.className = 'user-online';
+                
+                userCard.appendChild(avatar);
+                userCard.appendChild(name);
+                userCard.appendChild(onlineDot);
+                usersList.appendChild(userCard);
+            });
         }
 
-        // Обновление имени пользователя
-        function updateUserName() {
+        // Добавление пользователя
+        function addUser(id, name, connection = null) {
+            users.set(id, { name, connection });
+            if (connection) connections.set(id, connection);
+            updateUsersList();
+            addSystemMessage(`${name} присоединился к чату`);
+        }
+
+        // Удаление пользователя
+        function removeUser(id) {
+            const user = users.get(id);
+            if (user) {
+                addSystemMessage(`${user.name} покинул чат`);
+            }
+            users.delete(id);
+            connections.delete(id);
+            updateUsersList();
+        }
+
+        // Создание комнаты
+        function hostRoom() {
             const name = userNameInput.value.trim();
-            if (name) {
-                userName = name;
-                localStorage.setItem('chat_user_name', userName);
-                if (!isConnected) {
-                    enableChat();
-                }
+            if (!name) {
+                alert('Введите имя');
+                return;
             }
+            
+            userName = name;
+            userId = generateUserId();
+            roomCode = generateRoomCode();
+            isHost = true;
+            
+            // Добавляем себя в список
+            addUser(userId, userName);
+            
+            // Показываем код комнаты
+            showRoomCode();
+            
+            // Настраиваем чат
+            setupChat();
+            
+            // Начинаем слушать входящие соединения
+            startListening();
+            
+            chatStatus.textContent = `Вы создали комнату. Код: ${roomCode}`;
+            chatStatus.className = 'status online';
         }
 
-        // Включение интерфейса чата
-        function enableChat() {
+        // Присоединение к комнате
+        function joinRoom() {
+            const name = userNameInput.value.trim();
+            if (!name) {
+                alert('Введите имя');
+                return;
+            }
+            
+            userName = name;
+            userId = generateUserId();
+            roomCodeSection.style.display = 'block';
+            userNameInput.disabled = true;
+        }
+
+        // Подключение к комнате
+        function connectToRoom() {
+            const code = roomCodeInput.value.trim().toUpperCase();
+            if (!code) {
+                alert('Введите код комнаты');
+                return;
+            }
+            
+            roomCode = code;
+            isHost = false;
+            
+            // Добавляем себя в список
+            addUser(userId, userName);
+            
+            // Настраиваем чат
+            setupChat();
+            
+            // Подключаемся к хосту
+            connectToHost();
+            
+            chatStatus.textContent = `Подключаемся к комнате ${roomCode}...`;
+            chatStatus.className = 'status connecting';
+        }
+
+        // Показ кода комнаты
+        function showRoomCode() {
+            setupDiv.innerHTML = `
+                <h3>🎮 Комната создана!</h3>
+                <div style="text-align: center; padding: 20px; background: white; border-radius: 10px;">
+                    <div style="font-size: 14px; color: #666; margin-bottom: 10px;">Отправьте этот код другу:</div>
+                    <div style="font-size: 32px; font-weight: bold; letter-spacing: 5px; color: #667eea; margin: 20px 0;">
+                        ${roomCode}
+                    </div>
+                    <button onclick="copyRoomCode()" style="background: #28a745;">📋 Скопировать код</button>
+                </div>
+                <div id="connectionInfo">
+                    ⏳ Ожидание подключения других участников...
+                </div>
+            `;
+        }
+
+        // Копирование кода комнаты
+        function copyRoomCode() {
+            navigator.clipboard.writeText(roomCode)
+                .then(() => alert('Код скопирован! Отправьте его другу.'))
+                .catch(() => {
+                    const textarea = document.createElement('textarea');
+                    textarea.value = roomCode;
+                    document.body.appendChild(textarea);
+                    textarea.select();
+                    document.execCommand('copy');
+                    document.body.removeChild(textarea);
+                    alert('Код скопирован! Отправьте его другу.');
+                });
+        }
+
+        // Настройка чата
+        function setupChat() {
+            setupDiv.style.display = 'none';
+            chatSection.style.display = 'block';
             messageInput.disabled = false;
             sendButton.disabled = false;
-            isConnected = true;
             messageInput.focus();
+        }
+
+        // Начало прослушивания входящих соединений
+        function startListening() {
+            // Создаем фиктивный WebSocket для имитации P2P
+            // В реальном приложении здесь был бы WebRTC сигнальный сервер
+            
+            // Сохраняем комнату в localStorage для "обнаружения"
+            const rooms = JSON.parse(localStorage.getItem('p2p_chat_rooms') || '{}');
+            rooms[roomCode] = {
+                hostId: userId,
+                hostName: userName,
+                timestamp: Date.now(),
+                users: Array.from(users.keys())
+            };
+            localStorage.setItem('p2p_chat_rooms', JSON.stringify(rooms));
+            
+            // Периодически обновляем информацию о комнате
+            setInterval(() => {
+                const rooms = JSON.parse(localStorage.getItem('p2p_chat_rooms') || '{}');
+                if (rooms[roomCode]) {
+                    rooms[roomCode].timestamp = Date.now();
+                    rooms[roomCode].users = Array.from(users.keys());
+                    localStorage.setItem('p2p_chat_rooms', JSON.stringify(rooms));
+                }
+            }, 2000);
+            
+            // Периодически проверяем другие комнаты
+            setInterval(checkOtherRooms, 3000);
+        }
+
+        // Подключение к хосту
+        function connectToHost() {
+            // Ищем комнату в localStorage
+            const rooms = JSON.parse(localStorage.getItem('p2p_chat_rooms') || '{}');
+            const room = rooms[roomCode];
+            
+            if (room) {
+                // Имитируем подключение к хосту
+                setTimeout(() => {
+                    // Отправляем информацию о себе хосту
+                    broadcastMessage({
+                        type: 'user_join',
+                        userId: userId,
+                        userName: userName
+                    });
+                    
+                    chatStatus.textContent = `Подключено к комнате ${roomCode}`;
+                    chatStatus.className = 'status online';
+                    
+                    // Добавляем информацию о хосте
+                    if (!users.has(room.hostId) && room.hostId !== userId) {
+                        addUser(room.hostId, room.hostName);
+                    }
+                }, 1000);
+            } else {
+                alert('Комната не найдена. Проверьте код комнаты.');
+            }
+        }
+
+        // Проверка других комнат
+        function checkOtherRooms() {
+            const rooms = JSON.parse(localStorage.getItem('p2p_chat_rooms') || '{}');
+            const now = Date.now();
+            
+            // Удаляем старые комнаты (больше 10 секунд)
+            Object.keys(rooms).forEach(code => {
+                if (now - rooms[code].timestamp > 10000) {
+                    delete rooms[code];
+                }
+            });
+            
+            localStorage.setItem('p2p_chat_rooms', JSON.stringify(rooms));
         }
 
         // Отправка сообщения
         function sendMessage() {
             const text = messageInput.value.trim();
-            if (!text || !userName) return;
-
+            if (!text) return;
+            
             const message = {
-                type: 'message',
-                id: Date.now() + '_' + Math.random().toString(36).substr(2, 9),
+                type: 'chat_message',
                 userId: userId,
                 userName: userName,
                 text: text,
-                timestamp: Date.now(),
-                chatId: chatId
+                timestamp: Date.now()
             };
-
+            
             // Отображаем свое сообщение
-            displayMessage(message);
+            displayMessage(message, true);
             
-            // Сохраняем в localStorage
-            saveMessage(message);
-            
-            // Отправляем через Broadcast Channel
-            sendBroadcastMessage(message);
+            // Отправляем другим
+            broadcastMessage(message);
             
             // Очищаем поле ввода
             messageInput.value = '';
-            
-            // Обновляем статус
-            syncStatus.textContent = 'Сообщение отправлено';
-            syncStatus.className = 'status online';
-            
-            // Сбрасываем статус через 2 секунды
-            setTimeout(() => {
-                syncStatus.textContent = 'Синхронизация: активно';
-            }, 2000);
         }
 
-        // Сохранение сообщения в localStorage
-        function saveMessage(message) {
-            try {
-                const messages = JSON.parse(localStorage.getItem('chat_' + chatId) || '[]');
-                messages.push(message);
-                // Храним только последние 50 сообщений
-                if (messages.length > 50) {
-                    messages.splice(0, messages.length - 50);
+        // Трансляция сообщения
+        function broadcastMessage(message) {
+            // Сохраняем в localStorage для "трансляции"
+            const messages = JSON.parse(localStorage.getItem(`chat_messages_${roomCode}`) || '[]');
+            messages.push(message);
+            localStorage.setItem(`chat_messages_${roomCode}`, JSON.stringify(messages));
+            
+            // Ограничиваем историю
+            if (messages.length > 100) {
+                messages.splice(0, messages.length - 100);
+                localStorage.setItem(`chat_messages_${roomCode}`, JSON.stringify(messages));
+            }
+        }
+
+        // Проверка новых сообщений
+        function checkMessages() {
+            const messages = JSON.parse(localStorage.getItem(`chat_messages_${roomCode}`) || '[]');
+            
+            messages.forEach(msg => {
+                // Проверяем, не отображали ли уже это сообщение
+                const messageId = `${msg.userId}_${msg.timestamp}`;
+                if (!document.getElementById(messageId) && msg.userId !== userId) {
+                    // Обрабатываем сообщение
+                    if (msg.type === 'chat_message') {
+                        displayMessage(msg, false);
+                    } else if (msg.type === 'user_join') {
+                        if (!users.has(msg.userId)) {
+                            addUser(msg.userId, msg.userName);
+                        }
+                    }
+                    
+                    // Помечаем как обработанное
+                    const element = document.createElement('div');
+                    element.id = messageId;
+                    document.body.appendChild(element);
                 }
-                localStorage.setItem('chat_' + chatId, JSON.stringify(messages));
-            } catch (e) {
-                console.error('Ошибка сохранения сообщения:', e);
-            }
-        }
-
-        // Получение сообщений из localStorage
-        function getMessages() {
-            try {
-                return JSON.parse(localStorage.getItem('chat_' + chatId) || '[]');
-            } catch (e) {
-                return [];
-            }
+            });
         }
 
         // Отображение сообщения
-        function displayMessage(message) {
-            const isMyMessage = message.userId === userId;
-            
+        function displayMessage(message, isMy) {
             const messageDiv = document.createElement('div');
-            messageDiv.className = `message ${isMyMessage ? 'my-message' : 'other-message'}`;
+            messageDiv.className = `message ${isMy ? 'my-message' : 'their-message'}`;
+            messageDiv.id = `${message.userId}_${message.timestamp}`;
             
-            // Имя отправителя (только для чужих сообщений)
-            if (!isMyMessage) {
-                const nameDiv = document.createElement('div');
-                nameDiv.style.fontWeight = 'bold';
-                nameDiv.style.color = '#333';
-                nameDiv.textContent = message.userName || 'Аноним';
-                messageDiv.appendChild(nameDiv);
+            if (!isMy) {
+                const sender = document.createElement('div');
+                sender.className = 'message-sender';
+                sender.textContent = message.userName;
+                messageDiv.appendChild(sender);
             }
             
-            // Текст сообщения
-            const textDiv = document.createElement('div');
-            textDiv.textContent = message.text;
-            messageDiv.appendChild(textDiv);
+            const text = document.createElement('div');
+            text.textContent = message.text;
+            messageDiv.appendChild(text);
             
-            // Время
-            const timeDiv = document.createElement('div');
-            timeDiv.className = 'message-info';
-            timeDiv.textContent = formatTime(message.timestamp);
-            messageDiv.appendChild(timeDiv);
+            const time = document.createElement('div');
+            time.className = 'message-time';
+            time.textContent = new Date(message.timestamp).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+            messageDiv.appendChild(time);
             
             chatDiv.appendChild(messageDiv);
-            
-            // Прокрутка вниз
             chatDiv.scrollTop = chatDiv.scrollHeight;
         }
 
@@ -403,64 +582,87 @@
             systemDiv.style.color = '#666';
             systemDiv.style.fontStyle = 'italic';
             systemDiv.style.margin = '10px 0';
-            systemDiv.style.padding = '5px';
-            systemDiv.style.background = '#fff3cd';
-            systemDiv.style.borderRadius = '3px';
+            systemDiv.style.padding = '8px';
+            systemDiv.style.background = '#f8f9fa';
+            systemDiv.style.borderRadius = '5px';
             systemDiv.textContent = text;
             chatDiv.appendChild(systemDiv);
             chatDiv.scrollTop = chatDiv.scrollHeight;
         }
 
-        // Отправка сообщения через Broadcast Channel
-        function sendBroadcastMessage(message) {
-            if ('BroadcastChannel' in window) {
-                try {
-                    const channel = new BroadcastChannel('chat_channel_' + chatId);
-                    channel.postMessage(message);
-                } catch (e) {
-                    console.log('Не удалось отправить через BroadcastChannel');
+        // Покинуть комнату
+        function leaveRoom() {
+            // Удаляем себя из комнаты
+            const rooms = JSON.parse(localStorage.getItem('p2p_chat_rooms') || '{}');
+            if (rooms[roomCode]) {
+                rooms[roomCode].users = rooms[roomCode].users.filter(id => id !== userId);
+                if (rooms[roomCode].users.length === 0) {
+                    delete rooms[roomCode];
                 }
+                localStorage.setItem('p2p_chat_rooms', JSON.stringify(rooms));
             }
+            
+            // Отправляем сообщение о выходе
+            broadcastMessage({
+                type: 'user_leave',
+                userId: userId,
+                userName: userName,
+                timestamp: Date.now()
+            });
+            
+            // Сбрасываем состояние
+            resetChat();
         }
 
-        // Проверка новых сообщений
-        function checkForMessages() {
-            if (!isConnected) return;
+        // Сброс чата
+        function resetChat() {
+            users.clear();
+            connections.clear();
+            roomCode = '';
+            isHost = false;
             
-            const messages = getMessages();
-            const displayedMessages = chatDiv.querySelectorAll('.message').length;
+            chatSection.style.display = 'none';
+            setupDiv.style.display = 'block';
+            roomCodeSection.style.display = 'none';
+            userNameInput.disabled = false;
+            userNameInput.value = '';
+            chatDiv.innerHTML = '';
+            messageInput.value = '';
+            messageInput.disabled = true;
+            sendButton.disabled = true;
             
-            // Если есть новые сообщения, перезагружаем чат
-            if (messages.length > displayedMessages) {
-                // Очищаем чат
-                chatDiv.innerHTML = '';
-                
-                // Отображаем все сообщения
-                messages.forEach(msg => {
-                    displayMessage(msg);
-                });
-                
-                syncStatus.textContent = 'Синхронизация: обновлено';
-                syncStatus.className = 'status online';
-            } else {
-                syncStatus.textContent = 'Синхронизация: активно';
-                syncStatus.className = 'status online';
+            usersList.innerHTML = '';
+            usersCount.textContent = '0';
+        }
+
+        // Начало работы
+        function init() {
+            // Проверяем наличие имени в localStorage
+            const savedName = localStorage.getItem('chat_user_name');
+            if (savedName) {
+                userNameInput.value = savedName;
             }
+            
+            // Сохраняем имя при изменении
+            userNameInput.addEventListener('input', () => {
+                localStorage.setItem('chat_user_name', userNameInput.value);
+            });
+            
+            // Настройка отправки по Enter
+            messageInput.addEventListener('keypress', (e) => {
+                if (e.key === 'Enter') {
+                    sendMessage();
+                }
+            });
+            
+            // Периодическая проверка сообщений и пользователей
+            setInterval(checkMessages, 1000);
+            setInterval(checkOtherRooms, 2000);
+            
+            addSystemMessage('Добро пожаловать! Создайте комнату или присоединитесь к существующей.');
         }
 
-        // Обновление статуса
-        function updateStatus(text, isOnline) {
-            connectionStatus.textContent = text;
-            connectionStatus.className = `status ${isOnline ? 'online' : 'offline'}`;
-        }
-
-        // Форматирование времени
-        function formatTime(timestamp) {
-            const date = new Date(timestamp);
-            return `${date.getHours().toString().padStart(2, '0')}:${date.getMinutes().toString().padStart(2, '0')}`;
-        }
-
-        // Инициализация при загрузке страницы
+        // Запуск при загрузке
         window.onload = init;
     </script>
 </body>
