@@ -12,6 +12,11 @@
             -webkit-tap-highlight-color: transparent;
         }
         
+        :root {
+            --header-height: 64px;
+            --input-height: 80px;
+        }
+        
         body {
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
             height: 100vh;
@@ -28,23 +33,26 @@
             max-width: 1400px;
             margin: 0 auto;
             width: 100%;
-            height: 100%;
+            height: calc(100vh - var(--header-height));
             position: relative;
+            overflow: hidden;
         }
         
         header {
             background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%);
             color: #ffffff;
             padding: 15px 20px;
-            text-align: center;
             box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
             position: relative;
-            z-index: 10;
-            min-height: 64px;
+            z-index: 100;
+            height: var(--header-height);
+            min-height: var(--header-height);
+            max-height: var(--header-height);
             display: flex;
             align-items: center;
             justify-content: center;
             border-bottom: 1px solid #333;
+            flex-shrink: 0;
         }
         
         .header-content {
@@ -67,6 +75,7 @@
             margin-right: 15px;
             border-radius: 8px;
             transition: background 0.3s;
+            flex-shrink: 0;
         }
         
         .menu-toggle:hover {
@@ -77,7 +86,7 @@
             width: 300px;
             background: #1a1a1a;
             border-right: 1px solid #333;
-            padding: 25px 20px;
+            padding: 20px;
             overflow-y: auto;
             transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
             box-shadow: 5px 0 15px rgba(0, 0, 0, 0.3);
@@ -86,6 +95,8 @@
             z-index: 5;
             scrollbar-width: thin;
             scrollbar-color: #444 #1a1a1a;
+            flex-shrink: 0;
+            overflow-x: hidden;
         }
         
         .sidebar::-webkit-scrollbar {
@@ -108,6 +119,7 @@
             background: #0f0f0f;
             height: 100%;
             overflow: hidden;
+            min-width: 0;
         }
         
         .messages {
@@ -124,6 +136,8 @@
             -webkit-overflow-scrolling: touch;
             scrollbar-width: thin;
             scrollbar-color: #444 #0f0f0f;
+            min-height: 0;
+            overflow-anchor: none;
         }
         
         .messages::-webkit-scrollbar {
@@ -149,6 +163,7 @@
             animation: messageAppear 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
             backdrop-filter: blur(10px);
             border: 1px solid transparent;
+            flex-shrink: 0;
         }
         
         @keyframes messageAppear {
@@ -233,13 +248,18 @@
         }
         
         .input-area {
-            padding: 20px;
             background: #1a1a1a;
             border-top: 1px solid #333;
             display: flex;
             gap: 15px;
             align-items: center;
-            min-height: 80px;
+            padding: 20px;
+            height: var(--input-height);
+            min-height: var(--input-height);
+            max-height: var(--input-height);
+            flex-shrink: 0;
+            position: relative;
+            z-index: 10;
         }
         
         input[type="text"] {
@@ -253,6 +273,7 @@
             background: #2a2a2a;
             color: #ffffff;
             min-height: 56px;
+            max-height: 56px;
         }
         
         input[type="text"]::placeholder {
@@ -276,6 +297,7 @@
             font-size: 16px;
             transition: all 0.3s;
             min-height: 56px;
+            max-height: 56px;
             min-width: 120px;
             display: flex;
             align-items: center;
@@ -283,6 +305,7 @@
             box-shadow: 0 4px 15px rgba(0, 102, 204, 0.4);
             position: relative;
             overflow: hidden;
+            flex-shrink: 0;
         }
         
         button:hover {
@@ -351,6 +374,7 @@
             cursor: pointer;
             border: 1px solid #333;
             position: relative;
+            flex-shrink: 0;
         }
         
         .user-item:hover {
@@ -391,6 +415,9 @@
             font-weight: 500;
             color: #ffffff;
             flex: 1;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
         }
         
         .user-you {
@@ -402,6 +429,7 @@
             margin-left: 8px;
             font-weight: 500;
             letter-spacing: 0.5px;
+            flex-shrink: 0;
         }
         
         .welcome-message {
@@ -415,6 +443,7 @@
             backdrop-filter: blur(20px);
             border: 1px solid #333;
             animation: fadeIn 1s ease;
+            flex-shrink: 0;
         }
         
         .connection-status {
@@ -493,13 +522,14 @@
                 margin-left: 20%;
                 margin-right: 20%;
             }
-            
-            .input-area {
-                padding: 15px;
-            }
         }
         
         @media (max-width: 768px) {
+            :root {
+                --header-height: 60px;
+                --input-height: 70px;
+            }
+            
             body {
                 height: 100vh;
                 height: -webkit-fill-available;
@@ -507,11 +537,14 @@
             
             .container {
                 flex-direction: column;
+                height: calc(100vh - var(--header-height));
             }
             
             header {
+                height: var(--header-height);
+                min-height: var(--header-height);
+                max-height: var(--header-height);
                 padding: 12px 15px;
-                min-height: 60px;
             }
             
             .menu-toggle {
@@ -530,6 +563,7 @@
                 border-right: none;
                 box-shadow: 10px 0 30px rgba(0, 0, 0, 0.5);
                 padding-top: 70px;
+                height: 100vh;
             }
             
             .sidebar.active {
@@ -547,6 +581,7 @@
             .messages {
                 padding: 15px;
                 gap: 10px;
+                height: calc(100vh - var(--header-height) - var(--input-height));
             }
             
             .message {
@@ -558,19 +593,23 @@
             
             .input-area {
                 padding: 15px;
-                min-height: 70px;
+                height: var(--input-height);
+                min-height: var(--input-height);
+                max-height: var(--input-height);
                 gap: 12px;
             }
             
             input[type="text"] {
                 padding: 14px 18px;
                 min-height: 50px;
+                max-height: 50px;
                 font-size: 16px;
             }
             
             button {
                 padding: 14px 22px;
                 min-height: 50px;
+                max-height: 50px;
                 min-width: 100px;
                 font-size: 15px;
             }
@@ -585,6 +624,10 @@
         }
         
         @media (max-width: 576px) {
+            :root {
+                --input-height: 65px;
+            }
+            
             .sidebar {
                 width: 280px;
             }
@@ -598,11 +641,15 @@
             input[type="text"] {
                 padding: 12px 16px;
                 font-size: 15px;
+                min-height: 45px;
+                max-height: 45px;
             }
             
             button {
                 padding: 12px 18px;
                 min-width: 80px;
+                min-height: 45px;
+                max-height: 45px;
             }
             
             h1 {
@@ -627,17 +674,21 @@
             
             .input-area {
                 padding: 12px;
-                min-height: 65px;
+                height: var(--input-height);
+                min-height: var(--input-height);
+                max-height: var(--input-height);
             }
             
             input[type="text"] {
                 padding: 12px 14px;
                 min-height: 45px;
+                max-height: 45px;
             }
             
             button {
                 padding: 12px 16px;
                 min-height: 45px;
+                max-height: 45px;
                 min-width: 70px;
                 font-size: 14px;
             }
@@ -647,6 +698,7 @@
         @media (max-height: 700px) and (max-width: 768px) {
             .messages {
                 padding: 12px;
+                height: calc(100vh - var(--header-height) - var(--input-height));
             }
             
             .message {
@@ -655,17 +707,21 @@
             
             .input-area {
                 padding: 12px;
-                min-height: 60px;
+                height: var(--input-height);
+                min-height: var(--input-height);
+                max-height: var(--input-height);
             }
             
             input[type="text"] {
                 padding: 12px 14px;
                 min-height: 42px;
+                max-height: 42px;
             }
             
             button {
                 padding: 12px 16px;
                 min-height: 42px;
+                max-height: 42px;
             }
         }
         
@@ -673,6 +729,7 @@
         @media (max-height: 600px) and (orientation: landscape) {
             .container {
                 flex-direction: row;
+                height: calc(100vh - var(--header-height));
             }
             
             .sidebar {
@@ -681,6 +738,7 @@
                 display: block;
                 width: 250px;
                 padding: 20px 15px;
+                height: 100%;
             }
             
             .mobile-overlay {
@@ -689,6 +747,10 @@
             
             .menu-toggle {
                 display: none;
+            }
+            
+            .messages {
+                height: calc(100vh - var(--header-height) - var(--input-height));
             }
             
             .message {
@@ -705,6 +767,7 @@
             
             .messages {
                 padding: 10px;
+                height: calc(100vh - var(--header-height) - var(--input-height));
             }
             
             .message {
@@ -715,17 +778,21 @@
             
             .input-area {
                 padding: 8px 10px;
-                min-height: 50px;
+                height: var(--input-height);
+                min-height: var(--input-height);
+                max-height: var(--input-height);
             }
             
             input[type="text"] {
                 padding: 10px 12px;
                 min-height: 36px;
+                max-height: 36px;
             }
             
             button {
                 padding: 10px 14px;
                 min-height: 36px;
+                max-height: 36px;
                 min-width: 60px;
             }
         }
@@ -737,25 +804,6 @@
             max-width: 100%;
         }
         
-        /* Улучшенные тени и эффекты */
-        .message::before {
-            content: '';
-            position: absolute;
-            top: -2px;
-            left: -2px;
-            right: -2px;
-            bottom: -2px;
-            background: linear-gradient(45deg, #ff0000, #00ff00, #0000ff, #ff00ff);
-            border-radius: 20px;
-            z-index: -1;
-            opacity: 0;
-            transition: opacity 0.3s;
-        }
-        
-        .message:hover::before {
-            opacity: 0.1;
-        }
-        
         /* Анимация для новых сообщений */
         .new-message {
             animation: highlight 1s ease;
@@ -763,16 +811,27 @@
         
         @keyframes highlight {
             0% {
-        background-color: rgba(0, 153, 255, 0.3);
-        }
+                background-color: rgba(0, 153, 255, 0.3);
+            }
             100% {
-        background-color: transparent;
+                background-color: transparent;
+            }
         }
+        
+        /* Фиксируем высоты элементов */
+        .message-wrapper {
+            min-height: min-content;
+            flex-shrink: 0;
+        }
+        
+        /* Убираем возможность сжатия для фиксированных элементов */
+        .no-shrink {
+            flex-shrink: 0 !important;
         }
     </style>
 </head>
 <body>
-    <header>
+    <header class="no-shrink">
         <div class="header-content">
             <button class="menu-toggle" id="menu-toggle" aria-label="Меню">☰</button>
             <h1>Темный мессенджер</h1>
@@ -797,7 +856,7 @@
                 </div>
             </div>
             
-            <div class="input-area">
+            <div class="input-area no-shrink">
                 <input type="text" id="message-input" placeholder="Напишите сообщение..." autocomplete="off" aria-label="Ввод сообщения">
                 <button type="button" id="send-btn">Отправить</button>
             </div>
@@ -869,14 +928,34 @@
         });
 
         // Адаптивное скрытие меню при ресайзе
-        window.addEventListener('resize', () => {
+        function handleResize() {
             if (window.innerWidth > 768) {
                 isMenuOpen = false;
                 sidebar.classList.remove('active');
                 mobileOverlay.classList.remove('active');
                 document.body.style.overflow = '';
             }
-        });
+            // Пересчитываем высоту сообщений
+            adjustMessagesHeight();
+        }
+        
+        window.addEventListener('resize', handleResize);
+
+        // Функция для корректировки высоты контейнера сообщений
+        function adjustMessagesHeight() {
+            const header = document.querySelector('header');
+            const inputArea = document.querySelector('.input-area');
+            const messages = document.querySelector('.messages');
+            
+            if (header && inputArea && messages) {
+                const headerHeight = header.offsetHeight;
+                const inputHeight = inputArea.offsetHeight;
+                const windowHeight = window.innerHeight;
+                
+                messages.style.height = `${windowHeight - headerHeight - inputHeight}px`;
+                messages.style.maxHeight = `${windowHeight - headerHeight - inputHeight}px`;
+            }
+        }
 
         // Отображение статуса подключения
         let isConnected = false;
@@ -1021,13 +1100,13 @@
                     messagesContainer.appendChild(messageElement);
                 });
                 
-                // Плавная прокрутка вниз
+                // Плавная прокрутка вниз с задержкой для рендеринга
                 setTimeout(() => {
                     messagesContainer.scrollTo({
                         top: messagesContainer.scrollHeight,
                         behavior: 'smooth'
                     });
-                }, 100);
+                }, 50);
             }
             
             lastMessageCount = messages.length;
@@ -1098,9 +1177,10 @@
             }
         });
 
-        // Автофокус на поле ввода
+        // Автофокус на поле ввода и корректировка размеров
         window.addEventListener('load', () => {
             messageInput.focus();
+            adjustMessagesHeight();
             
             // Сохраняем имя пользователя для сессии
             sessionStorage.setItem('chatUserId', userId);
@@ -1118,6 +1198,7 @@
         document.addEventListener('visibilitychange', () => {
             if (!document.hidden) {
                 messageInput.focus();
+                adjustMessagesHeight();
             }
         });
 
@@ -1129,6 +1210,7 @@
         });
 
         // Предотвращение скролла страницы при скролле чата на мобильных
+        let startY = 0;
         messagesContainer.addEventListener('touchstart', (e) => {
             startY = e.touches[0].clientY;
         }, { passive: true });
@@ -1174,6 +1256,11 @@
                 }
             }
         }, { passive: true });
+
+        // Также обрабатываем ресайз при изменении ориентации
+        window.addEventListener('orientationchange', () => {
+            setTimeout(adjustMessagesHeight, 100);
+        });
     </script>
 </body>
 </html>
