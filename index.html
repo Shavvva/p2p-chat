@@ -44,7 +44,7 @@
             padding: 15px 20px;
             box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
             position: relative;
-            z-index: 100;
+            z-index: 1000;
             height: var(--header-height);
             min-height: var(--header-height);
             max-height: var(--header-height);
@@ -74,12 +74,7 @@
             padding: 10px;
             margin-right: 15px;
             border-radius: 8px;
-            transition: background 0.3s;
             flex-shrink: 0;
-        }
-        
-        .menu-toggle:hover {
-            background: rgba(255, 255, 255, 0.1);
         }
         
         .sidebar {
@@ -88,8 +83,6 @@
             border-right: 1px solid #333;
             padding: 20px;
             overflow-y: auto;
-            transition: transform 0.3s ease;
-            box-shadow: 5px 0 15px rgba(0, 0, 0, 0.3);
             height: 100%;
             position: relative;
             z-index: 5;
@@ -120,6 +113,7 @@
             height: 100%;
             overflow: hidden;
             min-width: 0;
+            position: relative;
         }
         
         .messages {
@@ -192,7 +186,6 @@
             height: 10px;
             border-radius: 50%;
             background: #00ff88;
-            box-shadow: 0 0 8px #00ff88;
         }
         
         .text {
@@ -226,7 +219,7 @@
             max-height: var(--input-height);
             flex-shrink: 0;
             position: relative;
-            z-index: 10;
+            z-index: 900;
         }
         
         input[type="text"] {
@@ -236,7 +229,6 @@
             border-radius: 25px;
             font-size: 16px;
             outline: none;
-            transition: all 0.3s;
             background: #2a2a2a;
             color: #ffffff;
             min-height: 56px;
@@ -250,7 +242,6 @@
         input[type="text"]:focus {
             border-color: #0099ff;
             background: #2d2d2d;
-            box-shadow: 0 0 0 4px rgba(0, 153, 255, 0.2);
         }
         
         button {
@@ -262,24 +253,13 @@
             cursor: pointer;
             font-weight: 600;
             font-size: 16px;
-            transition: all 0.3s;
             min-height: 56px;
             max-height: 56px;
             min-width: 120px;
             display: flex;
             align-items: center;
             justify-content: center;
-            position: relative;
-            overflow: hidden;
             flex-shrink: 0;
-        }
-        
-        button:hover {
-            transform: translateY(-2px);
-        }
-        
-        button:active {
-            transform: translateY(0);
         }
         
         h2 {
@@ -314,17 +294,10 @@
             display: flex;
             align-items: center;
             gap: 15px;
-            transition: all 0.3s;
             cursor: pointer;
             border: 1px solid #333;
             position: relative;
             flex-shrink: 0;
-        }
-        
-        .user-item:hover {
-            background: #333;
-            transform: translateX(8px);
-            border-color: #444;
         }
         
         .user-item.you {
@@ -343,7 +316,6 @@
         
         .user-status.online {
             background: #00ff88;
-            box-shadow: 0 0 10px #00ff88;
         }
         
         .user-name {
@@ -391,7 +363,7 @@
             border-radius: 25px;
             font-size: 13px;
             display: none;
-            z-index: 1000;
+            z-index: 2000;
             font-weight: 600;
         }
         
@@ -407,37 +379,22 @@
             right: 0;
             bottom: 0;
             background: rgba(0, 0, 0, 0.8);
-            z-index: 4;
+            z-index: 800;
         }
         
-        /* Улучшенная адаптивность */
-        @media (max-width: 1200px) {
-            .container {
-                max-width: 100%;
-            }
-            
+        /* Десктоп версия */
+        @media (min-width: 769px) {
             .sidebar {
-                width: 280px;
+                display: block !important;
+                transform: none !important;
             }
             
-            .message {
-                max-width: 75%;
+            .mobile-overlay {
+                display: none !important;
             }
         }
         
-        @media (max-width: 992px) {
-            .sidebar {
-                width: 260px;
-                padding: 20px 15px;
-            }
-            
-            .message {
-                max-width: 80%;
-                margin-left: 20%;
-                margin-right: 20%;
-            }
-        }
-        
+        /* Мобильная версия */
         @media (max-width: 768px) {
             :root {
                 --header-height: 60px;
@@ -459,6 +416,10 @@
                 min-height: var(--header-height);
                 max-height: var(--header-height);
                 padding: 12px 15px;
+                position: fixed;
+                top: 0;
+                left: 0;
+                right: 0;
             }
             
             .menu-toggle {
@@ -467,16 +428,18 @@
             
             .sidebar {
                 position: fixed;
-                top: 0;
+                top: var(--header-height);
                 left: 0;
-                bottom: 0;
+                bottom: var(--input-height);
                 width: 100%;
                 max-width: 320px;
                 transform: translateX(-100%);
-                z-index: 6;
+                z-index: 950;
                 border-right: none;
-                box-shadow: none;
-                padding-top: var(--header-height);
+                padding: 20px;
+                height: calc(100vh - var(--header-height) - var(--input-height));
+                display: flex;
+                flex-direction: column;
             }
             
             .sidebar.active {
@@ -489,12 +452,15 @@
             
             .chat-area {
                 width: 100%;
+                margin-top: var(--header-height);
+                height: calc(100vh - var(--header-height));
             }
             
             .messages {
                 padding: 15px;
                 gap: 10px;
                 height: calc(100vh - var(--header-height) - var(--input-height));
+                padding-bottom: 10px;
             }
             
             .message {
@@ -505,11 +471,18 @@
             }
             
             .input-area {
+                position: fixed;
+                bottom: 0;
+                left: 0;
+                right: 0;
                 padding: 15px;
                 height: var(--input-height);
                 min-height: var(--input-height);
                 max-height: var(--input-height);
                 gap: 12px;
+                z-index: 1000;
+                background: #1a1a1a;
+                border-top: 1px solid #333;
             }
             
             input[type="text"] {
@@ -577,7 +550,7 @@
         @media (max-width: 375px) {
             .sidebar {
                 max-width: 100%;
-                padding: var(--header-height) 15px 20px;
+                padding: 20px;
             }
             
             .message {
@@ -607,52 +580,23 @@
             }
         }
         
-        /* Портретный режим на мобильных */
-        @media (max-height: 700px) and (max-width: 768px) {
-            .messages {
-                padding: 12px;
-                height: calc(100vh - var(--header-height) - var(--input-height));
-            }
-            
-            .message {
-                padding: 10px 14px;
-            }
-            
-            .input-area {
-                padding: 12px;
-                height: var(--input-height);
-                min-height: var(--input-height);
-                max-height: var(--input-height);
-            }
-            
-            input[type="text"] {
-                padding: 12px 14px;
-                min-height: 42px;
-                max-height: 42px;
-            }
-            
-            button {
-                padding: 12px 16px;
-                min-height: 42px;
-                max-height: 42px;
-            }
-        }
-        
         /* Ландшафтный режим на мобильных */
         @media (max-height: 600px) and (orientation: landscape) {
             .container {
                 flex-direction: row;
                 height: calc(100vh - var(--header-height));
+                margin-top: var(--header-height);
             }
             
             .sidebar {
                 position: relative;
-                transform: none;
-                display: block;
+                top: 0;
+                bottom: 0;
                 width: 250px;
                 padding: 20px 15px;
-                height: 100%;
-                padding-top: 20px;
+                height: calc(100vh - var(--header-height));
+                transform: none;
+                display: block;
             }
             
             .mobile-overlay {
@@ -663,6 +607,11 @@
                 display: none;
             }
             
+            .chat-area {
+                margin-top: 0;
+                height: calc(100vh - var(--header-height));
+            }
+            
             .messages {
                 height: calc(100vh - var(--header-height) - var(--input-height));
             }
@@ -670,44 +619,12 @@
             .message {
                 max-width: 65%;
             }
-        }
-        
-        /* Очень маленькие экраны в ландшафтном режиме */
-        @media (max-height: 400px) and (orientation: landscape) {
-            .sidebar {
-                width: 200px;
-                padding: 15px 10px;
-            }
-            
-            .messages {
-                padding: 10px;
-                height: calc(100vh - var(--header-height) - var(--input-height));
-            }
-            
-            .message {
-                padding: 8px 12px;
-                margin-left: 20%;
-                margin-right: 20%;
-            }
             
             .input-area {
-                padding: 8px 10px;
-                height: var(--input-height);
-                min-height: var(--input-height);
-                max-height: var(--input-height);
-            }
-            
-            input[type="text"] {
-                padding: 10px 12px;
-                min-height: 36px;
-                max-height: 36px;
-            }
-            
-            button {
-                padding: 10px 14px;
-                min-height: 36px;
-                max-height: 36px;
-                min-width: 60px;
+                position: fixed;
+                bottom: 0;
+                left: 0;
+                right: 0;
             }
         }
         
@@ -718,26 +635,9 @@
             max-width: 100%;
         }
         
-        /* Фиксируем высоты элементов */
-        .message-wrapper {
-            min-height: min-content;
-            flex-shrink: 0;
-        }
-        
         /* Убираем возможность сжатия для фиксированных элементов */
         .no-shrink {
             flex-shrink: 0 !important;
-        }
-        
-        /* Убираем все анимации */
-        .message, .user-item, button, .connection-status, .mobile-overlay {
-            animation: none !important;
-            transition: none !important;
-        }
-        
-        /* Простая анимация для шторки */
-        .sidebar {
-            transition: transform 0.2s linear !important;
         }
     </style>
 </head>
@@ -810,10 +710,8 @@
         const mobileOverlay = document.getElementById('mobile-overlay');
         const connectionStatus = document.getElementById('connection-status');
 
-        // Мобильное меню - исправленная версия
+        // Мобильное меню
         let isMenuOpen = false;
-        let touchStartX = 0;
-        let isSwiping = false;
 
         menuToggle.addEventListener('click', () => {
             toggleMenu();
@@ -821,13 +719,6 @@
 
         mobileOverlay.addEventListener('click', () => {
             closeMenu();
-        });
-
-        // Закрытие меню при клике на пользователя
-        userList.addEventListener('click', (e) => {
-            if (window.innerWidth <= 768 && e.target.closest('.user-item')) {
-                closeMenu();
-            }
         });
 
         // Функции управления меню
@@ -845,12 +736,12 @@
             document.body.style.overflow = '';
         }
 
-        function openMenu() {
-            isMenuOpen = true;
-            sidebar.classList.add('active');
-            mobileOverlay.classList.add('active');
-            document.body.style.overflow = 'hidden';
-        }
+        // Закрытие меню при клике на пользователя
+        userList.addEventListener('click', (e) => {
+            if (window.innerWidth <= 768 && e.target.closest('.user-item')) {
+                closeMenu();
+            }
+        });
 
         // Адаптивное скрытие меню при ресайзе
         window.addEventListener('resize', () => {
@@ -858,29 +749,6 @@
                 closeMenu();
             }
         });
-
-        // Touch события для свайпа
-        sidebar.addEventListener('touchstart', (e) => {
-            touchStartX = e.touches[0].clientX;
-            isSwiping = true;
-        }, { passive: true });
-
-        sidebar.addEventListener('touchmove', (e) => {
-            if (!isSwiping) return;
-            
-            const touchX = e.touches[0].clientX;
-            const diff = touchStartX - touchX;
-            
-            // Свайп влево для закрытия
-            if (diff > 50) {
-                closeMenu();
-                isSwiping = false;
-            }
-        }, { passive: true });
-
-        sidebar.addEventListener('touchend', () => {
-            isSwiping = false;
-        }, { passive: true });
 
         // Отображение статуса подключения
         let isConnected = false;
