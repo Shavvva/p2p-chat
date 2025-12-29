@@ -3,201 +3,117 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Firebase Realtime Chat 2025</title>
+    <title>Firebase Chat 2025</title>
     <style>
-        :root {
-            --bg-main: #0a0a0b;
-            --bg-sidebar: #121214;
-            --bg-chat: #161618;
-            --accent: #00d2ff;
-            --text-primary: #ffffff;
-            --text-secondary: #8e8e93;
-            --msg-in: #242426;
-            --msg-out: #00d2ff;
-            --border: #242426;
-        }
-
-        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Inter', sans-serif; }
-        body { background: var(--bg-main); color: var(--text-primary); height: 100vh; display: flex; overflow: hidden; }
-
-        /* Авторизация */
-        #login-overlay {
-            position: fixed; inset: 0; background: var(--bg-main);
-            display: flex; align-items: center; justify-content: center; z-index: 2000;
-        }
-        .login-box { background: var(--bg-sidebar); padding: 40px; border-radius: 20px; border: 1px solid var(--border); text-align: center; width: 90%; max-width: 350px; }
-
-        /* Приложение */
-        .app { display: none; width: 100%; height: 100%; position: relative; }
-
-        /* Шторка (Sidebar) */
-        .sidebar { 
-            width: 280px; background: var(--bg-sidebar); border-right: 1px solid var(--border);
-            display: flex; flex-direction: column; z-index: 1000; transition: transform 0.3s ease;
-        }
-        .sidebar-header { padding: 20px; border-bottom: 1px solid var(--border); }
-        .online-count { font-size: 0.8rem; color: #4cd964; margin-top: 5px; display: block; }
-        #user-list { flex: 1; overflow-y: auto; padding: 15px; }
-        .user-item { padding: 10px 14px; background: rgba(255,255,255,0.03); border-radius: 12px; margin-bottom: 8px; display: flex; align-items: center; font-size: 0.9rem; }
-        .status-dot { width: 8px; height: 8px; background: #4cd964; border-radius: 50%; margin-right: 12px; box-shadow: 0 0 8px #4cd964; }
-
-        /* Чат */
-        .chat-area { flex: 1; display: flex; flex-direction: column; background: var(--bg-chat); }
-        .chat-header { padding: 15px 20px; border-bottom: 1px solid var(--border); background: var(--bg-sidebar); display: flex; align-items: center; gap: 15px; }
-        .menu-btn { display: none; background: none; border: 1px solid var(--border); color: white; padding: 8px; border-radius: 8px; cursor: pointer; }
-
-        #messages { flex: 1; overflow-y: auto; padding: 20px; display: flex; flex-direction: column; gap: 12px; }
-        .msg { max-width: 80%; padding: 12px 16px; border-radius: 18px; font-size: 0.95rem; line-height: 1.4; word-wrap: break-word; }
-        .msg-meta { font-size: 0.7rem; opacity: 0.5; margin-bottom: 4px; display: block; }
-        .incoming { align-self: flex-start; background: var(--msg-in); border-bottom-left-radius: 4px; }
-        .outgoing { align-self: flex-end; background: var(--msg-out); color: #000; font-weight: 500; border-bottom-right-radius: 4px; }
-
-        /* Ввод */
-        .input-panel { padding: 20px; background: var(--bg-sidebar); border-top: 1px solid var(--border); display: flex; gap: 10px; }
-        input { flex: 1; background: var(--bg-main); border: 1px solid var(--border); color: white; padding: 12px; border-radius: 12px; outline: none; }
-        .send-btn { background: var(--accent); color: black; border: none; padding: 0 20px; border-radius: 12px; cursor: pointer; font-weight: bold; }
-
-        .sidebar-overlay { display: none; position: absolute; inset: 0; background: rgba(0,0,0,0.8); z-index: 999; }
-
-        @media (max-width: 768px) {
-            .sidebar { position: absolute; left: 0; top: 0; bottom: 0; transform: translateX(-100%); }
-            .sidebar.active { transform: translateX(0); }
-            .sidebar.active + .sidebar-overlay { display: block; }
-            .menu-btn { display: block; }
-        }
+        :root { --bg: #0f0f10; --side: #18191a; --acc: #00d2ff; --txt: #e4e6eb; --brd: #2f3031; }
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: sans-serif; }
+        body { background: var(--bg); color: var(--txt); height: 100vh; display: flex; overflow: hidden; }
+        
+        #login-overlay { position: fixed; inset: 0; background: var(--bg); display: flex; align-items: center; justify-content: center; z-index: 100; }
+        .login-box { background: var(--side); padding: 30px; border-radius: 15px; border: 1px solid var(--brd); text-align: center; }
+        
+        .app { display: none; width: 100%; height: 100%; }
+        .sidebar { width: 260px; background: var(--side); border-right: 1px solid var(--brd); display: flex; flex-direction: column; }
+        .chat-area { flex: 1; display: flex; flex-direction: column; background: #1c1c1e; }
+        
+        #messages { flex: 1; overflow-y: auto; padding: 20px; display: flex; flex-direction: column; gap: 10px; }
+        .msg { padding: 10px 15px; border-radius: 15px; max-width: 80%; font-size: 14px; }
+        .in { align-self: flex-start; background: #3a3b3c; }
+        .out { align-self: flex-end; background: var(--acc); color: #000; }
+        
+        .input-panel { padding: 15px; background: var(--side); display: flex; gap: 10px; border-top: 1px solid var(--brd); }
+        input { flex: 1; padding: 10px; border-radius: 8px; border: 1px solid var(--brd); background: #000; color: #fff; outline: none; }
+        button { padding: 10px 20px; border-radius: 8px; border: none; background: var(--acc); cursor: pointer; font-weight: bold; }
+        
+        .user-item { padding: 10px; margin: 5px; background: rgba(255,255,255,0.05); border-radius: 8px; font-size: 13px; }
+        
+        @media (max-width: 600px) { .sidebar { display: none; } }
     </style>
 </head>
 <body>
 
 <div id="login-overlay">
     <div class="login-box">
-        <h2>Вход в облако</h2>
-        <p style="color: var(--text-secondary); font-size: 0.8rem; margin-top: 10px;">Firebase Realtime DB</p>
-        <input type="text" id="username-input" placeholder="Никнейм..." maxlength="15" style="width:100%; margin-top:20px;">
-        <button onclick="login()" class="send-btn" style="width: 100%; height: 45px; margin-top: 15px;">Подключиться</button>
+        <h3>Чат 2025</h3><br>
+        <input type="text" id="nick" placeholder="Ваш ник...">
+        <button id="btn-login">Войти</button>
     </div>
 </div>
 
 <div class="app" id="app">
-    <aside class="sidebar" id="sidebar">
-        <div class="sidebar-header">
-            <strong>Участники</strong>
-            <span class="online-count" id="count-label">Онлайн: 0</span>
-        </div>
+    <aside class="sidebar">
+        <div style="padding: 20px; border-bottom: 1px solid var(--brd)">Онлайн: <span id="count">0</span></div>
         <div id="user-list"></div>
     </aside>
-
-    <div class="sidebar-overlay" onclick="toggleSidebar()"></div>
-
     <main class="chat-area">
-        <header class="chat-header">
-            <button class="menu-btn" onclick="toggleSidebar()">☰</button>
-            <strong>🌐 Общий облачный чат</strong>
-        </header>
-
         <div id="messages"></div>
-
-        <form class="input-panel" onsubmit="send(event)">
-            <input type="text" id="m-input" placeholder="Написать в облако..." required autocomplete="off">
-            <button type="submit" class="send-btn">➤</button>
+        <form class="input-panel" id="chat-form">
+            <input type="text" id="m-text" placeholder="Сообщение..." required>
+            <button type="submit">➤</button>
         </form>
     </main>
 </div>
 
-<!-- Firebase App SDK -->
 <script type="module">
     import { initializeApp } from "www.gstatic.com";
     import { getDatabase, ref, push, onValue, set, onDisconnect, serverTimestamp } from "www.gstatic.com";
 
-    // Инициализация вашей БД
-    const firebaseConfig = {
-        databaseURL: "chat-c54e2-default-rtdb.europe-west1.firebasedatabase.app"
+    const conf = { databaseURL: "chat-c54e2-default-rtdb.europe-west1.firebasedatabase.app" };
+    const app = initializeApp(conf);
+    const db = getDatabase(app);
+    
+    let user = "";
+    const myId = Math.random().toString(36).substring(7);
+
+    // Логин
+    document.getElementById('btn-login').onclick = () => {
+        user = document.getElementById('nick').value.trim();
+        if(!user) return alert("Введите ник");
+        document.getElementById('login-overlay').style.display = 'none';
+        document.getElementById('app').style.display = 'flex';
+        initChat();
     };
 
-    const app = initializeApp(firebaseConfig);
-    const db = getDatabase(app);
-    let currentUser = "";
-    let myId = Math.random().toString(36).substr(2, 9);
+    function initChat() {
+        // 1. Сообщения
+        onValue(ref(db, 'msgs'), (snap) => {
+            const container = document.getElementById('messages');
+            container.innerHTML = '';
+            snap.forEach((child) => {
+                const m = child.val();
+                const div = document.createElement('div');
+                div.className = `msg ${m.u === user ? 'out' : 'in'}`;
+                div.innerHTML = `<small style="display:block;opacity:0.6">${m.u}</small>${m.t}`;
+                container.appendChild(div);
+            });
+            container.scrollTop = container.scrollHeight;
+        });
 
-    // Функция входа
-    window.login = function() {
-        const name = document.getElementById('username-input').value.trim();
-        if (name) {
-            currentUser = name;
-            document.getElementById('login-overlay').style.display = 'none';
-            document.getElementById('app').style.display = 'flex';
-            
-            setupChat();
-            setupOnlineStatus();
-        }
-    }
+        // 2. Статус Онлайн
+        const statusRef = ref(db, `online/${myId}`);
+        set(statusRef, { name: user });
+        onDisconnect(statusRef).remove();
 
-    // Слушаем сообщения из облака
-    function setupChat() {
-        const chatRef = ref(db, 'messages');
-        onValue(chatRef, (snapshot) => {
-            const data = snapshot.val();
-            const box = document.getElementById('messages');
-            box.innerHTML = '';
-            if (data) {
-                Object.values(data).forEach(m => {
-                    const div = document.createElement('div');
-                    const isMine = m.user === currentUser;
-                    div.className = `msg ${isMine ? 'outgoing' : 'incoming'}`;
-                    div.innerHTML = `<span class="msg-meta">${m.user}</span>${m.text}`;
-                    box.appendChild(div);
-                });
-                box.scrollTop = box.scrollHeight;
-            }
+        onValue(ref(db, 'online'), (snap) => {
+            const list = document.getElementById('user-list');
+            list.innerHTML = '';
+            let c = 0;
+            snap.forEach((child) => {
+                c++;
+                const u = child.val();
+                list.innerHTML += `<div class="user-item">● ${u.name}</div>`;
+            });
+            document.getElementById('count').innerText = c;
         });
     }
 
-    // Отправка в облако
-    window.send = function(e) {
+    // Отправка
+    document.getElementById('chat-form').onsubmit = (e) => {
         e.preventDefault();
-        const input = document.getElementById('m-input');
-        if (!input.value.trim()) return;
-
-        const chatRef = ref(db, 'messages');
-        push(chatRef, {
-            user: currentUser,
-            text: input.value,
-            timestamp: serverTimestamp()
-        });
+        const input = document.getElementById('m-text');
+        push(ref(db, 'msgs'), { u: user, t: input.value, ts: serverTimestamp() });
         input.value = '';
-    }
-
-    // Реальный онлайн через облако
-    function setupOnlineStatus() {
-        const myStatusRef = ref(db, 'online/' + myId);
-        const allOnlineRef = ref(db, 'online');
-
-        // Устанавливаем статус "в сети"
-        set(myStatusRef, { name: currentUser, lastSeen: serverTimestamp() });
-        
-        // При закрытии вкладки удаляем себя из БД автоматически
-        onDisconnect(myStatusRef).remove();
-
-        // Слушаем список всех, кто в сети
-        onValue(allOnlineRef, (snapshot) => {
-            const users = snapshot.val();
-            const listHTML = [];
-            let count = 0;
-            if (users) {
-                Object.keys(users).forEach(id => {
-                    count++;
-                    listHTML.push(`<div class="user-item"><div class="status-dot"></div>${users[id].name} ${id === myId ? '(Вы)' : ''}</div>`);
-                });
-            }
-            document.getElementById('user-list').innerHTML = listHTML.join('');
-            document.getElementById('count-label').textContent = `Онлайн: ${count}`;
-        });
-    }
-
-    window.toggleSidebar = function() {
-        document.getElementById('sidebar').classList.toggle('active');
-    }
+    };
 </script>
-
 </body>
 </html>
