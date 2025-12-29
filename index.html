@@ -3,304 +3,383 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>P2P Мессенджер</title>
+    <title>Общий чат</title>
     <style>
-        body { 
-            font-family: Arial, sans-serif; 
-            margin: 20px; 
-            background: #f5f5f5;
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            background: #f0f0f0;
         }
         #container {
             max-width: 600px;
             margin: 0 auto;
             background: white;
             padding: 20px;
-            border-radius: 5px;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
         }
-        h1, h2 { 
-            text-align: center; 
+        h1 {
+            text-align: center;
             color: #333;
-        }
-        #connectSection, #chatSection {
             margin-bottom: 20px;
-            padding: 15px;
-            border: 1px solid #ddd;
-            border-radius: 5px;
         }
-        #chatSection {
-            display: none;
-        }
-        textarea, input, button {
-            width: 100%;
-            padding: 10px;
-            margin: 5px 0;
-            box-sizing: border-box;
-            border: 1px solid #ccc;
-            border-radius: 3px;
-        }
-        button {
-            background: #007bff;
-            color: white;
-            border: none;
-            cursor: pointer;
-        }
-        button:hover {
-            background: #0056b3;
-        }
-        #messages {
-            height: 300px;
+        #chat {
+            height: 400px;
             overflow-y: auto;
             border: 1px solid #ddd;
-            padding: 10px;
-            margin-bottom: 10px;
-            background: #fafafa;
+            padding: 15px;
+            margin-bottom: 15px;
+            background: #f9f9f9;
+            border-radius: 5px;
         }
         .message {
-            margin: 5px 0;
-            padding: 8px;
-            border-radius: 5px;
-            max-width: 80%;
-        }
-        .local {
-            background: #d4edda;
-            margin-left: auto;
-            text-align: right;
-        }
-        .remote {
-            background: #e2e3e5;
-            margin-right: auto;
-        }
-        #status {
+            margin-bottom: 12px;
             padding: 10px;
-            text-align: center;
-            font-weight: bold;
-            border-radius: 3px;
-            margin-bottom: 10px;
+            border-radius: 8px;
+            max-width: 80%;
+            word-wrap: break-word;
+            position: relative;
         }
-        .connected { background: #d4edda; color: #155724; }
-        .disconnected { background: #f8d7da; color: #721c24; }
-        .waiting { background: #fff3cd; color: #856404; }
+        .my-message {
+            background-color: #e3f2fd;
+            margin-left: auto;
+            border-bottom-right-radius: 2px;
+        }
+        .other-message {
+            background-color: #f5f5f5;
+            margin-right: auto;
+            border-bottom-left-radius: 2px;
+        }
+        .message-info {
+            font-size: 0.8em;
+            color: #666;
+            margin-top: 5px;
+        }
+        .message-time {
+            font-size: 0.75em;
+            color: #888;
+        }
+        #input-area {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+        #messageInput {
+            flex: 1;
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 16px;
+        }
+        #sendButton {
+            padding: 12px 24px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+        #sendButton:hover {
+            background-color: #45a049;
+        }
+        #sendButton:disabled {
+            background-color: #cccccc;
+            cursor: not-allowed;
+        }
+        #userInfo {
+            padding: 10px;
+            background: #e8f5e9;
+            border-radius: 5px;
+            margin-bottom: 15px;
+            border: 1px solid #c8e6c9;
+        }
+        #userName {
+            width: 100%;
+            padding: 10px;
+            margin: 10px 0;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 16px;
+        }
+        .timestamp {
+            font-size: 0.75em;
+            color: #888;
+            text-align: right;
+            margin-top: 3px;
+        }
+        .system-message {
+            text-align: center;
+            color: #666;
+            font-style: italic;
+            margin: 10px 0;
+            padding: 5px;
+            background: #fff3cd;
+            border-radius: 5px;
+        }
     </style>
 </head>
 <body>
     <div id="container">
-        <h1>P2P Мессенджер</h1>
+        <h1>Общий чат</h1>
         
-        <div id="connectSection">
-            <h2>Подключение</h2>
-            <div id="status" class="disconnected">Отключен</div>
-            
-            <button id="createOffer">Создать предложение (Пользователь 1)</button>
-            
-            <h3>или</h3>
-            
-            <label>Введите предложение от другого пользователя:</label>
-            <textarea id="remoteOffer" placeholder="Вставьте предложение сюда..." rows="4"></textarea>
-            <button id="createAnswer">Принять предложение (Пользователь 2)</button>
-            
-            <h3>или</h3>
-            
-            <label>Введите ответ от другого пользователя:</label>
-            <textarea id="remoteAnswer" placeholder="Вставьте ответ сюда..." rows="4"></textarea>
-            <button id="acceptAnswer">Принять ответ</button>
+        <div id="userInfo">
+            <label for="userName">Ваше имя:</label>
+            <input type="text" id="userName" placeholder="Введите ваше имя">
+            <div id="userStatus">Статус: <span id="statusText">Вход в чат...</span></div>
         </div>
         
-        <div id="chatSection">
-            <h2>Чат</h2>
-            <div id="messages"></div>
-            
-            <textarea id="messageInput" placeholder="Введите сообщение..." rows="2"></textarea>
-            <button id="sendButton">Отправить</button>
-            <button id="disconnectButton">Отключиться</button>
+        <div id="chat"></div>
+        
+        <div id="input-area">
+            <input type="text" id="messageInput" placeholder="Введите сообщение..." disabled>
+            <button id="sendButton" disabled>Отправить</button>
+        </div>
+        
+        <div style="text-align: center; color: #666; font-size: 0.9em;">
+            Чат синхронизируется каждые 2 секунды
         </div>
     </div>
 
     <script>
-        let peerConnection;
-        let dataChannel;
-        const configuration = {
-            iceServers: [
-                { urls: 'stun:stun.l.google.com:19302' },
-                { urls: 'stun:stun1.l.google.com:19302' }
-            ]
-        };
+        // Глобальные переменные
+        let userName = '';
+        let userId = '';
+        let lastSyncTime = 0;
+        const SYNC_INTERVAL = 2000; // 2 секунды
+        const CHAT_KEY = 'shared_chat_messages';
+        const USERS_KEY = 'chat_users';
 
-        const statusDiv = document.getElementById('status');
-        const messagesDiv = document.getElementById('messages');
+        // DOM элементы
+        const chatDiv = document.getElementById('chat');
         const messageInput = document.getElementById('messageInput');
         const sendButton = document.getElementById('sendButton');
-        const connectSection = document.getElementById('connectSection');
-        const chatSection = document.getElementById('chatSection');
+        const userNameInput = document.getElementById('userName');
+        const statusText = document.getElementById('statusText');
 
-        // Обновление статуса
-        function updateStatus(text, className) {
-            statusDiv.textContent = text;
-            statusDiv.className = className;
+        // Инициализация
+        function init() {
+            // Генерация уникального ID пользователя
+            userId = 'user_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
+            
+            // Загрузка имени пользователя из localStorage
+            const savedName = localStorage.getItem('chat_user_name');
+            if (savedName) {
+                userName = savedName;
+                userNameInput.value = userName;
+                enableChat();
+                addSystemMessage(`Добро пожаловать обратно, ${userName}!`);
+            } else {
+                statusText.textContent = 'Введите имя для входа в чат';
+            }
+            
+            // Загрузка сообщений
+            loadMessages();
+            
+            // Настройка обработчиков событий
+            setupEventListeners();
+            
+            // Запуск периодической синхронизации
+            setInterval(syncChat, SYNC_INTERVAL);
         }
 
-        // Создание предложения (Пользователь 1)
-        document.getElementById('createOffer').onclick = async () => {
-            try {
-                updateStatus('Создание соединения...', 'waiting');
-                
-                peerConnection = new RTCPeerConnection(configuration);
-                setupDataChannel();
-                
-                dataChannel = peerConnection.createDataChannel('chat');
-                setupDataChannelListeners(dataChannel);
-                
-                const offer = await peerConnection.createOffer();
-                await peerConnection.setLocalDescription(offer);
-                
-                document.getElementById('remoteOffer').value = JSON.stringify(offer);
-                updateStatus('Предложение создано. Отправьте его другому пользователю', 'waiting');
-            } catch (error) {
-                console.error('Ошибка создания предложения:', error);
-                updateStatus('Ошибка создания предложения', 'disconnected');
-            }
-        };
-
-        // Принятие предложения (Пользователь 2)
-        document.getElementById('createAnswer').onclick = async () => {
-            try {
-                const offer = JSON.parse(document.getElementById('remoteOffer').value);
-                updateStatus('Принятие предложения...', 'waiting');
-                
-                peerConnection = new RTCPeerConnection(configuration);
-                setupDataChannel();
-                
-                peerConnection.ondatachannel = (event) => {
-                    dataChannel = event.channel;
-                    setupDataChannelListeners(dataChannel);
-                };
-                
-                await peerConnection.setRemoteDescription(new RTCSessionDescription(offer));
-                const answer = await peerConnection.createAnswer();
-                await peerConnection.setLocalDescription(answer);
-                
-                document.getElementById('remoteAnswer').value = JSON.stringify(answer);
-                updateStatus('Ответ создан. Отправьте его обратно', 'waiting');
-            } catch (error) {
-                console.error('Ошибка принятия предложения:', error);
-                updateStatus('Ошибка принятия предложения', 'disconnected');
-            }
-        };
-
-        // Принятие ответа (Пользователь 1)
-        document.getElementById('acceptAnswer').onclick = async () => {
-            try {
-                const answer = JSON.parse(document.getElementById('remoteAnswer').value);
-                updateStatus('Принятие ответа...', 'waiting');
-                await peerConnection.setRemoteDescription(new RTCSessionDescription(answer));
-                updateStatus('Соединение установлено!', 'connected');
-                showChat();
-            } catch (error) {
-                console.error('Ошибка принятия ответа:', error);
-                updateStatus('Ошибка принятия ответа', 'disconnected');
-            }
-        };
-
-        // Настройка обработчиков ICE кандидатов
-        function setupDataChannel() {
-            peerConnection.onicecandidate = (event) => {
-                if (event.candidate) {
-                    console.log('Новый ICE кандидат:', event.candidate);
+        // Настройка обработчиков событий
+        function setupEventListeners() {
+            // Ввод имени пользователя
+            userNameInput.addEventListener('keypress', (e) => {
+                if (e.key === 'Enter') {
+                    setUserName();
                 }
-            };
-            
-            peerConnection.onconnectionstatechange = () => {
-                console.log('Состояние соединения:', peerConnection.connectionState);
-                if (peerConnection.connectionState === 'connected') {
-                    updateStatus('Соединение установлено!', 'connected');
-                    showChat();
-                } else if (peerConnection.connectionState === 'disconnected' || 
-                           peerConnection.connectionState === 'failed' || 
-                           peerConnection.connectionState === 'closed') {
-                    updateStatus('Соединение разорвано', 'disconnected');
-                    hideChat();
+            });
+
+            // Отправка сообщения по кнопке
+            sendButton.addEventListener('click', sendMessage);
+
+            // Отправка сообщения по Enter
+            messageInput.addEventListener('keypress', (e) => {
+                if (e.key === 'Enter') {
+                    sendMessage();
                 }
-            };
+            });
         }
 
-        // Настройка обработчиков канала данных
-        function setupDataChannelListeners(channel) {
-            channel.onopen = () => {
-                console.log('Канал данных открыт');
-                updateStatus('Соединение установлено!', 'connected');
-                showChat();
-            };
-            
-            channel.onclose = () => {
-                console.log('Канал данных закрыт');
-                updateStatus('Соединение разорвано', 'disconnected');
-                hideChat();
-            };
-            
-            channel.onerror = (error) => {
-                console.error('Ошибка канала данных:', error);
-                updateStatus('Ошибка соединения', 'disconnected');
-                hideChat();
-            };
-            
-            channel.onmessage = (event) => {
-                addMessage(event.data, 'remote');
-            };
+        // Установка имени пользователя
+        function setUserName() {
+            const name = userNameInput.value.trim();
+            if (name) {
+                userName = name;
+                localStorage.setItem('chat_user_name', userName);
+                enableChat();
+                addSystemMessage(`Вы вошли как ${userName}`);
+                
+                // Регистрация пользователя
+                registerUser();
+            }
         }
 
-        // Отправка сообщения
-        sendButton.onclick = () => {
-            const message = messageInput.value.trim();
-            if (message && dataChannel && dataChannel.readyState === 'open') {
-                dataChannel.send(message);
-                addMessage(message, 'local');
-                messageInput.value = '';
-            }
-        };
-
-        // Отправка по Enter
-        messageInput.onkeypress = (e) => {
-            if (e.key === 'Enter' && !e.shiftKey) {
-                e.preventDefault();
-                sendButton.click();
-            }
-        };
-
-        // Отключение
-        document.getElementById('disconnectButton').onclick = () => {
-            if (dataChannel) {
-                dataChannel.close();
-            }
-            if (peerConnection) {
-                peerConnection.close();
-            }
-            updateStatus('Отключен', 'disconnected');
-            hideChat();
-        };
-
-        // Добавление сообщения в чат
-        function addMessage(text, type) {
-            const messageDiv = document.createElement('div');
-            messageDiv.className = `message ${type}`;
-            messageDiv.textContent = text;
-            messagesDiv.appendChild(messageDiv);
-            messagesDiv.scrollTop = messagesDiv.scrollHeight;
+        // Регистрация пользователя в списке активных
+        function registerUser() {
+            const users = getUsers();
+            users[userId] = {
+                name: userName,
+                lastActive: Date.now()
+            };
+            saveUsers(users);
         }
 
-        // Показать интерфейс чата
-        function showChat() {
-            connectSection.style.display = 'none';
-            chatSection.style.display = 'block';
+        // Включение интерфейса чата
+        function enableChat() {
+            messageInput.disabled = false;
+            sendButton.disabled = false;
+            statusText.textContent = `В чате как: ${userName}`;
             messageInput.focus();
         }
 
-        // Скрыть интерфейс чата
-        function hideChat() {
-            connectSection.style.display = 'block';
-            chatSection.style.display = 'none';
+        // Отправка сообщения
+        function sendMessage() {
+            const text = messageInput.value.trim();
+            if (!text || !userName) return;
+
+            const message = {
+                id: Date.now() + '_' + Math.random().toString(36).substr(2, 9),
+                userId: userId,
+                userName: userName,
+                text: text,
+                timestamp: Date.now(),
+                isMine: true
+            };
+
+            // Добавление сообщения в локальное хранилище
+            addMessageToStorage(message);
+            
+            // Отображение сообщения
+            displayMessage(message);
+            
+            // Очистка поля ввода
+            messageInput.value = '';
+            
+            // Синхронизация
+            syncChat();
         }
 
-        updateStatus('Отключен', 'disconnected');
+        // Добавление сообщения в хранилище
+        function addMessageToStorage(message) {
+            const messages = getMessages();
+            messages.push(message);
+            localStorage.setItem(CHAT_KEY, JSON.stringify(messages));
+        }
+
+        // Получение сообщений из хранилища
+        function getMessages() {
+            const messagesJson = localStorage.getItem(CHAT_KEY);
+            return messagesJson ? JSON.parse(messagesJson) : [];
+        }
+
+        // Получение списка пользователей
+        function getUsers() {
+            const usersJson = localStorage.getItem(USERS_KEY);
+            return usersJson ? JSON.parse(usersJson) : {};
+        }
+
+        // Сохранение списка пользователей
+        function saveUsers(users) {
+            localStorage.setItem(USERS_KEY, JSON.stringify(users));
+        }
+
+        // Загрузка сообщений
+        function loadMessages() {
+            const messages = getMessages();
+            chatDiv.innerHTML = '';
+            messages.forEach(message => {
+                displayMessage(message);
+            });
+            scrollToBottom();
+        }
+
+        // Отображение сообщения
+        function displayMessage(message) {
+            const messageDiv = document.createElement('div');
+            messageDiv.className = `message ${message.userId === userId ? 'my-message' : 'other-message'}`;
+            
+            // Добавляем имя отправителя для чужих сообщений
+            if (message.userId !== userId) {
+                const nameSpan = document.createElement('div');
+                nameSpan.style.fontWeight = 'bold';
+                nameSpan.style.color = '#333';
+                nameSpan.textContent = message.userName;
+                messageDiv.appendChild(nameSpan);
+            }
+            
+            // Текст сообщения
+            const textDiv = document.createElement('div');
+            textDiv.textContent = message.text;
+            messageDiv.appendChild(textDiv);
+            
+            // Время отправки
+            const timeDiv = document.createElement('div');
+            timeDiv.className = 'timestamp';
+            timeDiv.textContent = formatTime(message.timestamp);
+            messageDiv.appendChild(timeDiv);
+            
+            chatDiv.appendChild(messageDiv);
+        }
+
+        // Добавление системного сообщения
+        function addSystemMessage(text) {
+            const systemDiv = document.createElement('div');
+            systemDiv.className = 'system-message';
+            systemDiv.textContent = text;
+            chatDiv.appendChild(systemDiv);
+            scrollToBottom();
+        }
+
+        // Синхронизация чата
+        function syncChat() {
+            if (!userName) return;
+            
+            // Обновление времени последней активности
+            const users = getUsers();
+            if (users[userId]) {
+                users[userId].lastActive = Date.now();
+                saveUsers(users);
+            }
+            
+            // Проверка на новые сообщения
+            const messages = getMessages();
+            const lastMessage = messages[messages.length - 1];
+            
+            if (lastMessage && lastMessage.timestamp > lastSyncTime) {
+                loadMessages();
+                lastSyncTime = Date.now();
+            }
+            
+            // Очистка старых сообщений (больше 100)
+            if (messages.length > 100) {
+                const newMessages = messages.slice(-100);
+                localStorage.setItem(CHAT_KEY, JSON.stringify(newMessages));
+            }
+        }
+
+        // Форматирование времени
+        function formatTime(timestamp) {
+            const date = new Date(timestamp);
+            return `${date.getHours().toString().padStart(2, '0')}:${date.getMinutes().toString().padStart(2, '0')}`;
+        }
+
+        // Прокрутка вниз
+        function scrollToBottom() {
+            chatDiv.scrollTop = chatDiv.scrollHeight;
+        }
+
+        // Автоматическое сохранение имени при потере фокуса
+        userNameInput.addEventListener('blur', () => {
+            if (userNameInput.value.trim() && userNameInput.value.trim() !== userName) {
+                setUserName();
+            }
+        });
+
+        // Запуск при загрузке страницы
+        document.addEventListener('DOMContentLoaded', init);
     </script>
 </body>
 </html>
