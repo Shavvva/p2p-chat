@@ -21,101 +21,98 @@
         h1 {
             text-align: center;
             color: #333;
-            margin-bottom: 20px;
+            margin-bottom: 10px;
+        }
+        #shareSection {
+            background: #e8f5e9;
+            padding: 10px;
+            border-radius: 5px;
+            margin-bottom: 15px;
+            border: 1px solid #c8e6c9;
+        }
+        #chatUrl {
+            width: 100%;
+            padding: 8px;
+            margin: 5px 0;
+            border: 1px solid #ddd;
+            border-radius: 3px;
+            background: white;
         }
         #chat {
-            height: 400px;
+            height: 300px;
             overflow-y: auto;
             border: 1px solid #ddd;
-            padding: 15px;
-            margin-bottom: 15px;
+            padding: 10px;
+            margin-bottom: 10px;
             background: #f9f9f9;
             border-radius: 5px;
         }
         .message {
-            margin-bottom: 12px;
-            padding: 10px;
-            border-radius: 8px;
-            max-width: 80%;
+            margin-bottom: 8px;
+            padding: 8px;
+            border-radius: 5px;
             word-wrap: break-word;
-            position: relative;
         }
         .my-message {
-            background-color: #e3f2fd;
-            margin-left: auto;
-            border-bottom-right-radius: 2px;
+            background-color: #d4edda;
+            margin-left: 20%;
+            text-align: right;
         }
         .other-message {
-            background-color: #f5f5f5;
-            margin-right: auto;
-            border-bottom-left-radius: 2px;
+            background-color: #e2e3e5;
+            margin-right: 20%;
         }
         .message-info {
             font-size: 0.8em;
             color: #666;
-            margin-top: 5px;
-        }
-        .message-time {
-            font-size: 0.75em;
-            color: #888;
+            margin-top: 3px;
         }
         #input-area {
             display: flex;
             gap: 10px;
-            margin-bottom: 15px;
         }
         #messageInput {
             flex: 1;
-            padding: 12px;
+            padding: 10px;
             border: 1px solid #ddd;
-            border-radius: 5px;
-            font-size: 16px;
+            border-radius: 3px;
         }
         #sendButton {
-            padding: 12px 24px;
-            background-color: #4CAF50;
+            padding: 10px 20px;
+            background-color: #007bff;
             color: white;
             border: none;
-            border-radius: 5px;
+            border-radius: 3px;
             cursor: pointer;
-            font-size: 16px;
         }
         #sendButton:hover {
-            background-color: #45a049;
+            background-color: #0056b3;
         }
         #sendButton:disabled {
-            background-color: #cccccc;
+            background-color: #ccc;
             cursor: not-allowed;
-        }
-        #userInfo {
-            padding: 10px;
-            background: #e8f5e9;
-            border-radius: 5px;
-            margin-bottom: 15px;
-            border: 1px solid #c8e6c9;
         }
         #userName {
             width: 100%;
             padding: 10px;
             margin: 10px 0;
             border: 1px solid #ddd;
-            border-radius: 5px;
-            font-size: 16px;
+            border-radius: 3px;
         }
-        .timestamp {
-            font-size: 0.75em;
-            color: #888;
-            text-align: right;
-            margin-top: 3px;
-        }
-        .system-message {
-            text-align: center;
-            color: #666;
-            font-style: italic;
-            margin: 10px 0;
+        .status {
             padding: 5px;
-            background: #fff3cd;
-            border-radius: 5px;
+            text-align: center;
+            font-size: 0.9em;
+            border-radius: 3px;
+            margin: 5px 0;
+        }
+        .online {
+            background: #d4edda;
+            color: #155724;
+        }
+        .offline {
+            background: #f8d7da;
+            color: #721c24;
         }
     </style>
 </head>
@@ -123,115 +120,185 @@
     <div id="container">
         <h1>Общий чат</h1>
         
-        <div id="userInfo">
-            <label for="userName">Ваше имя:</label>
-            <input type="text" id="userName" placeholder="Введите ваше имя">
-            <div id="userStatus">Статус: <span id="statusText">Вход в чат...</span></div>
+        <div id="shareSection">
+            <div class="status" id="connectionStatus">Ожидание подключения...</div>
+            <div>1. Откройте эту ссылку на другом устройстве:</div>
+            <input type="text" id="chatUrl" readonly>
+            <button onclick="copyUrl()">Копировать ссылку</button>
+            <div>2. Или откройте ссылку с другого устройства здесь:</div>
+            <input type="text" id="remoteUrl" placeholder="Вставьте ссылку с другого устройства">
+            <button onclick="connectToRemote()">Подключиться</button>
+        </div>
+        
+        <div>
+            <label>Ваше имя:</label>
+            <input type="text" id="userName" placeholder="Введите ваше имя" onchange="updateUserName()">
         </div>
         
         <div id="chat"></div>
         
         <div id="input-area">
             <input type="text" id="messageInput" placeholder="Введите сообщение..." disabled>
-            <button id="sendButton" disabled>Отправить</button>
+            <button id="sendButton" onclick="sendMessage()" disabled>Отправить</button>
         </div>
         
-        <div style="text-align: center; color: #666; font-size: 0.9em;">
-            Чат синхронизируется каждые 2 секунды
-        </div>
+        <div class="status" id="syncStatus">Синхронизация: ожидание</div>
     </div>
 
     <script>
         // Глобальные переменные
         let userName = '';
         let userId = '';
-        let lastSyncTime = 0;
-        const SYNC_INTERVAL = 2000; // 2 секунды
-        const CHAT_KEY = 'shared_chat_messages';
-        const USERS_KEY = 'chat_users';
-
+        let chatId = '';
+        let remoteWindow = null;
+        let isConnected = false;
+        
         // DOM элементы
         const chatDiv = document.getElementById('chat');
         const messageInput = document.getElementById('messageInput');
         const sendButton = document.getElementById('sendButton');
         const userNameInput = document.getElementById('userName');
-        const statusText = document.getElementById('statusText');
+        const chatUrlInput = document.getElementById('chatUrl');
+        const remoteUrlInput = document.getElementById('remoteUrl');
+        const connectionStatus = document.getElementById('connectionStatus');
+        const syncStatus = document.getElementById('syncStatus');
 
         // Инициализация
         function init() {
             // Генерация уникального ID пользователя
             userId = 'user_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
             
-            // Загрузка имени пользователя из localStorage
+            // Проверяем, есть ли chatId в URL
+            const urlParams = new URLSearchParams(window.location.search);
+            const urlChatId = urlParams.get('chat');
+            
+            if (urlChatId) {
+                // Присоединяемся к существующему чату
+                chatId = urlChatId;
+                updateUrlDisplay();
+                enableChat();
+                updateStatus('Подключен к чату', true);
+            } else {
+                // Создаем новый чат
+                chatId = generateChatId();
+                updateUrlDisplay();
+                updateStatus('Создан новый чат. Откройте ссылку на другом устройстве', false);
+            }
+            
+            // Загружаем имя из localStorage
             const savedName = localStorage.getItem('chat_user_name');
             if (savedName) {
                 userName = savedName;
                 userNameInput.value = userName;
-                enableChat();
-                addSystemMessage(`Добро пожаловать обратно, ${userName}!`);
-            } else {
-                statusText.textContent = 'Введите имя для входа в чат';
             }
-            
-            // Загрузка сообщений
-            loadMessages();
             
             // Настройка обработчиков событий
             setupEventListeners();
             
-            // Запуск периодической синхронизации
-            setInterval(syncChat, SYNC_INTERVAL);
+            // Настройка сообщений между вкладками
+            setupBroadcastChannel();
+            
+            // Периодическая проверка сообщений
+            setInterval(checkForMessages, 1000);
+        }
+
+        // Генерация ID чата
+        function generateChatId() {
+            return 'chat_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
+        }
+
+        // Обновление отображения URL
+        function updateUrlDisplay() {
+            const url = window.location.origin + window.location.pathname + '?chat=' + chatId;
+            chatUrlInput.value = url;
         }
 
         // Настройка обработчиков событий
         function setupEventListeners() {
-            // Ввод имени пользователя
-            userNameInput.addEventListener('keypress', (e) => {
-                if (e.key === 'Enter') {
-                    setUserName();
-                }
-            });
-
-            // Отправка сообщения по кнопке
-            sendButton.addEventListener('click', sendMessage);
-
             // Отправка сообщения по Enter
             messageInput.addEventListener('keypress', (e) => {
                 if (e.key === 'Enter') {
                     sendMessage();
                 }
             });
+            
+            // Автофокус на поле ввода при клике в чат
+            chatDiv.addEventListener('click', () => {
+                if (!messageInput.disabled) {
+                    messageInput.focus();
+                }
+            });
         }
 
-        // Установка имени пользователя
-        function setUserName() {
+        // Настройка Broadcast Channel для связи между вкладками
+        function setupBroadcastChannel() {
+            // Этот метод работает только между вкладками одного браузера
+            if ('BroadcastChannel' in window) {
+                try {
+                    const channel = new BroadcastChannel('chat_channel_' + chatId);
+                    channel.onmessage = (event) => {
+                        if (event.data.type === 'message' && event.data.userId !== userId) {
+                            displayMessage(event.data);
+                        }
+                    };
+                } catch (e) {
+                    console.log('BroadcastChannel не поддерживается');
+                }
+            }
+        }
+
+        // Копирование ссылки
+        function copyUrl() {
+            chatUrlInput.select();
+            document.execCommand('copy');
+            alert('Ссылка скопирована! Откройте ее на другом устройстве.');
+        }
+
+        // Подключение к удаленному чату
+        function connectToRemote() {
+            const remoteUrl = remoteUrlInput.value.trim();
+            if (!remoteUrl) return;
+            
+            try {
+                const url = new URL(remoteUrl);
+                const remoteChatId = url.searchParams.get('chat');
+                
+                if (remoteChatId && remoteChatId !== chatId) {
+                    chatId = remoteChatId;
+                    // Обновляем URL без перезагрузки
+                    window.history.replaceState({}, '', `?chat=${chatId}`);
+                    updateUrlDisplay();
+                    enableChat();
+                    updateStatus('Подключен к удаленному чату', true);
+                    
+                    // Очищаем чат
+                    chatDiv.innerHTML = '';
+                    
+                    // Сообщаем об успешном подключении
+                    addSystemMessage('Вы подключились к чату!');
+                }
+            } catch (e) {
+                alert('Неверная ссылка');
+            }
+        }
+
+        // Обновление имени пользователя
+        function updateUserName() {
             const name = userNameInput.value.trim();
             if (name) {
                 userName = name;
                 localStorage.setItem('chat_user_name', userName);
-                enableChat();
-                addSystemMessage(`Вы вошли как ${userName}`);
-                
-                // Регистрация пользователя
-                registerUser();
+                if (!isConnected) {
+                    enableChat();
+                }
             }
-        }
-
-        // Регистрация пользователя в списке активных
-        function registerUser() {
-            const users = getUsers();
-            users[userId] = {
-                name: userName,
-                lastActive: Date.now()
-            };
-            saveUsers(users);
         }
 
         // Включение интерфейса чата
         function enableChat() {
             messageInput.disabled = false;
             sendButton.disabled = false;
-            statusText.textContent = `В чате как: ${userName}`;
+            isConnected = true;
             messageInput.focus();
         }
 
@@ -241,73 +308,75 @@
             if (!text || !userName) return;
 
             const message = {
+                type: 'message',
                 id: Date.now() + '_' + Math.random().toString(36).substr(2, 9),
                 userId: userId,
                 userName: userName,
                 text: text,
                 timestamp: Date.now(),
-                isMine: true
+                chatId: chatId
             };
 
-            // Добавление сообщения в локальное хранилище
-            addMessageToStorage(message);
-            
-            // Отображение сообщения
+            // Отображаем свое сообщение
             displayMessage(message);
             
-            // Очистка поля ввода
+            // Сохраняем в localStorage
+            saveMessage(message);
+            
+            // Отправляем через Broadcast Channel
+            sendBroadcastMessage(message);
+            
+            // Очищаем поле ввода
             messageInput.value = '';
             
-            // Синхронизация
-            syncChat();
+            // Обновляем статус
+            syncStatus.textContent = 'Сообщение отправлено';
+            syncStatus.className = 'status online';
+            
+            // Сбрасываем статус через 2 секунды
+            setTimeout(() => {
+                syncStatus.textContent = 'Синхронизация: активно';
+            }, 2000);
         }
 
-        // Добавление сообщения в хранилище
-        function addMessageToStorage(message) {
-            const messages = getMessages();
-            messages.push(message);
-            localStorage.setItem(CHAT_KEY, JSON.stringify(messages));
+        // Сохранение сообщения в localStorage
+        function saveMessage(message) {
+            try {
+                const messages = JSON.parse(localStorage.getItem('chat_' + chatId) || '[]');
+                messages.push(message);
+                // Храним только последние 50 сообщений
+                if (messages.length > 50) {
+                    messages.splice(0, messages.length - 50);
+                }
+                localStorage.setItem('chat_' + chatId, JSON.stringify(messages));
+            } catch (e) {
+                console.error('Ошибка сохранения сообщения:', e);
+            }
         }
 
-        // Получение сообщений из хранилища
+        // Получение сообщений из localStorage
         function getMessages() {
-            const messagesJson = localStorage.getItem(CHAT_KEY);
-            return messagesJson ? JSON.parse(messagesJson) : [];
-        }
-
-        // Получение списка пользователей
-        function getUsers() {
-            const usersJson = localStorage.getItem(USERS_KEY);
-            return usersJson ? JSON.parse(usersJson) : {};
-        }
-
-        // Сохранение списка пользователей
-        function saveUsers(users) {
-            localStorage.setItem(USERS_KEY, JSON.stringify(users));
-        }
-
-        // Загрузка сообщений
-        function loadMessages() {
-            const messages = getMessages();
-            chatDiv.innerHTML = '';
-            messages.forEach(message => {
-                displayMessage(message);
-            });
-            scrollToBottom();
+            try {
+                return JSON.parse(localStorage.getItem('chat_' + chatId) || '[]');
+            } catch (e) {
+                return [];
+            }
         }
 
         // Отображение сообщения
         function displayMessage(message) {
-            const messageDiv = document.createElement('div');
-            messageDiv.className = `message ${message.userId === userId ? 'my-message' : 'other-message'}`;
+            const isMyMessage = message.userId === userId;
             
-            // Добавляем имя отправителя для чужих сообщений
-            if (message.userId !== userId) {
-                const nameSpan = document.createElement('div');
-                nameSpan.style.fontWeight = 'bold';
-                nameSpan.style.color = '#333';
-                nameSpan.textContent = message.userName;
-                messageDiv.appendChild(nameSpan);
+            const messageDiv = document.createElement('div');
+            messageDiv.className = `message ${isMyMessage ? 'my-message' : 'other-message'}`;
+            
+            // Имя отправителя (только для чужих сообщений)
+            if (!isMyMessage) {
+                const nameDiv = document.createElement('div');
+                nameDiv.style.fontWeight = 'bold';
+                nameDiv.style.color = '#333';
+                nameDiv.textContent = message.userName || 'Аноним';
+                messageDiv.appendChild(nameDiv);
             }
             
             // Текст сообщения
@@ -315,49 +384,74 @@
             textDiv.textContent = message.text;
             messageDiv.appendChild(textDiv);
             
-            // Время отправки
+            // Время
             const timeDiv = document.createElement('div');
-            timeDiv.className = 'timestamp';
+            timeDiv.className = 'message-info';
             timeDiv.textContent = formatTime(message.timestamp);
             messageDiv.appendChild(timeDiv);
             
             chatDiv.appendChild(messageDiv);
+            
+            // Прокрутка вниз
+            chatDiv.scrollTop = chatDiv.scrollHeight;
         }
 
         // Добавление системного сообщения
         function addSystemMessage(text) {
             const systemDiv = document.createElement('div');
-            systemDiv.className = 'system-message';
+            systemDiv.style.textAlign = 'center';
+            systemDiv.style.color = '#666';
+            systemDiv.style.fontStyle = 'italic';
+            systemDiv.style.margin = '10px 0';
+            systemDiv.style.padding = '5px';
+            systemDiv.style.background = '#fff3cd';
+            systemDiv.style.borderRadius = '3px';
             systemDiv.textContent = text;
             chatDiv.appendChild(systemDiv);
-            scrollToBottom();
+            chatDiv.scrollTop = chatDiv.scrollHeight;
         }
 
-        // Синхронизация чата
-        function syncChat() {
-            if (!userName) return;
-            
-            // Обновление времени последней активности
-            const users = getUsers();
-            if (users[userId]) {
-                users[userId].lastActive = Date.now();
-                saveUsers(users);
+        // Отправка сообщения через Broadcast Channel
+        function sendBroadcastMessage(message) {
+            if ('BroadcastChannel' in window) {
+                try {
+                    const channel = new BroadcastChannel('chat_channel_' + chatId);
+                    channel.postMessage(message);
+                } catch (e) {
+                    console.log('Не удалось отправить через BroadcastChannel');
+                }
             }
+        }
+
+        // Проверка новых сообщений
+        function checkForMessages() {
+            if (!isConnected) return;
             
-            // Проверка на новые сообщения
             const messages = getMessages();
-            const lastMessage = messages[messages.length - 1];
+            const displayedMessages = chatDiv.querySelectorAll('.message').length;
             
-            if (lastMessage && lastMessage.timestamp > lastSyncTime) {
-                loadMessages();
-                lastSyncTime = Date.now();
+            // Если есть новые сообщения, перезагружаем чат
+            if (messages.length > displayedMessages) {
+                // Очищаем чат
+                chatDiv.innerHTML = '';
+                
+                // Отображаем все сообщения
+                messages.forEach(msg => {
+                    displayMessage(msg);
+                });
+                
+                syncStatus.textContent = 'Синхронизация: обновлено';
+                syncStatus.className = 'status online';
+            } else {
+                syncStatus.textContent = 'Синхронизация: активно';
+                syncStatus.className = 'status online';
             }
-            
-            // Очистка старых сообщений (больше 100)
-            if (messages.length > 100) {
-                const newMessages = messages.slice(-100);
-                localStorage.setItem(CHAT_KEY, JSON.stringify(newMessages));
-            }
+        }
+
+        // Обновление статуса
+        function updateStatus(text, isOnline) {
+            connectionStatus.textContent = text;
+            connectionStatus.className = `status ${isOnline ? 'online' : 'offline'}`;
         }
 
         // Форматирование времени
@@ -366,20 +460,8 @@
             return `${date.getHours().toString().padStart(2, '0')}:${date.getMinutes().toString().padStart(2, '0')}`;
         }
 
-        // Прокрутка вниз
-        function scrollToBottom() {
-            chatDiv.scrollTop = chatDiv.scrollHeight;
-        }
-
-        // Автоматическое сохранение имени при потере фокуса
-        userNameInput.addEventListener('blur', () => {
-            if (userNameInput.value.trim() && userNameInput.value.trim() !== userName) {
-                setUserName();
-            }
-        });
-
-        // Запуск при загрузке страницы
-        document.addEventListener('DOMContentLoaded', init);
+        // Инициализация при загрузке страницы
+        window.onload = init;
     </script>
 </body>
 </html>
