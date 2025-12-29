@@ -2,425 +2,977 @@
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Real-time Dark Chat 2025</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Темный мессенджер</title>
     <style>
-        :root {
-            --bg-main: #0a0a0b;
-            --bg-sidebar: #121214;
-            --bg-chat: #161618;
-            --accent: #00d2ff;
-            --text-primary: #ffffff;
-            --text-secondary: #8e8e93;
-            --msg-in: #242426;
-            --msg-out: #00d2ff;
-            --border: #242426;
-        }
-
-        * { 
-            box-sizing: border-box; 
-            margin: 0; 
-            padding: 0; 
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
             -webkit-tap-highlight-color: transparent;
         }
         
-        body { 
-            background: var(--bg-main); 
-            color: var(--text-primary); 
+        :root {
+            --header-height: 64px;
+            --input-height: 80px;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
             height: 100vh;
+            display: flex;
+            flex-direction: column;
+            background: #0a0a0a;
+            color: #e0e0e0;
             overflow: hidden;
         }
-
-        /* Авторизация */
-        #login-overlay {
-            position: fixed; 
-            inset: 0; 
-            background: var(--bg-main);
-            display: flex; 
-            align-items: center; 
-            justify-content: center; 
-            z-index: 2000;
-        }
         
-        .login-box { 
-            background: var(--bg-sidebar); 
-            padding: 40px; 
-            border-radius: 20px; 
-            border: 1px solid var(--border); 
-            text-align: center; 
-            width: 90%; 
-            max-width: 350px;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
-        }
-        
-        .login-box input {
+        .container {
+            display: flex;
+            flex: 1;
+            max-width: 1400px;
+            margin: 0 auto;
             width: 100%;
-            padding: 12px 16px;
-            background: var(--bg-main);
-            border: 1px solid var(--border);
-            color: white;
-            border-radius: 10px;
-            font-size: 16px;
-            margin-bottom: 15px;
-            outline: none;
-        }
-        
-        .login-box input:focus {
-            border-color: var(--accent);
-        }
-
-        /* Приложение */
-        .app { 
-            display: none; 
-            width: 100%; 
-            height: 100vh;
+            height: calc(100vh - var(--header-height));
             position: relative;
-        }
-
-        /* Шторка (Sidebar) */
-        .sidebar { 
-            width: 280px; 
-            background: var(--bg-sidebar); 
-            border-right: 1px solid var(--border);
-            display: flex; 
-            flex-direction: column; 
-            z-index: 1000;
-            height: 100vh;
-            position: fixed;
-            left: 0;
-            top: 0;
-            transition: transform 0.2s ease;
-            transform: translateX(0);
-        }
-
-        .sidebar-header { 
-            padding: 20px; 
-            border-bottom: 1px solid var(--border); 
-            flex-shrink: 0;
+            overflow: hidden;
         }
         
-        .online-count { 
-            font-size: 0.8rem; 
-            color: #4cd964; 
-            margin-top: 5px; 
-            display: block; 
-        }
-
-        #user-list { 
-            flex: 1; 
-            overflow-y: auto; 
-            padding: 15px;
-            min-height: 0;
-        }
-        
-        .user-item { 
-            padding: 10px 14px; 
-            background: rgba(255,255,255,0.03); 
-            border-radius: 12px; 
-            margin-bottom: 8px; 
-            display: flex; 
-            align-items: center; 
-            font-size: 0.9rem;
-        }
-        
-        .status-dot { 
-            width: 8px; 
-            height: 8px; 
-            background: #4cd964; 
-            border-radius: 50%; 
-            margin-right: 12px; 
-            flex-shrink: 0;
-        }
-
-        /* Чат */
-        .chat-area { 
-            flex: 1; 
-            display: flex; 
-            flex-direction: column; 
-            background: var(--bg-chat);
-            margin-left: 280px;
-            height: 100vh;
-        }
-        
-        .chat-header { 
-            padding: 15px 20px; 
-            border-bottom: 1px solid var(--border); 
-            background: var(--bg-sidebar); 
-            display: flex; 
-            align-items: center; 
-            gap: 15px;
-            flex-shrink: 0;
-        }
-
-        .menu-btn { 
-            display: none; 
-            background: none; 
-            border: 1px solid var(--border); 
-            color: white; 
-            padding: 8px 12px; 
-            border-radius: 8px; 
-            cursor: pointer;
-            font-size: 18px;
-        }
-
-        #messages { 
-            flex: 1; 
-            overflow-y: auto; 
-            padding: 20px; 
-            display: flex; 
-            flex-direction: column; 
-            gap: 12px;
-            min-height: 0;
-        }
-        
-        .msg { 
-            max-width: 80%; 
-            padding: 12px 16px; 
-            border-radius: 18px; 
-            font-size: 0.95rem; 
-            line-height: 1.4;
-            word-break: break-word;
-        }
-        
-        .msg-meta { 
-            font-size: 0.7rem; 
-            opacity: 0.5; 
-            margin-bottom: 4px; 
-            display: block;
-            font-weight: 500;
-        }
-        
-        .incoming { 
-            align-self: flex-start; 
-            background: var(--msg-in); 
-            border-bottom-left-radius: 4px; 
-        }
-        
-        .outgoing { 
-            align-self: flex-end; 
-            background: var(--msg-out); 
-            color: #000; 
-            font-weight: 500; 
-            border-bottom-right-radius: 4px; 
-        }
-
-        /* Ввод */
-        .input-panel { 
-            padding: 20px; 
-            background: var(--bg-sidebar); 
-            border-top: 1px solid var(--border); 
-            display: flex; 
-            gap: 10px;
-            flex-shrink: 0;
-        }
-        
-        input { 
-            flex: 1; 
-            background: var(--bg-main); 
-            border: 1px solid var(--border); 
-            color: white; 
-            padding: 12px 16px; 
-            border-radius: 12px; 
-            outline: none;
-            font-size: 16px;
-        }
-        
-        input:focus {
-            border-color: var(--accent);
-        }
-        
-        .send-btn { 
-            background: var(--accent); 
-            color: black; 
-            border: none; 
-            padding: 0 20px; 
-            border-radius: 12px; 
-            cursor: pointer; 
-            font-weight: bold;
-            font-size: 16px;
-            min-width: 60px;
+        header {
+            background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%);
+            color: #ffffff;
+            padding: 15px 20px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
+            position: relative;
+            z-index: 100;
+            height: var(--header-height);
+            min-height: var(--header-height);
+            max-height: var(--header-height);
             display: flex;
             align-items: center;
             justify-content: center;
-        }
-
-        .sidebar-overlay { 
-            display: none; 
-            position: fixed; 
-            inset: 0; 
-            background: rgba(0,0,0,0.8); 
-            z-index: 999; 
-        }
-
-        /* Индикатор подключения */
-        .connection-status {
-            position: fixed;
-            top: 15px;
-            right: 15px;
-            background: #4cd964;
-            color: black;
-            padding: 8px 15px;
-            border-radius: 20px;
-            font-size: 12px;
-            font-weight: 600;
-            z-index: 1001;
-            display: none;
-            box-shadow: 0 4px 12px rgba(76, 217, 100, 0.3);
+            border-bottom: 1px solid #333;
+            flex-shrink: 0;
         }
         
-        .connection-status.offline {
-            background: #ff3b30;
-            color: white;
+        .header-content {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            width: 100%;
+            max-width: 1400px;
+            margin: 0 auto;
         }
-
-        /* Скроллбар */
-        ::-webkit-scrollbar {
+        
+        .menu-toggle {
+            display: none;
+            background: none;
+            border: none;
+            color: #ffffff;
+            font-size: 24px;
+            cursor: pointer;
+            padding: 10px;
+            margin-right: 15px;
+            border-radius: 8px;
+            transition: background 0.3s;
+            flex-shrink: 0;
+        }
+        
+        .menu-toggle:hover {
+            background: rgba(255, 255, 255, 0.1);
+        }
+        
+        .sidebar {
+            width: 300px;
+            background: #1a1a1a;
+            border-right: 1px solid #333;
+            padding: 20px;
+            overflow-y: auto;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 5px 0 15px rgba(0, 0, 0, 0.3);
+            height: 100%;
+            position: relative;
+            z-index: 5;
+            scrollbar-width: thin;
+            scrollbar-color: #444 #1a1a1a;
+            flex-shrink: 0;
+            overflow-x: hidden;
+        }
+        
+        .sidebar::-webkit-scrollbar {
             width: 6px;
         }
         
-        ::-webkit-scrollbar-track {
-            background: transparent;
+        .sidebar::-webkit-scrollbar-track {
+            background: #1a1a1a;
         }
         
-        ::-webkit-scrollbar-thumb {
-            background: var(--border);
+        .sidebar::-webkit-scrollbar-thumb {
+            background: #444;
             border-radius: 3px;
         }
-
+        
+        .chat-area {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            background: #0f0f0f;
+            height: 100%;
+            overflow: hidden;
+            min-width: 0;
+        }
+        
+        .messages {
+            flex: 1;
+            padding: 20px;
+            overflow-y: auto;
+            background: #0f0f0f;
+            background-image: 
+                radial-gradient(circle at 25% 25%, rgba(40, 40, 40, 0.2) 0%, transparent 55%),
+                radial-gradient(circle at 75% 75%, rgba(30, 30, 30, 0.2) 0%, transparent 55%);
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            -webkit-overflow-scrolling: touch;
+            scrollbar-width: thin;
+            scrollbar-color: #444 #0f0f0f;
+            min-height: 0;
+            overflow-anchor: none;
+        }
+        
+        .messages::-webkit-scrollbar {
+            width: 8px;
+        }
+        
+        .messages::-webkit-scrollbar-track {
+            background: #0f0f0f;
+        }
+        
+        .messages::-webkit-scrollbar-thumb {
+            background: #444;
+            border-radius: 4px;
+        }
+        
+        .message {
+            max-width: 70%;
+            padding: 14px 18px;
+            border-radius: 18px;
+            word-wrap: break-word;
+            word-break: break-word;
+            position: relative;
+            animation: messageAppear 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            backdrop-filter: blur(10px);
+            border: 1px solid transparent;
+            flex-shrink: 0;
+        }
+        
+        @keyframes messageAppear {
+            from {
+                opacity: 0;
+                transform: translateY(20px) scale(0.95);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0) scale(1);
+            }
+        }
+        
+        .message.my {
+            align-self: flex-end;
+            background: linear-gradient(135deg, #0066cc 0%, #0099ff 100%);
+            border-color: rgba(0, 153, 255, 0.3);
+            margin-left: 30%;
+            box-shadow: 0 4px 15px rgba(0, 102, 204, 0.3);
+        }
+        
+        .message.other {
+            align-self: flex-start;
+            background: linear-gradient(135deg, #2a2a2a 0%, #333 100%);
+            border-color: #444;
+            margin-right: 30%;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+        }
+        
+        .sender {
+            font-weight: 600;
+            font-size: 14px;
+            margin-bottom: 6px;
+            color: #ffffff;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .sender-badge {
+            display: inline-block;
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background: #00ff88;
+            box-shadow: 0 0 8px #00ff88;
+            animation: pulse 2s infinite;
+        }
+        
+        @keyframes pulse {
+            0% { 
+                box-shadow: 0 0 0 0 rgba(0, 255, 136, 0.7);
+                transform: scale(1);
+            }
+            50% { 
+                box-shadow: 0 0 0 6px rgba(0, 255, 136, 0);
+                transform: scale(1.1);
+            }
+            100% { 
+                box-shadow: 0 0 0 0 rgba(0, 255, 136, 0);
+                transform: scale(1);
+            }
+        }
+        
+        .text {
+            font-size: 15px;
+            line-height: 1.5;
+            color: #e0e0e0;
+        }
+        
+        .message.my .text {
+            color: #ffffff;
+        }
+        
+        .time {
+            font-size: 12px;
+            color: rgba(255, 255, 255, 0.6);
+            text-align: right;
+            margin-top: 8px;
+            opacity: 0.8;
+            font-feature-settings: "tnum";
+        }
+        
+        .input-area {
+            background: #1a1a1a;
+            border-top: 1px solid #333;
+            display: flex;
+            gap: 15px;
+            align-items: center;
+            padding: 20px;
+            height: var(--input-height);
+            min-height: var(--input-height);
+            max-height: var(--input-height);
+            flex-shrink: 0;
+            position: relative;
+            z-index: 10;
+        }
+        
+        input[type="text"] {
+            flex: 1;
+            padding: 16px 20px;
+            border: 2px solid #333;
+            border-radius: 25px;
+            font-size: 16px;
+            outline: none;
+            transition: all 0.3s;
+            background: #2a2a2a;
+            color: #ffffff;
+            min-height: 56px;
+            max-height: 56px;
+        }
+        
+        input[type="text"]::placeholder {
+            color: #888;
+        }
+        
+        input[type="text"]:focus {
+            border-color: #0099ff;
+            background: #2d2d2d;
+            box-shadow: 0 0 0 4px rgba(0, 153, 255, 0.2);
+        }
+        
+        button {
+            background: linear-gradient(135deg, #0066cc 0%, #0099ff 100%);
+            color: white;
+            border: none;
+            padding: 16px 28px;
+            border-radius: 25px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 16px;
+            transition: all 0.3s;
+            min-height: 56px;
+            max-height: 56px;
+            min-width: 120px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 4px 15px rgba(0, 102, 204, 0.4);
+            position: relative;
+            overflow: hidden;
+            flex-shrink: 0;
+        }
+        
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(0, 102, 204, 0.6);
+        }
+        
+        button:active {
+            transform: translateY(0);
+        }
+        
+        button::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+            transform: translateX(-100%);
+        }
+        
+        button:hover::after {
+            animation: shimmer 1.5s infinite;
+        }
+        
+        @keyframes shimmer {
+            100% {
+                transform: translateX(100%);
+            }
+        }
+        
+        h2 {
+            margin-bottom: 25px;
+            color: #ffffff;
+            font-size: 22px;
+            font-weight: 600;
+            padding-bottom: 15px;
+            border-bottom: 2px solid #333;
+            position: relative;
+        }
+        
+        h2::after {
+            content: '';
+            position: absolute;
+            bottom: -2px;
+            left: 0;
+            width: 60px;
+            height: 2px;
+            background: #0099ff;
+        }
+        
+        .user-list {
+            list-style: none;
+        }
+        
+        .user-item {
+            padding: 14px 18px;
+            margin-bottom: 12px;
+            background: #2a2a2a;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            transition: all 0.3s;
+            cursor: pointer;
+            border: 1px solid #333;
+            position: relative;
+            flex-shrink: 0;
+        }
+        
+        .user-item:hover {
+            background: #333;
+            transform: translateX(8px);
+            border-color: #444;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+        }
+        
+        .user-item.you {
+            background: linear-gradient(135deg, rgba(0, 102, 204, 0.2) 0%, rgba(0, 153, 255, 0.1) 100%);
+            border-color: rgba(0, 153, 255, 0.3);
+        }
+        
+        .user-status {
+            width: 14px;
+            height: 14px;
+            border-radius: 50%;
+            background: #666;
+            flex-shrink: 0;
+            position: relative;
+        }
+        
+        .user-status.online {
+            background: #00ff88;
+            box-shadow: 0 0 10px #00ff88;
+            animation: statusPulse 2s infinite;
+        }
+        
+        @keyframes statusPulse {
+            0% { box-shadow: 0 0 0 0 rgba(0, 255, 136, 0.7); }
+            70% { box-shadow: 0 0 0 8px rgba(0, 255, 136, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(0, 255, 136, 0); }
+        }
+        
+        .user-name {
+            font-size: 16px;
+            font-weight: 500;
+            color: #ffffff;
+            flex: 1;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        
+        .user-you {
+            font-size: 12px;
+            background: #0099ff;
+            color: white;
+            padding: 4px 10px;
+            border-radius: 12px;
+            margin-left: 8px;
+            font-weight: 500;
+            letter-spacing: 0.5px;
+            flex-shrink: 0;
+        }
+        
+        .welcome-message {
+            text-align: center;
+            padding: 30px 20px;
+            color: #888;
+            font-size: 15px;
+            background: rgba(26, 26, 26, 0.8);
+            border-radius: 16px;
+            margin: 20px;
+            backdrop-filter: blur(20px);
+            border: 1px solid #333;
+            animation: fadeIn 1s ease;
+            flex-shrink: 0;
+        }
+        
+        .connection-status {
+            position: fixed;
+            top: 80px;
+            right: 20px;
+            background: linear-gradient(135deg, #00ff88 0%, #00cc66 100%);
+            color: #000;
+            padding: 10px 20px;
+            border-radius: 25px;
+            font-size: 13px;
+            display: none;
+            z-index: 1000;
+            animation: slideIn 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            box-shadow: 0 4px 15px rgba(0, 255, 136, 0.3);
+            font-weight: 600;
+        }
+        
+        .connection-status.offline {
+            background: linear-gradient(135deg, #ff4444 0%, #cc0000 100%);
+            box-shadow: 0 4px 15px rgba(255, 68, 68, 0.3);
+        }
+        
+        @keyframes slideIn {
+            from {
+                transform: translateX(100px);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+        
+        .mobile-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.8);
+            backdrop-filter: blur(5px);
+            z-index: 4;
+            animation: fadeIn 0.3s ease;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        
+        /* Улучшенная адаптивность */
+        @media (max-width: 1200px) {
+            .container {
+                max-width: 100%;
+            }
+            
+            .sidebar {
+                width: 280px;
+            }
+            
+            .message {
+                max-width: 75%;
+            }
+        }
+        
+        @media (max-width: 992px) {
+            .sidebar {
+                width: 260px;
+                padding: 20px 15px;
+            }
+            
+            .message {
+                max-width: 80%;
+                margin-left: 20%;
+                margin-right: 20%;
+            }
+        }
+        
         @media (max-width: 768px) {
-            .sidebar { 
-                transform: translateX(-100%); 
-                width: 85%;
-                max-width: 300px;
+            :root {
+                --header-height: 60px;
+                --input-height: 70px;
             }
             
-            .sidebar.active { 
-                transform: translateX(0); 
-                box-shadow: 10px 0 30px rgba(0,0,0,0.5);
+            body {
+                height: 100vh;
+                height: -webkit-fill-available;
             }
             
-            .sidebar.active + .sidebar-overlay { 
-                display: block; 
+            .container {
+                flex-direction: column;
+                height: calc(100vh - var(--header-height));
+            }
+            
+            header {
+                height: var(--header-height);
+                min-height: var(--header-height);
+                max-height: var(--header-height);
+                padding: 12px 15px;
+            }
+            
+            .menu-toggle {
+                display: block;
+            }
+            
+            .sidebar {
+                position: fixed;
+                top: 0;
+                left: 0;
+                bottom: 0;
+                width: 320px;
+                max-width: 85%;
+                transform: translateX(-100%);
+                z-index: 6;
+                border-right: none;
+                box-shadow: 10px 0 30px rgba(0, 0, 0, 0.5);
+                padding-top: 70px;
+                height: 100vh;
+            }
+            
+            .sidebar.active {
+                transform: translateX(0);
+            }
+            
+            .mobile-overlay.active {
+                display: block;
             }
             
             .chat-area {
-                margin-left: 0;
+                width: 100%;
             }
             
-            .menu-btn { 
-                display: block; 
+            .messages {
+                padding: 15px;
+                gap: 10px;
+                height: calc(100vh - var(--header-height) - var(--input-height));
             }
             
-            .msg {
+            .message {
+                max-width: 85%;
+                padding: 12px 16px;
+                margin-left: 15%;
+                margin-right: 15%;
+            }
+            
+            .input-area {
+                padding: 15px;
+                height: var(--input-height);
+                min-height: var(--input-height);
+                max-height: var(--input-height);
+                gap: 12px;
+            }
+            
+            input[type="text"] {
+                padding: 14px 18px;
+                min-height: 50px;
+                max-height: 50px;
+                font-size: 16px;
+            }
+            
+            button {
+                padding: 14px 22px;
+                min-height: 50px;
+                max-height: 50px;
+                min-width: 100px;
+                font-size: 15px;
+            }
+            
+            .sender {
+                font-size: 13px;
+            }
+            
+            .text {
+                font-size: 14px;
+            }
+        }
+        
+        @media (max-width: 576px) {
+            :root {
+                --input-height: 65px;
+            }
+            
+            .sidebar {
+                width: 280px;
+            }
+            
+            .message {
                 max-width: 90%;
+                margin-left: 10%;
+                margin-right: 10%;
             }
+            
+            input[type="text"] {
+                padding: 12px 16px;
+                font-size: 15px;
+                min-height: 45px;
+                max-height: 45px;
+            }
+            
+            button {
+                padding: 12px 18px;
+                min-width: 80px;
+                min-height: 45px;
+                max-height: 45px;
+            }
+            
+            h1 {
+                font-size: 18px;
+            }
+            
+            h2 {
+                font-size: 18px;
+            }
+        }
+        
+        @media (max-width: 375px) {
+            .sidebar {
+                width: 90%;
+                padding: 70px 15px 20px;
+            }
+            
+            .message {
+                max-width: 95%;
+                padding: 10px 14px;
+            }
+            
+            .input-area {
+                padding: 12px;
+                height: var(--input-height);
+                min-height: var(--input-height);
+                max-height: var(--input-height);
+            }
+            
+            input[type="text"] {
+                padding: 12px 14px;
+                min-height: 45px;
+                max-height: 45px;
+            }
+            
+            button {
+                padding: 12px 16px;
+                min-height: 45px;
+                max-height: 45px;
+                min-width: 70px;
+                font-size: 14px;
+            }
+        }
+        
+        /* Портретный режим на мобильных */
+        @media (max-height: 700px) and (max-width: 768px) {
+            .messages {
+                padding: 12px;
+                height: calc(100vh - var(--header-height) - var(--input-height));
+            }
+            
+            .message {
+                padding: 10px 14px;
+            }
+            
+            .input-area {
+                padding: 12px;
+                height: var(--input-height);
+                min-height: var(--input-height);
+                max-height: var(--input-height);
+            }
+            
+            input[type="text"] {
+                padding: 12px 14px;
+                min-height: 42px;
+                max-height: 42px;
+            }
+            
+            button {
+                padding: 12px 16px;
+                min-height: 42px;
+                max-height: 42px;
+            }
+        }
+        
+        /* Ландшафтный режим на мобильных */
+        @media (max-height: 600px) and (orientation: landscape) {
+            .container {
+                flex-direction: row;
+                height: calc(100vh - var(--header-height));
+            }
+            
+            .sidebar {
+                position: relative;
+                transform: none;
+                display: block;
+                width: 250px;
+                padding: 20px 15px;
+                height: 100%;
+            }
+            
+            .mobile-overlay {
+                display: none !important;
+            }
+            
+            .menu-toggle {
+                display: none;
+            }
+            
+            .messages {
+                height: calc(100vh - var(--header-height) - var(--input-height));
+            }
+            
+            .message {
+                max-width: 65%;
+            }
+        }
+        
+        /* Очень маленькие экраны в ландшафтном режиме */
+        @media (max-height: 400px) and (orientation: landscape) {
+            .sidebar {
+                width: 200px;
+                padding: 15px 10px;
+            }
+            
+            .messages {
+                padding: 10px;
+                height: calc(100vh - var(--header-height) - var(--input-height));
+            }
+            
+            .message {
+                padding: 8px 12px;
+                margin-left: 20%;
+                margin-right: 20%;
+            }
+            
+            .input-area {
+                padding: 8px 10px;
+                height: var(--input-height);
+                min-height: var(--input-height);
+                max-height: var(--input-height);
+            }
+            
+            input[type="text"] {
+                padding: 10px 12px;
+                min-height: 36px;
+                max-height: 36px;
+            }
+            
+            button {
+                padding: 10px 14px;
+                min-height: 36px;
+                max-height: 36px;
+                min-width: 60px;
+            }
+        }
+        
+        /* Стили для длинных сообщений */
+        .text {
+            overflow-wrap: break-word;
+            hyphens: auto;
+            max-width: 100%;
+        }
+        
+        /* Анимация для новых сообщений */
+        .new-message {
+            animation: highlight 1s ease;
+        }
+        
+        @keyframes highlight {
+            0% {
+                background-color: rgba(0, 153, 255, 0.3);
+            }
+            100% {
+                background-color: transparent;
+            }
+        }
+        
+        /* Фиксируем высоты элементов */
+        .message-wrapper {
+            min-height: min-content;
+            flex-shrink: 0;
+        }
+        
+        /* Убираем возможность сжатия для фиксированных элементов */
+        .no-shrink {
+            flex-shrink: 0 !important;
         }
     </style>
 </head>
 <body>
-
-<div id="login-overlay">
-    <div class="login-box">
-        <h2 style="margin-bottom: 10px;">Dark Messenger</h2>
-        <p style="color: var(--text-secondary); font-size: 0.9rem; margin-bottom: 20px;">2025 Edition</p>
-        <input type="text" id="username-input" placeholder="Введите ваш ник..." maxlength="15" autocomplete="off">
-        <button onclick="login()" class="send-btn" style="width: 100%; height: 45px; margin-top: 15px;">Войти</button>
-    </div>
-</div>
-
-<div class="connection-status" id="connection-status"></div>
-
-<div class="app" id="app">
-    <aside class="sidebar" id="sidebar">
-        <div class="sidebar-header">
-            <strong>Участники</strong>
-            <span class="online-count" id="count-label">Онлайн: 0</span>
+    <header class="no-shrink">
+        <div class="header-content">
+            <button class="menu-toggle" id="menu-toggle" aria-label="Меню">☰</button>
+            <h1>Темный мессенджер</h1>
+            <div style="width: 40px;"></div>
         </div>
-        <div id="user-list"></div>
-    </aside>
-
-    <div class="sidebar-overlay" onclick="toggleSidebar()"></div>
-
-    <main class="chat-area">
-        <header class="chat-header">
-            <button class="menu-btn" onclick="toggleSidebar()">☰</button>
-            <div>
-                <strong>🌐 Общий чат</strong>
-            </div>
-        </header>
-
-        <div id="messages"></div>
-
-        <form class="input-panel" onsubmit="send(event)">
-            <input type="text" id="m-input" placeholder="Сообщение..." required autocomplete="off">
-            <button type="submit" class="send-btn">➤</button>
-        </form>
-    </main>
-</div>
-
-<!-- Firebase SDK -->
-<script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-database-compat.js"></script>
-
-<script>
-    // Конфигурация Firebase
-    const firebaseConfig = {
-        databaseURL: "https://chat-c54e2-default-rtdb.europe-west1.firebasedatabase.app/"
-    };
-
-    // Инициализация Firebase
-    const app = firebase.initializeApp(firebaseConfig);
-    const database = firebase.database();
-
-    let currentUser = "";
-    let userId = "";
-    let userName = "";
-    let isConnected = false;
-
-    // Ссылки на данные в Firebase
-    let messagesRef;
-    let onlineUsersRef;
-    let currentUserRef;
-
-    // Элементы DOM
-    const connectionStatus = document.getElementById('connection-status');
-
-    function toggleSidebar() { 
-        document.getElementById('sidebar').classList.toggle('active'); 
-    }
-
-    function showConnectionStatus(connected) {
-        connectionStatus.textContent = connected ? '✓ Онлайн' : '✗ Оффлайн';
-        connectionStatus.className = `connection-status ${connected ? '' : 'offline'}`;
-        connectionStatus.style.display = 'block';
+    </header>
+    
+    <div class="mobile-overlay" id="mobile-overlay"></div>
+    
+    <div class="container">
+        <aside class="sidebar" id="sidebar">
+            <h2>Участники (<span id="online-count">0</span>)</h2>
+            <ul class="user-list" id="user-list">
+                <!-- Список пользователей будет здесь -->
+            </ul>
+        </aside>
         
-        setTimeout(() => {
-            connectionStatus.style.display = 'none';
-        }, 3000);
-    }
+        <main class="chat-area">
+            <div class="messages" id="messages-container">
+                <div class="welcome-message">
+                    <p>Добро пожаловать в чат! Сообщения обновляются в реальном времени.</p>
+                </div>
+            </div>
+            
+            <div class="input-area no-shrink">
+                <input type="text" id="message-input" placeholder="Напишите сообщение..." autocomplete="off" aria-label="Ввод сообщения">
+                <button type="button" id="send-btn">Отправить</button>
+            </div>
+        </main>
+    </div>
 
-    function login() {
-        const name = document.getElementById('username-input').value.trim();
-        if (name) {
-            currentUser = name;
-            userName = name;
-            userId = 'user_' + Math.random().toString(36).substr(2, 9);
-            
-            document.getElementById('login-overlay').style.display = 'none';
-            document.getElementById('app').style.display = 'flex';
-            
-            // Инициализируем Firebase ссылки после логина
-            messagesRef = database.ref('messages');
-            onlineUsersRef = database.ref('onlineUsers');
-            currentUserRef = onlineUsersRef.child(userId);
-            
-            setupFirebaseListeners();
-            setupMessageListeners();
+    <div class="connection-status" id="connection-status"></div>
+
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-database-compat.js"></script>
+
+    <script>
+        // Конфигурация Firebase
+        const firebaseConfig = {
+            databaseURL: "https://chat-c54e2-default-rtdb.europe-west1.firebasedatabase.app/"
+        };
+
+        // Инициализация Firebase
+        const app = firebase.initializeApp(firebaseConfig);
+        const database = firebase.database();
+
+        // Генерация случайного имени пользователя
+        const userId = 'user_' + Math.random().toString(36).substr(2, 9);
+        const userName = 'Пользователь_' + Math.floor(Math.random() * 1000);
+        
+        // Ссылки на данные в Firebase
+        const messagesRef = database.ref('messages');
+        const onlineUsersRef = database.ref('onlineUsers');
+        const currentUserRef = onlineUsersRef.child(userId);
+
+        // Элементы DOM
+        const messagesContainer = document.getElementById('messages-container');
+        const messageInput = document.getElementById('message-input');
+        const sendBtn = document.getElementById('send-btn');
+        const userList = document.getElementById('user-list');
+        const onlineCount = document.getElementById('online-count');
+        const menuToggle = document.getElementById('menu-toggle');
+        const sidebar = document.getElementById('sidebar');
+        const mobileOverlay = document.getElementById('mobile-overlay');
+        const connectionStatus = document.getElementById('connection-status');
+
+        // Мобильное меню
+        let isMenuOpen = false;
+
+        menuToggle.addEventListener('click', (e) => {
+            e.stopPropagation();
+            isMenuOpen = !isMenuOpen;
+            sidebar.classList.toggle('active', isMenuOpen);
+            mobileOverlay.classList.toggle('active', isMenuOpen);
+            document.body.style.overflow = isMenuOpen ? 'hidden' : '';
+        });
+
+        mobileOverlay.addEventListener('click', () => {
+            isMenuOpen = false;
+            sidebar.classList.remove('active');
+            mobileOverlay.classList.remove('active');
+            document.body.style.overflow = '';
+        });
+
+        // Закрытие меню при клике на ссылку
+        userList.addEventListener('click', (e) => {
+            if (window.innerWidth <= 768 && e.target.closest('.user-item')) {
+                isMenuOpen = false;
+                sidebar.classList.remove('active');
+                mobileOverlay.classList.remove('active');
+                document.body.style.overflow = '';
+            }
+        });
+
+        // Адаптивное скрытие меню при ресайзе
+        function handleResize() {
+            if (window.innerWidth > 768) {
+                isMenuOpen = false;
+                sidebar.classList.remove('active');
+                mobileOverlay.classList.remove('active');
+                document.body.style.overflow = '';
+            }
+            // Пересчитываем высоту сообщений
+            adjustMessagesHeight();
         }
-    }
+        
+        window.addEventListener('resize', handleResize);
 
-    function setupFirebaseListeners() {
+        // Функция для корректировки высоты контейнера сообщений
+        function adjustMessagesHeight() {
+            const header = document.querySelector('header');
+            const inputArea = document.querySelector('.input-area');
+            const messages = document.querySelector('.messages');
+            
+            if (header && inputArea && messages) {
+                const headerHeight = header.offsetHeight;
+                const inputHeight = inputArea.offsetHeight;
+                const windowHeight = window.innerHeight;
+                
+                messages.style.height = `${windowHeight - headerHeight - inputHeight}px`;
+                messages.style.maxHeight = `${windowHeight - headerHeight - inputHeight}px`;
+            }
+        }
+
+        // Отображение статуса подключения
+        let isConnected = false;
+        let connectionTimeout;
+        
+        function showConnectionStatus(connected) {
+            clearTimeout(connectionTimeout);
+            
+            connectionStatus.textContent = connected ? '✓ Онлайн' : '✗ Оффлайн';
+            connectionStatus.className = `connection-status ${connected ? '' : 'offline'}`;
+            connectionStatus.style.display = 'block';
+            
+            connectionTimeout = setTimeout(() => {
+                connectionStatus.style.display = 'none';
+            }, 3000);
+        }
+
         // Проверка подключения к Firebase
         const connectedRef = database.ref(".info/connected");
         connectedRef.on("value", (snap) => {
@@ -439,15 +991,133 @@
             }
         });
 
+        // Функция для отправки сообщения
+        function sendMessage() {
+            const messageText = messageInput.value.trim();
+            
+            if (!messageText) {
+                messageInput.focus();
+                return;
+            }
+            
+            if (!isConnected) {
+                showConnectionStatus(false);
+                return;
+            }
+            
+            const messageData = {
+                text: messageText,
+                sender: userName,
+                senderId: userId,
+                timestamp: firebase.database.ServerValue.TIMESTAMP
+            };
+            
+            messagesRef.push(messageData)
+                .then(() => {
+                    messageInput.value = '';
+                    messageInput.focus();
+                    
+                    // На мобильных скрываем клавиатуру после отправки
+                    if (window.innerWidth <= 768) {
+                        setTimeout(() => messageInput.blur(), 100);
+                    }
+                })
+                .catch((error) => {
+                    console.error("Ошибка отправки:", error);
+                    showConnectionStatus(false);
+                });
+        }
+
+        // Функция для создания элемента сообщения
+        function createMessageElement(messageData, key) {
+            const isMyMessage = messageData.senderId === userId;
+            
+            const messageDiv = document.createElement('div');
+            messageDiv.className = `message ${isMyMessage ? 'my' : 'other'}`;
+            messageDiv.dataset.id = key;
+            messageDiv.classList.add('new-message');
+            
+            const senderDiv = document.createElement('div');
+            senderDiv.className = 'sender';
+            
+            const senderBadge = document.createElement('span');
+            senderBadge.className = 'sender-badge';
+            
+            const senderName = document.createTextNode(messageData.sender);
+            
+            senderDiv.appendChild(senderBadge);
+            senderDiv.appendChild(senderName);
+            
+            const textDiv = document.createElement('div');
+            textDiv.className = 'text';
+            textDiv.textContent = messageData.text;
+            
+            const timeDiv = document.createElement('div');
+            timeDiv.className = 'time';
+            
+            // Форматирование времени
+            if (messageData.timestamp) {
+                const date = new Date(messageData.timestamp);
+                timeDiv.textContent = date.toLocaleTimeString('ru-RU', {hour: '2-digit', minute:'2-digit'});
+            }
+            
+            messageDiv.appendChild(senderDiv);
+            messageDiv.appendChild(textDiv);
+            messageDiv.appendChild(timeDiv);
+            
+            return messageDiv;
+        }
+
+        // Загрузка и отображение сообщений
+        let lastMessageCount = 0;
+        messagesRef.orderByChild('timestamp').limitToLast(100).on('value', (snapshot) => {
+            if (!snapshot.exists()) {
+                messagesContainer.innerHTML = '<div class="welcome-message"><p>Нет сообщений. Будьте первым!</p></div>';
+                return;
+            }
+            
+            const messages = [];
+            snapshot.forEach((childSnapshot) => {
+                messages.push({
+                    key: childSnapshot.key,
+                    ...childSnapshot.val()
+                });
+            });
+            
+            // Сортировка по времени
+            messages.sort((a, b) => (a.timestamp || 0) - (b.timestamp || 0));
+            
+            // Очищаем контейнер если это первая загрузка
+            if (lastMessageCount === 0) {
+                messagesContainer.innerHTML = '';
+            }
+            
+            // Добавляем только новые сообщения
+            if (messages.length > lastMessageCount) {
+                const newMessages = messages.slice(lastMessageCount);
+                newMessages.forEach(msg => {
+                    const messageElement = createMessageElement(msg, msg.key);
+                    messagesContainer.appendChild(messageElement);
+                });
+                
+                // Плавная прокрутка вниз с задержкой для рендеринга
+                setTimeout(() => {
+                    messagesContainer.scrollTo({
+                        top: messagesContainer.scrollHeight,
+                        behavior: 'smooth'
+                    });
+                }, 50);
+            }
+            
+            lastMessageCount = messages.length;
+        });
+
         // Отслеживание онлайн пользователей
         onlineUsersRef.on('value', (snapshot) => {
-            const userList = document.getElementById('user-list');
-            const countLabel = document.getElementById('count-label');
-            
             userList.innerHTML = '';
             
             if (!snapshot.exists()) {
-                countLabel.textContent = 'Онлайн: 0';
+                onlineCount.textContent = '0';
                 return;
             }
             
@@ -460,132 +1130,137 @@
             });
             
             // Обновление счетчика
-            countLabel.textContent = `Онлайн: ${users.length}`;
+            onlineCount.textContent = users.length;
             
             // Сортировка по времени последней активности
             users.sort((a, b) => (b.timestamp || 0) - (a.timestamp || 0));
             
             // Отображение пользователей
             users.forEach(user => {
-                const userItem = document.createElement('div');
-                userItem.className = 'user-item';
+                const userItem = document.createElement('li');
+                userItem.className = `user-item ${user.id === userId ? 'you' : ''}`;
+                userItem.title = `Был(а) активен(а) в ${new Date(user.timestamp).toLocaleTimeString('ru-RU', {hour: '2-digit', minute:'2-digit'})}`;
                 
-                const statusDot = document.createElement('div');
-                statusDot.className = 'status-dot';
+                const statusDiv = document.createElement('div');
+                statusDiv.className = 'user-status online';
                 
-                const userNameSpan = document.createTextNode(user.name + (user.id === userId ? ' (Вы)' : ''));
+                const nameDiv = document.createElement('div');
+                nameDiv.className = 'user-name';
+                nameDiv.textContent = user.name;
                 
-                userItem.appendChild(statusDot);
-                userItem.appendChild(userNameSpan);
+                const youBadge = document.createElement('span');
+                youBadge.className = 'user-you';
+                youBadge.textContent = 'Вы';
+                
+                userItem.appendChild(statusDiv);
+                userItem.appendChild(nameDiv);
+                
+                if (user.id === userId) {
+                    userItem.appendChild(youBadge);
+                }
+                
                 userList.appendChild(userItem);
             });
         });
-    }
 
-    function setupMessageListeners() {
-        // Загрузка и отображение сообщений
-        messagesRef.orderByChild('timestamp').limitToLast(100).on('value', (snapshot) => {
-            const messagesBox = document.getElementById('messages');
-            
-            if (!snapshot.exists()) {
-                messagesBox.innerHTML = '<div class="msg incoming"><span class="msg-meta">Система • 00:00</span>Нет сообщений. Будьте первым!</div>';
-                return;
-            }
-            
-            const messages = [];
-            snapshot.forEach((childSnapshot) => {
-                messages.push(childSnapshot.val());
-            });
-            
-            // Сортировка по времени
-            messages.sort((a, b) => (a.timestamp || 0) - (b.timestamp || 0));
-            
-            messagesBox.innerHTML = '';
-            messages.forEach(msg => {
-                const div = document.createElement('div');
-                div.className = `msg ${msg.senderId === userId ? 'outgoing' : 'incoming'}`;
-                
-                const time = msg.timestamp ? new Date(msg.timestamp).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}) : '00:00';
-                div.innerHTML = `<span class="msg-meta">${msg.sender} • ${time}</span>${msg.text}`;
-                messagesBox.appendChild(div);
-            });
-            
-            // Прокрутка вниз
-            setTimeout(() => {
-                messagesBox.scrollTop = messagesBox.scrollHeight;
-            }, 0);
+        // Обработчики событий
+        sendBtn.addEventListener('click', sendMessage);
+        sendBtn.addEventListener('touchend', (e) => {
+            e.preventDefault();
+            sendMessage();
         });
-    }
-
-    function send(e) {
-        e.preventDefault();
-        const input = document.getElementById('m-input');
-        const messageText = input.value.trim();
         
-        if (!messageText) {
-            input.focus();
-            return;
-        }
-        
-        if (!isConnected) {
-            showConnectionStatus(false);
-            alert('Нет подключения к серверу');
-            return;
-        }
-        
-        const messageData = {
-            sender: userName,
-            senderId: userId,
-            text: messageText,
-            timestamp: firebase.database.ServerValue.TIMESTAMP
-        };
-        
-        messagesRef.push(messageData)
-            .then(() => {
-                input.value = '';
-                input.focus();
-            })
-            .catch((error) => {
-                console.error("Ошибка отправки:", error);
-                showConnectionStatus(false);
-            });
-    }
-
-    // Автофокус на поле ввода при загрузке
-    window.addEventListener('load', () => {
-        const usernameInput = document.getElementById('username-input');
-        if (usernameInput) {
-            usernameInput.focus();
-        }
-        
-        // Закрытие меню при клике на оверлей
-        document.querySelector('.sidebar-overlay').addEventListener('click', toggleSidebar);
-    });
-
-    // Очистка при закрытии страницы
-    window.addEventListener('beforeunload', () => {
-        if (currentUserRef) {
-            currentUserRef.remove();
-        }
-    });
-
-    // Обработка видимости страницы
-    document.addEventListener('visibilitychange', () => {
-        if (!document.hidden) {
-            const messageInput = document.getElementById('m-input');
-            if (messageInput) {
-                messageInput.focus();
+        messageInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter' && !e.shiftKey) {
+                e.preventDefault();
+                sendMessage();
             }
-        }
-    });
+        });
 
-    // Обработка нажатия Enter в поле логина
-    document.getElementById('username-input').addEventListener('keypress', (e) => {
-        if (e.key === 'Enter') {
-            login();
-        }
-    });
-</script>
+        // Автофокус на поле ввода и корректировка размеров
+        window.addEventListener('load', () => {
+            messageInput.focus();
+            adjustMessagesHeight();
+            
+            // Сохраняем имя пользователя для сессии
+            sessionStorage.setItem('chatUserId', userId);
+            sessionStorage.setItem('chatUserName', userName);
+        });
 
+        // Восстановление имени пользователя при перезагрузке
+        const savedUserId = sessionStorage.getItem('chatUserId');
+        const savedUserName = sessionStorage.getItem('chatUserName');
+        if (savedUserId && savedUserName) {
+            console.log('Восстановлена сессия:', savedUserName);
+        }
+
+        // Обработка видимости страницы
+        document.addEventListener('visibilitychange', () => {
+            if (!document.hidden) {
+                messageInput.focus();
+                adjustMessagesHeight();
+            }
+        });
+
+        // Очистка при закрытии страницы
+        window.addEventListener('beforeunload', () => {
+            if (currentUserRef) {
+                currentUserRef.remove();
+            }
+        });
+
+        // Предотвращение скролла страницы при скролле чата на мобильных
+        let startY = 0;
+        messagesContainer.addEventListener('touchstart', (e) => {
+            startY = e.touches[0].clientY;
+        }, { passive: true });
+
+        messagesContainer.addEventListener('touchmove', (e) => {
+            const currentY = e.touches[0].clientY;
+            const isAtTop = messagesContainer.scrollTop === 0;
+            const isAtBottom = messagesContainer.scrollHeight - messagesContainer.scrollTop <= messagesContainer.clientHeight + 1;
+            
+            if ((isAtTop && currentY > startY) || (isAtBottom && currentY < startY)) {
+                e.stopPropagation();
+            }
+        }, { passive: false });
+
+        // Автофокус на поле ввода при клике на сообщения
+        messagesContainer.addEventListener('click', () => {
+            messageInput.focus();
+        });
+
+        // Скрытие клавиатуры при скролле на мобильных
+        document.addEventListener('touchstart', (e) => {
+            if (e.target !== messageInput && window.innerWidth <= 768) {
+                messageInput.blur();
+            }
+        }, { passive: true });
+
+        // Обработка жестов для закрытия меню на мобильных
+        let touchStartX = 0;
+        sidebar.addEventListener('touchstart', (e) => {
+            touchStartX = e.touches[0].clientX;
+        }, { passive: true });
+
+        sidebar.addEventListener('touchmove', (e) => {
+            if (isMenuOpen && window.innerWidth <= 768) {
+                const touchX = e.touches[0].clientX;
+                const diff = touchStartX - touchX;
+                
+                if (diff > 50) { // Свайп влево
+                    isMenuOpen = false;
+                    sidebar.classList.remove('active');
+                    mobileOverlay.classList.remove('active');
+                    document.body.style.overflow = '';
+                }
+            }
+        }, { passive: true });
+
+        // Также обрабатываем ресайз при изменении ориентации
+        window.addEventListener('orientationchange', () => {
+            setTimeout(adjustMessagesHeight, 100);
+        });
+    </script>
 </body>
 </html>
