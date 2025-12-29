@@ -1,1 +1,434 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Простой мессенджер</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: Arial, sans-serif;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            background: #f0f2f5;
+        }
+        
+        .container {
+            display: flex;
+            flex: 1;
+            max-width: 1200px;
+            margin: 0 auto;
+            width: 100%;
+            height: calc(100vh - 60px);
+        }
+        
+        header {
+            background: #0084ff;
+            color: white;
+            padding: 15px 20px;
+            text-align: center;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        
+        .sidebar {
+            width: 250px;
+            background: white;
+            border-right: 1px solid #ddd;
+            padding: 20px;
+            overflow-y: auto;
+        }
+        
+        .chat-area {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            background: white;
+        }
+        
+        .messages {
+            flex: 1;
+            padding: 20px;
+            overflow-y: auto;
+            background: #e5ddd5;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        
+        .message {
+            max-width: 70%;
+            padding: 10px 15px;
+            border-radius: 18px;
+            word-wrap: break-word;
+        }
+        
+        .message.my {
+            align-self: flex-end;
+            background: #dcf8c6;
+            border-bottom-right-radius: 5px;
+        }
+        
+        .message.other {
+            align-self: flex-start;
+            background: white;
+            border-bottom-left-radius: 5px;
+        }
+        
+        .sender {
+            font-weight: bold;
+            font-size: 12px;
+            margin-bottom: 4px;
+            color: #555;
+        }
+        
+        .text {
+            font-size: 14px;
+            line-height: 1.4;
+        }
+        
+        .time {
+            font-size: 11px;
+            color: #999;
+            text-align: right;
+            margin-top: 5px;
+        }
+        
+        .input-area {
+            padding: 15px 20px;
+            background: white;
+            border-top: 1px solid #ddd;
+            display: flex;
+            gap: 10px;
+        }
+        
+        input[type="text"] {
+            flex: 1;
+            padding: 12px 15px;
+            border: 1px solid #ddd;
+            border-radius: 25px;
+            font-size: 14px;
+            outline: none;
+        }
+        
+        input[type="text"]:focus {
+            border-color: #0084ff;
+        }
+        
+        button {
+            background: #0084ff;
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            border-radius: 25px;
+            cursor: pointer;
+            font-weight: bold;
+            font-size: 14px;
+        }
+        
+        button:hover {
+            background: #0073e6;
+        }
+        
+        h2 {
+            margin-bottom: 15px;
+            color: #333;
+            font-size: 18px;
+        }
+        
+        .user-list {
+            list-style: none;
+        }
+        
+        .user-item {
+            padding: 10px;
+            margin-bottom: 8px;
+            background: #f5f5f5;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .user-status {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background: #ccc;
+        }
+        
+        .user-status.online {
+            background: #4CAF50;
+            box-shadow: 0 0 5px #4CAF50;
+        }
+        
+        .user-name {
+            font-size: 14px;
+        }
+        
+        @media (max-width: 768px) {
+            .container {
+                flex-direction: column;
+            }
+            
+            .sidebar {
+                width: 100%;
+                height: 200px;
+                border-right: none;
+                border-bottom: 1px solid #ddd;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>Простой мессенджер</h1>
+    </header>
+    
+    <div class="container">
+        <aside class="sidebar">
+            <h2>Участники (<span id="online-count">0</span>)</h2>
+            <ul class="user-list" id="user-list">
+                <!-- Список пользователей будет здесь -->
+            </ul>
+        </aside>
+        
+        <main class="chat-area">
+            <div class="messages" id="messages-container">
+                <!-- Сообщения будут здесь -->
+                <div class="welcome-message">
+                    <p>Добро пожаловать в чат! Сообщения обновляются в реальном времени.</p>
+                </div>
+            </div>
+            
+            <div class="input-area">
+                <input type="text" id="message-input" placeholder="Введите сообщение..." autocomplete="off">
+                <button type="button" id="send-btn">Отправить</button>
+            </div>
+        </main>
+    </div>
+
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-database-compat.js"></script>
+
+    <script>
+        // Конфигурация Firebase с вашей базой данных
+        const firebaseConfig = {
+            databaseURL: "https://nexus-a9180-default-rtdb.europe-west1.firebasedatabase.app/"
+        };
+
+        // Инициализация Firebase
+        const app = firebase.initializeApp(firebaseConfig);
+        const database = firebase.database();
+
+        // Генерация случайного имени пользователя
+        const userId = 'user_' + Math.random().toString(36).substr(2, 9);
+        const userName = 'Пользователь_' + Math.floor(Math.random() * 1000);
+        
+        // Ссылки на данные в Firebase
+        const messagesRef = database.ref('messages');
+        const onlineUsersRef = database.ref('onlineUsers');
+        const currentUserRef = onlineUsersRef.child(userId);
+
+        // Элементы DOM
+        const messagesContainer = document.getElementById('messages-container');
+        const messageInput = document.getElementById('message-input');
+        const sendBtn = document.getElementById('send-btn');
+        const userList = document.getElementById('user-list');
+        const onlineCount = document.getElementById('online-count');
+
+        // Отображение статуса подключения
+        let isConnected = false;
+        
+        // Проверка подключения к Firebase
+        const connectedRef = database.ref(".info/connected");
+        connectedRef.on("value", (snap) => {
+            isConnected = snap.val() === true;
+            if (isConnected) {
+                console.log("Подключено к Firebase");
+                // Добавляем пользователя в список онлайн
+                currentUserRef.set({
+                    name: userName,
+                    timestamp: firebase.database.ServerValue.TIMESTAMP
+                });
+                
+                // Удаляем пользователя при отключении
+                currentUserRef.onDisconnect().remove();
+            }
+        });
+
+        // Функция для отправки сообщения
+        function sendMessage() {
+            const messageText = messageInput.value.trim();
+            
+            if (!messageText) return;
+            
+            if (!isConnected) {
+                alert("Нет подключения к серверу. Проверьте интернет.");
+                return;
+            }
+            
+            const messageData = {
+                text: messageText,
+                sender: userName,
+                senderId: userId,
+                timestamp: firebase.database.ServerValue.TIMESTAMP
+            };
+            
+            messagesRef.push(messageData)
+                .then(() => {
+                    messageInput.value = '';
+                    messageInput.focus();
+                })
+                .catch((error) => {
+                    console.error("Ошибка отправки:", error);
+                    alert("Ошибка отправки сообщения");
+                });
+        }
+
+        // Функция для создания элемента сообщения
+        function createMessageElement(messageData, key) {
+            const isMyMessage = messageData.senderId === userId;
+            
+            const messageDiv = document.createElement('div');
+            messageDiv.className = `message ${isMyMessage ? 'my' : 'other'}`;
+            messageDiv.dataset.id = key;
+            
+            const senderDiv = document.createElement('div');
+            senderDiv.className = 'sender';
+            senderDiv.textContent = messageData.sender;
+            
+            const textDiv = document.createElement('div');
+            textDiv.className = 'text';
+            textDiv.textContent = messageData.text;
+            
+            const timeDiv = document.createElement('div');
+            timeDiv.className = 'time';
+            
+            // Форматирование времени
+            if (messageData.timestamp) {
+                const date = new Date(messageData.timestamp);
+                timeDiv.textContent = date.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+            }
+            
+            messageDiv.appendChild(senderDiv);
+            messageDiv.appendChild(textDiv);
+            messageDiv.appendChild(timeDiv);
+            
+            return messageDiv;
+        }
+
+        // Загрузка и отображение сообщений
+        messagesRef.orderByChild('timestamp').limitToLast(50).on('value', (snapshot) => {
+            messagesContainer.innerHTML = '';
+            
+            if (!snapshot.exists()) {
+                const welcome = document.createElement('div');
+                welcome.className = 'message other';
+                welcome.textContent = 'Нет сообщений. Будьте первым!';
+                messagesContainer.appendChild(welcome);
+                return;
+            }
+            
+            const messages = [];
+            snapshot.forEach((childSnapshot) => {
+                messages.push({
+                    key: childSnapshot.key,
+                    ...childSnapshot.val()
+                });
+            });
+            
+            // Сортировка по времени (на всякий случай)
+            messages.sort((a, b) => (a.timestamp || 0) - (b.timestamp || 0));
+            
+            // Отображение сообщений
+            messages.forEach(msg => {
+                const messageElement = createMessageElement(msg, msg.key);
+                messagesContainer.appendChild(messageElement);
+            });
+            
+            // Прокрутка вниз
+            messagesContainer.scrollTop = messagesContainer.scrollHeight;
+        });
+
+        // Отслеживание онлайн пользователей
+        onlineUsersRef.on('value', (snapshot) => {
+            userList.innerHTML = '';
+            
+            if (!snapshot.exists()) {
+                onlineCount.textContent = '0';
+                return;
+            }
+            
+            const users = [];
+            snapshot.forEach((childSnapshot) => {
+                users.push({
+                    id: childSnapshot.key,
+                    ...childSnapshot.val()
+                });
+            });
+            
+            // Обновление счетчика
+            onlineCount.textContent = users.length;
+            
+            // Сортировка по времени последней активности
+            users.sort((a, b) => (b.timestamp || 0) - (a.timestamp || 0));
+            
+            // Отображение пользователей
+            users.forEach(user => {
+                const userItem = document.createElement('li');
+                userItem.className = 'user-item';
+                
+                const statusDiv = document.createElement('div');
+                statusDiv.className = 'user-status online';
+                
+                const nameDiv = document.createElement('div');
+                nameDiv.className = 'user-name';
+                nameDiv.textContent = user.name;
+                
+                // Подсветка текущего пользователя
+                if (user.id === userId) {
+                    nameDiv.textContent += ' (Вы)';
+                    nameDiv.style.fontWeight = 'bold';
+                }
+                
+                userItem.appendChild(statusDiv);
+                userItem.appendChild(nameDiv);
+                userList.appendChild(userItem);
+            });
+        });
+
+        // Обработчики событий
+        sendBtn.addEventListener('click', sendMessage);
+        
+        messageInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                sendMessage();
+            }
+        });
+
+        // Фокус на поле ввода при загрузке
+        window.addEventListener('load', () => {
+            messageInput.focus();
+            
+            // Информация о текущем пользователе
+            console.log('Ваш ID:', userId);
+            console.log('Ваше имя:', userName);
+        });
+
+        // Очистка при закрытии страницы
+        window.addEventListener('beforeunload', () => {
+            if (currentUserRef) {
+                currentUserRef.remove();
+            }
+        });
+    </script>
+</body>
+</html>
 
