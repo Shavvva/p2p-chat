@@ -238,6 +238,102 @@
             border: 1px solid #0066cc !important;
         }
         
+        /* Блок ответа на сообщение */
+        .reply-block {
+            background: rgba(255, 255, 255, 0.1);
+            border-left: 3px solid #0066cc;
+            padding: 8px 12px;
+            margin-bottom: 8px;
+            border-radius: 8px;
+            font-size: 12px;
+            max-width: 100%;
+            overflow: hidden;
+        }
+        
+        .reply-sender {
+            font-weight: bold;
+            color: #66b3ff;
+            margin-bottom: 4px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .reply-text {
+            color: #cccccc;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        
+        .close-reply {
+            background: none;
+            border: none;
+            color: #888;
+            cursor: pointer;
+            font-size: 16px;
+            padding: 0;
+            width: 16px;
+            height: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .close-reply:hover {
+            color: #ff4444;
+        }
+        
+        /* Индикатор ответа в поле ввода */
+        .reply-indicator {
+            position: absolute;
+            top: -35px;
+            left: 0;
+            right: 0;
+            background: #2a2a2a;
+            border-bottom: 1px solid #333;
+            padding: 8px 15px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            z-index: 10;
+        }
+        
+        .reply-indicator-info {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            flex: 1;
+            overflow: hidden;
+        }
+        
+        .reply-indicator-text {
+            font-size: 12px;
+            color: #66b3ff;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        
+        .cancel-reply {
+            background: none;
+            border: none;
+            color: #888;
+            cursor: pointer;
+            font-size: 18px;
+            padding: 0;
+            width: 20px;
+            height: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+        
+        .cancel-reply:hover {
+            color: #ff4444;
+        }
+        
         .sender {
             font-weight: bold;
             font-size: 12px;
@@ -254,6 +350,8 @@
             color: #66b3ff;
             text-decoration: underline;
             word-break: break-all;
+            cursor: pointer !important;
+            pointer-events: auto !important;
         }
         
         .message-container.my .text a {
@@ -327,6 +425,14 @@
         
         .message-menu-item:hover {
             background: #3a3a3a;
+        }
+        
+        .message-menu-item.reply {
+            color: #66b3ff;
+        }
+        
+        .message-menu-item.edit {
+            color: #00cc66;
         }
         
         .message-menu-item.delete {
@@ -618,6 +724,11 @@
                 height: 70px;
             }
             
+            .reply-indicator {
+                top: -40px;
+                padding: 6px 12px;
+            }
+            
             .emoji-picker {
                 bottom: 70px;
                 left: 15px;
@@ -665,6 +776,11 @@
             
             .message-menu {
                 min-width: 120px;
+            }
+            
+            .reply-block {
+                padding: 6px 10px;
+                font-size: 11px;
             }
         }
         
@@ -748,13 +864,22 @@
                     <div class="message-avatar other avatar-color-0">С</div>
                     <div class="message other">
                         <div class="sender">Система</div>
-                        <div class="text">Добро пожаловать в чат! Нажмите на сообщение, чтобы открыть меню. Для своих сообщений доступно редактирование и удаление.</div>
+                        <div class="text">Добро пожаловать в чат! Нажмите на сообщение, чтобы открыть меню. Для своих сообщений доступно редактирование и удаление. Можно отвечать на любые сообщения.</div>
                         <div class="time">12:00</div>
                     </div>
                 </div>
             </div>
             
             <div class="input-area">
+                <!-- Индикатор ответа -->
+                <div class="reply-indicator hidden" id="reply-indicator">
+                    <div class="reply-indicator-info">
+                        <span style="color: #66b3ff; font-size: 12px;">↩️</span>
+                        <div class="reply-indicator-text" id="reply-indicator-text">Ответ на сообщение</div>
+                    </div>
+                    <button class="cancel-reply" id="cancel-reply">×</button>
+                </div>
+                
                 <div class="input-wrapper">
                     <button class="emoji-toggle" id="emoji-toggle" type="button">
                         <svg viewBox="0 0 24 24">
@@ -776,7 +901,11 @@
 
     <!-- Контекстное меню для сообщений -->
     <div class="message-menu" id="message-menu">
-        <button class="message-menu-item" id="menu-edit">
+        <button class="message-menu-item reply" id="menu-reply">
+            <span>↩️</span>
+            <span>Ответить</span>
+        </button>
+        <button class="message-menu-item edit" id="menu-edit">
             <span>✏️</span>
             <span>Редактировать</span>
         </button>
@@ -803,6 +932,7 @@
         let currentNameCheck = '';
         let editingMessageId = null;
         let activeMessageMenu = null;
+        let replyingToMessage = null; // Сообщение, на которое отвечаем
         
         // Элементы DOM
         const authModal = document.getElementById('auth-modal');
@@ -831,8 +961,12 @@
         const emojiToggle = document.getElementById('emoji-toggle');
         const emojiPicker = document.getElementById('emoji-picker');
         const messageMenu = document.getElementById('message-menu');
+        const menuReplyBtn = document.getElementById('menu-reply');
         const menuEditBtn = document.getElementById('menu-edit');
         const menuDeleteBtn = document.getElementById('menu-delete');
+        const replyIndicator = document.getElementById('reply-indicator');
+        const replyIndicatorText = document.getElementById('reply-indicator-text');
+        const cancelReplyBtn = document.getElementById('cancel-reply');
         
         let isMenuOpen = false;
         let isEmojiPickerOpen = false;
@@ -947,12 +1081,14 @@
         
         // Функция для обнаружения и преобразования URL в ссылки
         function linkify(text) {
+            if (!text) return '';
+            
             // Регулярное выражение для поиска URL
             const urlRegex = /(\b(https?|ftp|file):\/\/[-A-Z0-9+&@#\/%?=~_|!:,.;]*[-A-Z0-9+&@#\/%=~_|])/ig;
             
             return text.replace(urlRegex, function(url) {
                 // Проверяем, есть ли уже тег <a>
-                if (url.startsWith('<a ') && url.endsWith('</a>')) {
+                if (url.includes('<a ') && url.includes('</a>')) {
                     return url;
                 }
                 
@@ -962,9 +1098,15 @@
                     href = 'http://' + href;
                 }
                 
-                // Создаем ссылку с безопасным открытием в новой вкладке
-                return `<a href="${href}" target="_blank" rel="noopener noreferrer">${url}</a>`;
+                // Создаем безопасную ссылку
+                return `<a href="${href}" target="_blank" rel="noopener noreferrer" class="message-link">${url}</a>`;
             });
+        }
+        
+        // Функция для удаления HTML тегов при отображении текста в предпросмотре
+        function stripHtml(html) {
+            if (!html) return '';
+            return html.replace(/<[^>]*>/g, '');
         }
         
         // Функция проверки доступности имени
@@ -1243,13 +1385,9 @@
             
             // Показываем только соответствующие опции
             const isMyMessage = messageData.senderId === userId;
+            menuReplyBtn.style.display = 'flex'; // Ответить доступно всем
             menuEditBtn.style.display = isMyMessage ? 'flex' : 'none';
             menuDeleteBtn.style.display = isMyMessage ? 'flex' : 'none';
-            
-            // Если не свое сообщение, скрываем меню
-            if (!isMyMessage) {
-                return;
-            }
             
             messageMenu.classList.add('active');
             menuOverlay.classList.add('active');
@@ -1268,6 +1406,13 @@
         }
         
         // Обработчики для меню
+        menuReplyBtn.addEventListener('click', () => {
+            if (currentContextMessage) {
+                replyToMessage(currentContextMessage.id, currentContextMessage.data);
+                closeMessageMenu();
+            }
+        });
+        
         menuEditBtn.addEventListener('click', () => {
             if (currentContextMessage) {
                 editMessage(currentContextMessage.id, currentContextMessage.data.text);
@@ -1281,6 +1426,40 @@
                 closeMessageMenu();
             }
         });
+        
+        // Функция ответа на сообщение
+        function replyToMessage(messageId, messageData) {
+            replyingToMessage = {
+                id: messageId,
+                sender: messageData.sender,
+                text: stripHtml(messageData.text).substring(0, 100) // Обрезаем текст для предпросмотра
+            };
+            
+            // Показываем индикатор ответа
+            replyIndicator.classList.remove('hidden');
+            replyIndicatorText.textContent = `Ответ ${messageData.sender}: ${replyingToMessage.text}${replyingToMessage.text.length >= 100 ? '...' : ''}`;
+            
+            // Фокус на поле ввода
+            messageInput.focus();
+            
+            // Прокручиваем к полю ввода на мобильных
+            if (window.innerWidth <= 768) {
+                setTimeout(() => {
+                    messageInput.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+                }, 100);
+            }
+        }
+        
+        // Отмена ответа
+        cancelReplyBtn.addEventListener('click', () => {
+            cancelReply();
+        });
+        
+        function cancelReply() {
+            replyingToMessage = null;
+            replyIndicator.classList.add('hidden');
+            messageInput.focus();
+        }
         
         // Функция удаления сообщения
         function deleteMessage(messageId) {
@@ -1339,7 +1518,7 @@
                 // Создаем поле ввода
                 const editInput = document.createElement('textarea');
                 editInput.className = 'edit-input';
-                editInput.value = currentText.replace(/<[^>]*>/g, ''); // Убираем HTML теги
+                editInput.value = stripHtml(currentText); // Убираем HTML теги
                 editInput.rows = 1;
                 editInput.style.resize = 'none';
                 editInput.style.overflow = 'hidden';
@@ -1547,6 +1726,24 @@
             const messageDiv = document.createElement('div');
             messageDiv.className = `message`;
             
+            // Добавляем блок ответа если есть
+            let replyBlock = '';
+            if (messageData.replyTo) {
+                const replyMessage = messagesMap.get(messageData.replyTo.messageId);
+                if (replyMessage) {
+                    const replyText = stripHtml(replyMessage.text).substring(0, 80);
+                    replyBlock = `
+                        <div class="reply-block">
+                            <div class="reply-sender">
+                                <span>↩️ ${replyMessage.sender}</span>
+                                <button class="close-reply" data-reply-id="${messageData.replyTo.messageId}">×</button>
+                            </div>
+                            <div class="reply-text">${replyText}${replyText.length >= 80 ? '...' : ''}</div>
+                        </div>
+                    `;
+                }
+            }
+            
             // Преобразуем текст с ссылками
             let processedText = linkify(messageData.text);
             
@@ -1563,6 +1760,7 @@
             
             messageDiv.innerHTML = `
                 <div class="sender">${messageData.sender}</div>
+                ${replyBlock}
                 <div class="text">${processedText}</div>
                 <div class="time">
                     <span>${timeText}</span>
@@ -1581,6 +1779,11 @@
             
             // Обработчик клика для открытия меню
             messageDiv.addEventListener('click', (e) => {
+                // Если клик по ссылке, не открываем меню
+                if (e.target.tagName === 'A' || e.target.closest('a')) {
+                    return;
+                }
+                
                 e.preventDefault();
                 e.stopPropagation();
                 
@@ -1596,6 +1799,23 @@
                 showMessageMenu(messageId, messageData, x, y);
             });
             
+            // Обработчик для кнопки закрытия ответа
+            const closeReplyBtn = messageDiv.querySelector('.close-reply');
+            if (closeReplyBtn) {
+                closeReplyBtn.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    const replyId = closeReplyBtn.getAttribute('data-reply-id');
+                    const replyMessageElement = document.querySelector(`[data-message-id="${replyId}"]`);
+                    if (replyMessageElement) {
+                        replyMessageElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                        replyMessageElement.style.backgroundColor = 'rgba(102, 179, 255, 0.2)';
+                        setTimeout(() => {
+                            replyMessageElement.style.backgroundColor = '';
+                        }, 2000);
+                    }
+                });
+            }
+            
             return container;
         }
         
@@ -1604,14 +1824,26 @@
             const text = messageInput.value.trim();
             if (!text || !userId) return;
             
-            messagesRef.push({
+            const messageData = {
                 text: text,
                 sender: userName,
                 senderId: userId,
                 timestamp: firebase.database.ServerValue.TIMESTAMP,
                 edited: false
-            }).then(() => {
+            };
+            
+            // Добавляем информацию о ответе если есть
+            if (replyingToMessage) {
+                messageData.replyTo = {
+                    messageId: replyingToMessage.id,
+                    sender: replyingToMessage.sender,
+                    text: replyingToMessage.text
+                };
+            }
+            
+            messagesRef.push(messageData).then(() => {
                 messageInput.value = '';
+                cancelReply(); // Сбрасываем ответ
                 messageInput.focus();
                 closeEmojiPicker();
             });
@@ -1816,6 +2048,19 @@
             }
         });
         
+        // Обработка кликов по ссылкам
+        document.addEventListener('click', function(e) {
+            const link = e.target.closest('a');
+            if (link && link.href) {
+                // Проверяем, не является ли это внутренней ссылкой
+                if (link.classList.contains('message-link')) {
+                    e.preventDefault();
+                    // Открываем ссылку в новой вкладке безопасно
+                    window.open(link.href, '_blank', 'noopener,noreferrer');
+                }
+            }
+        });
+        
         // Закрытие всех меню при клике вне их
         document.addEventListener('click', (e) => {
             if (isEmojiPickerOpen && !emojiPicker.contains(e.target) && e.target !== emojiToggle) {
@@ -1823,15 +2068,6 @@
             }
             if (isMenuOpen && !sidebar.contains(e.target) && e.target !== menuToggle) {
                 closeMenu();
-            }
-        });
-        
-        // Обработка кликов по ссылкам для безопасности
-        document.addEventListener('click', function(e) {
-            if (e.target.tagName === 'A' && e.target.href) {
-                // Открываем ссылку в новой вкладке безопасно
-                e.preventDefault();
-                window.open(e.target.href, '_blank', 'noopener,noreferrer');
             }
         });
         
