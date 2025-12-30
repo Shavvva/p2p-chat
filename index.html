@@ -235,164 +235,6 @@
             line-height: 1.4;
         }
         
-        /* Стили для прикрепленных файлов (как в Telegram) */
-        .attached-file {
-            margin-top: 8px;
-            padding: 10px;
-            background: rgba(255, 255, 255, 0.1);
-            border-radius: 8px;
-            border: 1px solid rgba(255, 255, 255, 0.2);
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-        
-        .message-container.my .attached-file {
-            background: rgba(255, 255, 255, 0.15);
-        }
-        
-        .file-icon {
-            width: 40px;
-            height: 40px;
-            background: #0066cc;
-            border-radius: 8px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: white;
-            font-size: 18px;
-            flex-shrink: 0;
-        }
-        
-        .message-container.my .file-icon {
-            background: rgba(255, 255, 255, 0.2);
-        }
-        
-        .file-info {
-            flex: 1;
-            min-width: 0;
-        }
-        
-        .file-name {
-            font-weight: bold;
-            font-size: 13px;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-        }
-        
-        .file-size {
-            font-size: 11px;
-            color: #888;
-            margin-top: 2px;
-        }
-        
-        .message-container.my .file-size {
-            color: rgba(255, 255, 255, 0.7);
-        }
-        
-        /* Стили для изображений */
-        .image-attachment {
-            margin-top: 8px;
-            max-width: 100%;
-            border-radius: 8px;
-            overflow: hidden;
-            position: relative;
-        }
-        
-        .message-image {
-            max-width: 300px;
-            max-height: 300px;
-            border-radius: 8px;
-            display: block;
-            cursor: pointer;
-            transition: transform 0.2s;
-            background: #1a1a1a;
-        }
-        
-        .message-image:hover {
-            transform: scale(1.02);
-        }
-        
-        /* Модальное окно для просмотра изображений */
-        .image-modal {
-            position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: rgba(0, 0, 0, 0.95);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            z-index: 2000;
-            display: none;
-        }
-        
-        .image-modal.active {
-            display: flex;
-        }
-        
-        .modal-image {
-            max-width: 90%;
-            max-height: 90%;
-            border-radius: 4px;
-            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
-        }
-        
-        .close-modal {
-            position: absolute;
-            top: 20px;
-            right: 20px;
-            background: rgba(255, 255, 255, 0.1);
-            border: none;
-            color: white;
-            width: 40px;
-            height: 40px;
-            border-radius: 50%;
-            font-size: 20px;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-        
-        /* Панель прикрепленных файлов */
-        .attachments-panel {
-            background: #1a1a1a;
-            border-bottom: 1px solid #333;
-            padding: 10px 15px;
-            display: none;
-            flex-direction: column;
-            gap: 10px;
-        }
-        
-        .attachments-panel.active {
-            display: flex;
-        }
-        
-        .attachment-item {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            padding: 8px;
-            background: #2a2a2a;
-            border-radius: 8px;
-        }
-        
-        .remove-attachment {
-            background: none;
-            border: none;
-            color: #ff4444;
-            cursor: pointer;
-            width: 24px;
-            height: 24px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 18px;
-        }
-        
         /* Стили для ссылок */
         .text a {
             color: #66b3ff;
@@ -437,18 +279,17 @@
             gap: 10px;
             align-items: center;
             position: relative;
+            height: 70px;
         }
         
         .input-wrapper {
             flex: 1;
             position: relative;
-            display: flex;
-            align-items: center;
         }
         
         input[type="text"] {
             width: 100%;
-            padding: 12px 15px 12px 85px;
+            padding: 12px 15px 12px 45px;
             border: 1px solid #333;
             border-radius: 20px;
             background: #2a2a2a;
@@ -456,43 +297,10 @@
             font-size: 14px;
         }
         
-        /* Иконка скрепки для файлов (как в Telegram) */
-        .attach-toggle {
-            position: absolute;
-            left: 12px;
-            top: 50%;
-            transform: translateY(-50%);
-            background: none;
-            border: none;
-            cursor: pointer;
-            width: 30px;
-            height: 30px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            padding: 0;
-            z-index: 10;
-        }
-        
-        .attach-toggle svg {
-            width: 20px;
-            height: 20px;
-            fill: #888;
-            transition: fill 0.2s;
-        }
-        
-        .attach-toggle:hover svg {
-            fill: #66b3ff;
-        }
-        
-        .attach-toggle.active svg {
-            fill: #66b3ff;
-        }
-        
-        /* Иконка смайлика (как в Telegram) */
+        /* Иконка смайлика как в Telegram */
         .emoji-toggle {
             position: absolute;
-            left: 50px;
+            left: 12px;
             top: 50%;
             transform: translateY(-50%);
             background: none;
@@ -522,12 +330,6 @@
             fill: #66b3ff;
         }
         
-        /* Скрытый input для файлов */
-        .file-input {
-            display: none;
-        }
-        
-        /* Панель эмодзи */
         .emoji-picker {
             position: absolute;
             bottom: 70px;
@@ -592,59 +394,10 @@
             justify-content: center;
             font-size: 18px;
             flex-shrink: 0;
-            transition: background 0.2s;
         }
         
         .send-icon:hover {
             background: #0055aa;
-        }
-        
-        .send-icon:disabled {
-            background: #555;
-            cursor: not-allowed;
-        }
-        
-        /* Быстрая загрузка файлов */
-        .upload-quick {
-            position: fixed;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            background: rgba(0, 0, 0, 0.9);
-            padding: 20px;
-            border-radius: 10px;
-            z-index: 3000;
-            display: none;
-            flex-direction: column;
-            align-items: center;
-            gap: 15px;
-            width: 90%;
-            max-width: 300px;
-        }
-        
-        .upload-quick.active {
-            display: flex;
-        }
-        
-        .upload-text {
-            color: white;
-            font-size: 14px;
-            text-align: center;
-        }
-        
-        .upload-progress {
-            width: 100%;
-            height: 4px;
-            background: #333;
-            border-radius: 2px;
-            overflow: hidden;
-        }
-        
-        .upload-progress-bar {
-            height: 100%;
-            background: #0066cc;
-            width: 0%;
-            transition: width 0.3s;
         }
         
         h2 {
@@ -730,7 +483,7 @@
             }
             
             .messages { 
-                height: calc(100% - 140px);
+                height: calc(100% - 70px);
                 padding: 15px;
                 padding-bottom: 20px;
                 gap: 12px;
@@ -774,11 +527,6 @@
                 width: 28px;
                 height: 28px;
                 font-size: 12px;
-            }
-            
-            .message-image {
-                max-width: 200px;
-                max-height: 200px;
             }
             
             /* Улучшенные ссылки на мобильных */
@@ -836,20 +584,6 @@
         </div>
     </header>
     
-    <!-- Модальное окно для просмотра изображений -->
-    <div class="image-modal" id="image-modal">
-        <button class="close-modal" id="close-modal">✕</button>
-        <img class="modal-image" id="modal-image" src="" alt="Увеличенное изображение">
-    </div>
-    
-    <!-- Быстрая загрузка файлов -->
-    <div class="upload-quick" id="upload-quick">
-        <div class="upload-text" id="upload-text">Подготовка файла...</div>
-        <div class="upload-progress">
-            <div class="upload-progress-bar" id="upload-progress-bar"></div>
-        </div>
-    </div>
-    
     <div class="mobile-overlay" id="mobile-overlay"></div>
     
     <div class="container hidden" id="main-container">
@@ -864,71 +598,47 @@
                     <div class="message-avatar other avatar-color-0">С</div>
                     <div class="message other">
                         <div class="sender">Система</div>
-                        <div class="text">Добро пожаловать в чат! Вы можете отправлять текстовые сообщения, эмодзи, файлы и изображения 📎📷</div>
+                        <div class="text">Добро пожаловать в чат! Нажмите на иконку смайлика, чтобы отправить эмодзи 😊</div>
                         <div class="time">12:00</div>
                     </div>
                 </div>
             </div>
             
-            <!-- Панель прикрепленных файлов -->
-            <div class="attachments-panel" id="attachments-panel">
-                <!-- Прикрепленные файлы будут добавляться здесь -->
-            </div>
-            
             <div class="input-area">
                 <div class="input-wrapper">
-                    <!-- Кнопка скрепки для файлов (как в Telegram) -->
-                    <button class="attach-toggle" id="attach-toggle" type="button" title="Прикрепить файл">
-                        <svg viewBox="0 0 24 24" width="24" height="24">
-                            <path d="M21.44,11.05l-9.19,9.19a6,6,0,0,1-8.49-8.49l9.19-9.19a4,4,0,0,1,5.66,5.66l-9.2,9.19a2,2,0,0,1-2.83-2.83l8.49-8.48" 
-                                  stroke="currentColor" stroke-width="1.5" fill="none" stroke-linecap="round"/>
+                    <button class="emoji-toggle" id="emoji-toggle" type="button">
+                        <svg viewBox="0 0 24 24">
+                            <path d="M12,2C6.486,2,2,6.486,2,12s4.486,10,10,10s10-4.486,10-10S17.514,2,12,2z M12,20c-4.411,0-8-3.589-8-8s3.589-8,8-8 s8,3.589,8,8S16.411,20,12,20z"/>
+                            <circle cx="8.5" cy="10.5" r="1.5"/>
+                            <circle cx="15.5" cy="10.5" r="1.5"/>
+                            <path d="M12,16c-2.325,0-4.284,1.486-5,3.542c0.836,0.818,1.874,1.423,3,1.756V20c0-1.654,1.346-3,3-3s3,1.346,3,3v1.298 c1.126-0.333,2.164-0.938,3-1.756C16.284,17.486,14.325,16,12,16z"/>
                         </svg>
                     </button>
-                    
-                    <!-- Кнопка эмодзи (как в Telegram) -->
-                    <button class="emoji-toggle" id="emoji-toggle" type="button" title="Эмодзи">
-                        <svg viewBox="0 0 24 24" width="24" height="24">
-                            <path d="M12,2A10,10,0,1,0,22,12,10,10,0,0,0,12,2Zm0,18a8,8,0,1,1,8-8A8,8,0,0,1,12,20Z" 
-                                  fill="currentColor"/>
-                            <circle cx="9" cy="10" r="1.5" fill="currentColor"/>
-                            <circle cx="15" cy="10" r="1.5" fill="currentColor"/>
-                            <path d="M12,15a3,3,0,0,0,2.82,2,2,2,0,0,1-.36,2,4,4,0,0,1-7.45,0,2,2,0,0,1-.36-2A3,3,0,0,0,12,15Z" 
-                                  fill="currentColor"/>
-                        </svg>
-                    </button>
-                    
-                    <!-- Скрытый input для файлов -->
-                    <input type="file" class="file-input" id="file-input" multiple>
-                    
-                    <input type="text" id="message-input" placeholder="Сообщение...">
-                    
-                    <!-- Панель эмодзи -->
-                    <div class="emoji-picker" id="emoji-picker"></div>
+                    <input type="text" id="message-input" placeholder="Сообщение или ссылка...">
+                    <div class="emoji-picker" id="emoji-picker">
+                        <!-- Эмодзи будут добавлены через JavaScript -->
+                    </div>
                 </div>
-                <button class="send-icon" id="send-btn" title="Отправить" type="button" disabled>➤</button>
+                <button class="send-icon" id="send-btn" title="Отправить" type="button">➤</button>
             </div>
         </main>
     </div>
 
     <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-database-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-storage-compat.js"></script>
 
     <script>
         const firebaseConfig = {
-            databaseURL: "https://chat-c54e2-default-rtdb.europe-west1.firebasedatabase.app/",
-            storageBucket: "chat-c54e2.appspot.com"
+            databaseURL: "https://chat-c54e2-default-rtdb.europe-west1.firebasedatabase.app/"
         };
         
         const app = firebase.initializeApp(firebaseConfig);
         const database = firebase.database();
-        const storage = firebase.storage();
         
         let userId = '';
         let userName = '';
         let nameCheckTimeout = null;
         let currentNameCheck = '';
-        let attachedFiles = []; // Массив прикрепленных файлов
         
         // Элементы DOM
         const authModal = document.getElementById('auth-modal');
@@ -955,15 +665,6 @@
         const mobileOverlay = document.getElementById('mobile-overlay');
         const emojiToggle = document.getElementById('emoji-toggle');
         const emojiPicker = document.getElementById('emoji-picker');
-        const attachToggle = document.getElementById('attach-toggle');
-        const fileInput = document.getElementById('file-input');
-        const attachmentsPanel = document.getElementById('attachments-panel');
-        const imageModal = document.getElementById('image-modal');
-        const modalImage = document.getElementById('modal-image');
-        const closeModal = document.getElementById('close-modal');
-        const uploadQuick = document.getElementById('upload-quick');
-        const uploadText = document.getElementById('upload-text');
-        const uploadProgressBar = document.getElementById('upload-progress-bar');
         
         let isMenuOpen = false;
         let isEmojiPickerOpen = false;
@@ -1031,7 +732,9 @@
             emojiPicker.classList.toggle('active', isEmojiPickerOpen);
             emojiToggle.classList.toggle('active', isEmojiPickerOpen);
             
+            // Закрываем другие меню
             if (isEmojiPickerOpen) {
+                closeMenu();
                 // Добавляем обработчик для закрытия при клике вне панели
                 setTimeout(() => {
                     document.addEventListener('click', closeEmojiPickerOnClickOutside);
@@ -1071,38 +774,26 @@
             return name.charAt(0).toUpperCase();
         }
         
-        // Функция для форматирования размера файла
-        function formatFileSize(bytes) {
-            if (bytes === 0) return '0 Б';
-            const k = 1024;
-            const sizes = ['Б', 'КБ', 'МБ', 'ГБ'];
-            const i = Math.floor(Math.log(bytes) / Math.log(k));
-            return parseFloat((bytes / Math.pow(k, i)).toFixed(1)) + ' ' + sizes[i];
-        }
-        
-        // Функция для получения иконки файла по расширению
-        function getFileIcon(filename) {
-            const extension = filename.split('.').pop().toLowerCase();
-            const icons = {
-                pdf: '📕',
-                doc: '📘',
-                docx: '📘',
-                txt: '📝',
-                zip: '📦',
-                rar: '📦',
-                jpg: '🖼️',
-                jpeg: '🖼️',
-                png: '🖼️',
-                gif: '🖼️',
-                mp4: '🎬',
-                avi: '🎬',
-                mov: '🎬',
-                xls: '📊',
-                xlsx: '📊',
-                ppt: '📊',
-                pptx: '📊'
-            };
-            return icons[extension] || '📎';
+        // Функция для обнаружения и преобразования URL в ссылки
+        function linkify(text) {
+            // Регулярное выражение для поиска URL
+            const urlRegex = /(\b(https?|ftp|file):\/\/[-A-Z0-9+&@#\/%?=~_|!:,.;]*[-A-Z0-9+&@#\/%=~_|])/ig;
+            
+            return text.replace(urlRegex, function(url) {
+                // Проверяем, есть ли уже тег <a>
+                if (url.startsWith('<a ') && url.endsWith('</a>')) {
+                    return url;
+                }
+                
+                // Добавляем протокол если его нет
+                let href = url;
+                if (!href.match(/^[a-zA-Z]+:\/\//)) {
+                    href = 'http://' + href;
+                }
+                
+                // Создаем ссылку с безопасным открытием в новой вкладке
+                return `<a href="${href}" target="_blank" rel="noopener noreferrer">${url}</a>`;
+            });
         }
         
         // Функция проверки доступности имени
@@ -1362,210 +1053,22 @@
         // Эмодзи панель
         emojiToggle.addEventListener('click', toggleEmojiPicker);
         
-        // Кнопка скрепки для файлов
-        attachToggle.addEventListener('click', () => {
-            fileInput.click();
-        });
-        
-        // Обработчик выбора файлов
-        fileInput.addEventListener('change', handleFileSelect);
-        
-        // Функция обработки выбранных файлов
-        function handleFileSelect(e) {
-            const files = Array.from(e.target.files);
-            if (files.length === 0) return;
-            
-            // Добавляем файлы в массив прикрепленных
-            files.forEach(file => {
-                attachedFiles.push(file);
-            });
-            
-            // Обновляем панель прикрепленных файлов
-            updateAttachmentsPanel();
-            
-            // Сбрасываем input
-            fileInput.value = '';
-        }
-        
-        // Обновление панели прикрепленных файлов
-        function updateAttachmentsPanel() {
-            attachmentsPanel.innerHTML = '';
-            
-            if (attachedFiles.length === 0) {
-                attachmentsPanel.classList.remove('active');
-                updateSendButton();
-                return;
-            }
-            
-            attachmentsPanel.classList.add('active');
-            
-            attachedFiles.forEach((file, index) => {
-                const isImage = file.type.startsWith('image/');
-                const attachmentItem = document.createElement('div');
-                attachmentItem.className = 'attachment-item';
-                
-                const fileIcon = isImage ? '🖼️' : getFileIcon(file.name);
-                
-                attachmentItem.innerHTML = `
-                    <div class="file-icon">${fileIcon}</div>
-                    <div class="file-info">
-                        <div class="file-name">${file.name}</div>
-                        <div class="file-size">${formatFileSize(file.size)}${isImage ? ' • Изображение' : ''}</div>
-                    </div>
-                    <button class="remove-attachment" data-index="${index}">×</button>
-                `;
-                
-                attachmentsPanel.appendChild(attachmentItem);
-            });
-            
-            // Добавляем обработчики для кнопок удаления
-            attachmentsPanel.querySelectorAll('.remove-attachment').forEach(btn => {
-                btn.addEventListener('click', (e) => {
-                    const index = parseInt(e.target.dataset.index);
-                    attachedFiles.splice(index, 1);
-                    updateAttachmentsPanel();
-                });
-            });
-            
-            updateSendButton();
-        }
-        
-        // Обновление состояния кнопки отправки
-        function updateSendButton() {
-            const hasText = messageInput.value.trim().length > 0;
-            const hasFiles = attachedFiles.length > 0;
-            sendBtn.disabled = !(hasText || hasFiles);
-        }
-        
-        // Следим за вводом текста
-        messageInput.addEventListener('input', updateSendButton);
+        // Закрытие эмодзи панели при клике на эмодзи (обработка уже есть в initEmojiPicker)
         
         // Функция отправки сообщения
-        async function sendMessage() {
+        function sendMessage() {
             const text = messageInput.value.trim();
+            if (!text || !userId) return;
             
-            if (!text && attachedFiles.length === 0) return;
-            
-            // Отключаем кнопку отправки
-            sendBtn.disabled = true;
-            
-            try {
-                if (attachedFiles.length > 0) {
-                    // Есть прикрепленные файлы - загружаем их
-                    await uploadAndSendFiles(text);
-                } else {
-                    // Только текст
-                    await messagesRef.push({
-                        text: text,
-                        sender: userName,
-                        senderId: userId,
-                        timestamp: firebase.database.ServerValue.TIMESTAMP
-                    });
-                }
-                
-                // Очищаем форму
+            messagesRef.push({
+                text: text,
+                sender: userName,
+                senderId: userId,
+                timestamp: firebase.database.ServerValue.TIMESTAMP
+            }).then(() => {
                 messageInput.value = '';
-                attachedFiles = [];
-                updateAttachmentsPanel();
                 messageInput.focus();
                 closeEmojiPicker();
-                
-            } catch (error) {
-                console.error('Ошибка отправки сообщения:', error);
-                alert('Ошибка отправки сообщения');
-                sendBtn.disabled = false;
-            }
-        }
-        
-        // Загрузка и отправка файлов
-        async function uploadAndSendFiles(text) {
-            // Показываем индикатор загрузки
-            uploadText.textContent = 'Подготовка файлов...';
-            uploadProgressBar.style.width = '0%';
-            uploadQuick.classList.add('active');
-            
-            const uploadedFiles = [];
-            
-            try {
-                // Быстрая загрузка - отправляем сообщение сразу, а файлы загружаем параллельно
-                const messageData = {
-                    text: text || (attachedFiles.length > 1 ? '📎 Файлы' : ''),
-                    sender: userName,
-                    senderId: userId,
-                    timestamp: firebase.database.ServerValue.TIMESTAMP,
-                    files: []
-                };
-                
-                // Отправляем сообщение сразу
-                const messageRef = await messagesRef.push(messageData);
-                
-                // Загружаем файлы параллельно
-                const uploadPromises = attachedFiles.map((file, index) => {
-                    return uploadFile(file, (progress) => {
-                        // Обновляем прогресс для текущего файла
-                        const totalProgress = ((index + progress / 100) / attachedFiles.length) * 100;
-                        uploadProgressBar.style.width = totalProgress + '%';
-                        uploadText.textContent = `Загрузка файлов: ${Math.round(totalProgress)}%`;
-                    }).then(fileData => {
-                        uploadedFiles.push(fileData);
-                        return fileData;
-                    });
-                });
-                
-                // Ждем загрузки всех файлов
-                await Promise.all(uploadPromises);
-                
-                // Обновляем сообщение с загруженными файлами
-                await messageRef.update({
-                    files: uploadedFiles
-                });
-                
-                // Скрываем индикатор
-                uploadQuick.classList.remove('active');
-                
-            } catch (error) {
-                uploadQuick.classList.remove('active');
-                throw error;
-            }
-        }
-        
-        // Функция загрузки одного файла
-        function uploadFile(file, onProgress) {
-            return new Promise((resolve, reject) => {
-                // Создаем уникальное имя файла
-                const timestamp = Date.now();
-                const randomString = Math.random().toString(36).substring(2, 15);
-                const fileName = `${userId}_${timestamp}_${randomString}_${file.name.replace(/[^a-zA-Z0-9.-]/g, '_')}`;
-                
-                // Загружаем файл в Firebase Storage
-                const storageRef = storage.ref();
-                const fileRef = storageRef.child('chat_files/' + fileName);
-                const uploadTask = fileRef.put(file);
-                
-                // Следим за прогрессом загрузки
-                uploadTask.on('state_changed',
-                    (snapshot) => {
-                        // Обновляем прогресс
-                        const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
-                        if (onProgress) onProgress(progress);
-                    },
-                    (error) => {
-                        // Ошибка загрузки
-                        reject(error);
-                    },
-                    async () => {
-                        // Загрузка завершена
-                        const downloadURL = await uploadTask.snapshot.ref.getDownloadURL();
-                        
-                        // Возвращаем информацию о файле
-                        resolve({
-                            name: file.name,
-                            url: downloadURL,
-                            type: file.type,
-                            size: file.size
-                        });
-                    }
-                );
             });
         }
         
@@ -1585,57 +1088,18 @@
             const messageDiv = document.createElement('div');
             messageDiv.className = `message`;
             
-            let contentHTML = `<div class="sender">${messageData.sender}</div>`;
+            // Преобразуем текст с ссылками
+            let processedText = linkify(messageData.text);
             
-            // Добавляем текст, если есть
-            if (messageData.text) {
-                // Простая обработка текста (без linkify для скорости)
-                let text = messageData.text.replace(/[\u{1F600}-\u{1F64F}\u{1F300}-\u{1F5FF}\u{1F680}-\u{1F6FF}\u{1F1E0}-\u{1F1FF}\u{2600}-\u{26FF}\u{2700}-\u{27BF}]/gu, 
-                    match => `<span class="emoji">${match}</span>`);
-                
-                contentHTML += `<div class="text">${text}</div>`;
-            }
+            // Добавляем классы для эмодзи
+            processedText = processedText.replace(/[\u{1F600}-\u{1F64F}\u{1F300}-\u{1F5FF}\u{1F680}-\u{1F6FF}\u{1F1E0}-\u{1F1FF}\u{2600}-\u{26FF}\u{2700}-\u{27BF}]/gu, 
+                match => `<span class="emoji">${match}</span>`);
             
-            // Добавляем файлы, если есть
-            if (messageData.files && messageData.files.length > 0) {
-                messageData.files.forEach(fileData => {
-                    const isImage = fileData.type.startsWith('image/');
-                    const isVideo = fileData.type.startsWith('video/');
-                    
-                    if (isImage) {
-                        // Изображение
-                        contentHTML += `
-                            <div class="image-attachment">
-                                <img class="message-image" 
-                                     src="${fileData.url}" 
-                                     alt="${fileData.name}"
-                                     loading="lazy"
-                                     onload="this.style.opacity='1'"
-                                     style="opacity:0; transition:opacity 0.3s">
-                            </div>
-                        `;
-                    } else {
-                        // Документ или видео
-                        const fileIcon = isVideo ? '🎬' : getFileIcon(fileData.name);
-                        const fileType = isVideo ? 'Видео' : 'Документ';
-                        
-                        contentHTML += `
-                            <div class="attached-file">
-                                <div class="file-icon">${fileIcon}</div>
-                                <div class="file-info">
-                                    <div class="file-name">${fileData.name}</div>
-                                    <div class="file-size">${formatFileSize(fileData.size)} • ${fileType}</div>
-                                </div>
-                                <a href="${fileData.url}" target="_blank" download="${fileData.name}" class="file-icon" style="background:transparent; font-size:20px; text-decoration:none">⬇️</a>
-                            </div>
-                        `;
-                    }
-                });
-            }
-            
-            contentHTML += `<div class="time">${new Date(messageData.timestamp).toLocaleTimeString('ru-RU', {hour: '2-digit', minute:'2-digit'})}</div>`;
-            
-            messageDiv.innerHTML = contentHTML;
+            messageDiv.innerHTML = `
+                <div class="sender">${messageData.sender}</div>
+                <div class="text">${processedText}</div>
+                <div class="time">${new Date(messageData.timestamp).toLocaleTimeString('ru-RU', {hour: '2-digit', minute:'2-digit'})}</div>
+            `;
             
             // Добавляем элементы в правильном порядке
             if (isMyMessage) {
@@ -1648,43 +1112,8 @@
                 container.appendChild(messageDiv);
             }
             
-            // Добавляем обработчик клика на изображение для открытия в модальном окне
-            if (messageData.files) {
-                messageData.files.forEach(fileData => {
-                    if (fileData.type.startsWith('image/')) {
-                        const img = messageDiv.querySelector('.message-image');
-                        if (img) {
-                            img.addEventListener('click', () => {
-                                modalImage.src = fileData.url;
-                                imageModal.classList.add('active');
-                                closeEmojiPicker();
-                                closeMenu();
-                            });
-                        }
-                    }
-                });
-            }
-            
             return container;
         }
-        
-        // Закрытие модального окна изображения
-        closeModal.addEventListener('click', () => {
-            imageModal.classList.remove('active');
-        });
-        
-        imageModal.addEventListener('click', (e) => {
-            if (e.target === imageModal) {
-                imageModal.classList.remove('active');
-            }
-        });
-        
-        // Закрытие по Escape
-        document.addEventListener('keydown', (e) => {
-            if (e.key === 'Escape') {
-                imageModal.classList.remove('active');
-            }
-        });
         
         // Загрузка сообщений
         messagesRef.orderByChild('timestamp').limitToLast(50).on('value', (snapshot) => {
@@ -1763,9 +1192,7 @@
         // Обработчики событий
         sendBtn.addEventListener('click', sendMessage);
         messageInput.addEventListener('keypress', (e) => {
-            if (e.key === 'Enter' && !sendBtn.disabled) {
-                sendMessage();
-            }
+            if (e.key === 'Enter') sendMessage();
         });
         
         // Очистка при закрытии страницы
