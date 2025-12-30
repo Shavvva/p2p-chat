@@ -107,18 +107,59 @@
             left: 0;
             right: 0;
             z-index: 100;
+            transition: all 0.3s ease;
+        }
+        
+        /* Стиль хедера при активном поиске */
+        header.search-active {
+            padding: 5px 20px;
+            height: 60px;
         }
         
         .header-left {
             display: flex;
             align-items: center;
             gap: 15px;
+            transition: all 0.3s ease;
+            flex: 1;
+        }
+        
+        /* Скрываем левую часть при поиске */
+        .search-active .header-left:not(.search-header-left) {
+            display: none;
+        }
+        
+        .search-header-left {
+            display: none;
+            align-items: center;
+            gap: 10px;
+            flex: 1;
+        }
+        
+        .search-active .search-header-left {
+            display: flex;
         }
         
         .header-right {
             display: flex;
             align-items: center;
             gap: 15px;
+            transition: all 0.3s ease;
+        }
+        
+        /* Скрываем правую часть при поиске */
+        .search-active .header-right:not(.search-controls) {
+            display: none;
+        }
+        
+        .search-controls {
+            display: none;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .search-active .search-controls {
+            display: flex;
         }
         
         .user-info {
@@ -170,45 +211,21 @@
             background: rgba(51, 144, 236, 0.1);
         }
         
-        /* Панель поиска */
-        .search-panel {
-            position: fixed;
-            top: 60px;
-            left: 0;
-            right: 0;
-            background: #1a1a1a;
-            padding: 15px 20px;
-            border-bottom: 1px solid #2d2d2d;
-            display: none;
-            z-index: 99;
-            animation: slideDown 0.2s ease;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.3);
-        }
-        
-        .search-panel.active {
-            display: block;
-        }
-        
-        @keyframes slideDown {
-            from {
-                opacity: 0;
-                transform: translateY(-10px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-        
+        /* Поле поиска в хедере */
         .search-input-wrapper {
+            flex: 1;
+            display: none;
+        }
+        
+        .search-active .search-input-wrapper {
             display: flex;
-            gap: 10px;
             align-items: center;
+            gap: 10px;
         }
         
         .search-input {
             flex: 1;
-            padding: 12px 15px;
+            padding: 10px 15px;
             border: 1px solid #2d2d2d;
             border-radius: 20px;
             background: #2a2a2a;
@@ -216,6 +233,7 @@
             font-size: 15px;
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
             transition: all 0.2s;
+            height: 40px;
         }
         
         .search-input:focus {
@@ -224,22 +242,18 @@
             box-shadow: 0 0 0 2px rgba(51, 144, 236, 0.2);
         }
         
-        .search-controls {
-            display: flex;
-            gap: 10px;
-            align-items: center;
-        }
-        
         .search-btn {
             background: #3390ec;
             color: white;
             border: none;
-            padding: 10px 20px;
+            padding: 8px 16px;
             border-radius: 20px;
             cursor: pointer;
             font-size: 14px;
             transition: background 0.2s;
             font-weight: 500;
+            height: 36px;
+            white-space: nowrap;
         }
         
         .search-btn:hover {
@@ -256,14 +270,15 @@
             border: none;
             color: #a0a0a0;
             cursor: pointer;
-            font-size: 24px;
-            width: 32px;
-            height: 32px;
+            font-size: 20px;
+            width: 36px;
+            height: 36px;
             display: flex;
             align-items: center;
             justify-content: center;
             border-radius: 50%;
             transition: all 0.2s;
+            flex-shrink: 0;
         }
         
         .close-search:hover {
@@ -273,7 +288,7 @@
         
         .search-results-info {
             position: fixed;
-            top: 125px;
+            top: 70px;
             left: 50%;
             transform: translateX(-50%);
             background: rgba(51, 144, 236, 0.95);
@@ -306,7 +321,6 @@
         .search-nav {
             display: flex;
             gap: 8px;
-            margin-left: 10px;
         }
         
         .search-nav-btn {
@@ -323,6 +337,7 @@
             font-size: 14px;
             transition: all 0.2s;
             opacity: 0.8;
+            flex-shrink: 0;
         }
         
         .search-nav-btn:hover {
@@ -959,25 +974,34 @@
                 padding: 6px 12px;
             }
             
-            .search-panel {
-                top: 60px;
-                padding: 12px 15px;
-            }
-            
             .search-results-info {
-                top: 120px;
+                top: 70px;
                 font-size: 12px;
                 padding: 8px 16px;
             }
             
-            .search-input-wrapper {
-                flex-direction: column;
-                gap: 8px;
+            .search-input {
+                height: 38px;
+                font-size: 14px;
+                padding: 8px 12px;
             }
             
-            .search-controls {
-                width: 100%;
-                justify-content: space-between;
+            .search-btn {
+                height: 34px;
+                padding: 6px 12px;
+                font-size: 13px;
+            }
+            
+            .close-search {
+                width: 34px;
+                height: 34px;
+                font-size: 18px;
+            }
+            
+            .search-nav-btn {
+                width: 30px;
+                height: 30px;
+                font-size: 12px;
             }
             
             .search-toggle {
@@ -1105,6 +1129,18 @@
             <button class="menu-toggle" id="menu-toggle">☰</button>
             <h1>Мессенджер</h1>
         </div>
+        
+        <div class="search-header-left">
+            <button class="close-search" id="close-search">←</button>
+            <div class="search-input-wrapper">
+                <input type="text" 
+                       class="search-input" 
+                       id="search-input" 
+                       placeholder="Поиск в чате..."
+                       autocomplete="off">
+            </div>
+        </div>
+        
         <div class="header-right">
             <button class="search-toggle" id="search-toggle" title="Поиск">🔍</button>
             <div class="user-info">
@@ -1112,25 +1148,15 @@
                 <span id="current-username">Гость</span>
             </div>
         </div>
-    </header>
-    
-    <!-- Панель поиска -->
-    <div class="search-panel" id="search-panel">
-        <div class="search-input-wrapper">
-            <input type="text" 
-                   class="search-input" 
-                   id="search-input" 
-                   placeholder="Введите текст для поиска...">
-            <div class="search-controls">
-                <button class="search-btn" id="search-btn">Найти</button>
-                <div class="search-nav">
-                    <button class="search-nav-btn" id="search-prev" title="Предыдущий результат">◀</button>
-                    <button class="search-nav-btn" id="search-next" title="Следующий результат">▶</button>
-                </div>
-                <button class="close-search" id="close-search">×</button>
+        
+        <div class="search-controls">
+            <button class="search-btn" id="search-btn">Найти</button>
+            <div class="search-nav">
+                <button class="search-nav-btn" id="search-prev" title="Предыдущий результат">◀</button>
+                <button class="search-nav-btn" id="search-next" title="Следующий результат">▶</button>
             </div>
         </div>
-    </div>
+    </header>
     
     <!-- Информация о результатах поиска -->
     <div class="search-results-info" id="search-results-info">
@@ -1231,7 +1257,6 @@
         const userAvatar = document.getElementById('user-avatar');
         const currentUsername = document.getElementById('current-username');
         const searchToggle = document.getElementById('search-toggle');
-        const searchPanel = document.getElementById('search-panel');
         const searchInput = document.getElementById('search-input');
         const searchBtn = document.getElementById('search-btn');
         const closeSearch = document.getElementById('close-search');
@@ -1239,6 +1264,7 @@
         const searchNext = document.getElementById('search-next');
         const searchResultsInfo = document.getElementById('search-results-info');
         const searchResultsText = document.getElementById('search-results-text');
+        const menuToggle = document.getElementById('menu-toggle');
         
         const messagesRef = database.ref('messages');
         const onlineUsersRef = database.ref('onlineUsers');
@@ -1249,7 +1275,6 @@
         const sendBtn = document.getElementById('send-btn');
         const userList = document.getElementById('user-list');
         const onlineCount = document.getElementById('online-count');
-        const menuToggle = document.getElementById('menu-toggle');
         const sidebar = document.getElementById('sidebar');
         const mobileOverlay = document.getElementById('mobile-overlay');
         const menuOverlay = document.getElementById('menu-overlay');
@@ -1662,7 +1687,7 @@
         
         // Поиск сообщений
         function openSearchPanel() {
-            searchPanel.classList.add('active');
+            mainHeader.classList.add('search-active');
             searchToggle.classList.add('active');
             isSearchActive = true;
             searchInput.focus();
@@ -1674,7 +1699,7 @@
         }
         
         function closeSearchPanel() {
-            searchPanel.classList.remove('active');
+            mainHeader.classList.remove('search-active');
             searchToggle.classList.remove('active');
             searchResultsInfo.classList.remove('active');
             isSearchActive = false;
@@ -2456,12 +2481,6 @@
             }
             if (isMenuOpen && !sidebar.contains(e.target) && e.target !== menuToggle) {
                 closeMenu();
-            }
-            if (isSearchActive && !searchPanel.contains(e.target) && e.target !== searchToggle) {
-                // Не закрываем при клике на результаты поиска
-                if (!searchResultsInfo.contains(e.target)) {
-                    closeSearchPanel();
-                }
             }
         });
         
