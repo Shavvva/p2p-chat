@@ -183,19 +183,16 @@
             flex-shrink: 0;
             margin-bottom: 5px;
             color: white;
-            order: 2; /* Аватарка всегда справа для своих сообщений */
         }
         
         .message-container.my .message-avatar {
             margin-left: 10px;
             margin-right: 0;
-            order: 2; /* Явно указываем порядок */
         }
         
         .message-container.other .message-avatar {
             margin-right: 10px;
             margin-left: 0;
-            order: 1; /* Для чужих - слева */
         }
         
         .message {
@@ -204,20 +201,17 @@
             border-radius: 18px;
             word-wrap: break-word;
             position: relative;
-            order: 1; /* Сообщение слева от аватарки для своих */
         }
         
         .message-container.my .message {
             background: #0066cc;
             color: white;
             border-bottom-right-radius: 5px;
-            order: 1; /* Сообщение перед аватаркой */
         }
         
         .message-container.other .message {
             background: #2a2a2a;
             border-bottom-left-radius: 5px;
-            order: 2; /* Сообщение после аватарки */
         }
         
         .sender {
@@ -229,6 +223,27 @@
         .text { 
             font-size: 14px; 
             line-height: 1.4;
+        }
+        
+        /* Стили для ссылок */
+        .text a {
+            color: #66b3ff;
+            text-decoration: underline;
+            word-break: break-all;
+        }
+        
+        .message-container.my .text a {
+            color: #b3d9ff;
+            text-decoration: underline;
+        }
+        
+        .text a:hover {
+            color: #99ccff;
+            text-decoration: none;
+        }
+        
+        .message-container.my .text a:hover {
+            color: #cce6ff;
         }
         
         .time { 
@@ -384,6 +399,12 @@
                 height: 28px;
                 font-size: 12px;
             }
+            
+            /* Улучшенные ссылки на мобильных */
+            .text a {
+                word-break: break-word;
+                hyphens: auto;
+            }
         }
         
         .hidden {
@@ -448,14 +469,14 @@
                     <div class="message-avatar other avatar-color-0">С</div>
                     <div class="message other">
                         <div class="sender">Система</div>
-                        <div class="text">Добро пожаловать в чат!</div>
+                        <div class="text">Добро пожаловать в чат! Отправляйте ссылки, они будут кликабельными.</div>
                         <div class="time">12:00</div>
                     </div>
                 </div>
             </div>
             
             <div class="input-area">
-                <input type="text" id="message-input" placeholder="Сообщение...">
+                <input type="text" id="message-input" placeholder="Сообщение или ссылка...">
                 <button class="send-icon" id="send-btn" title="Отправить">➤</button>
             </div>
         </main>
@@ -521,6 +542,28 @@
         function getFirstLetter(name) {
             if (!name || name.length === 0) return '?';
             return name.charAt(0).toUpperCase();
+        }
+        
+        // Функция для обнаружения и преобразования URL в ссылки
+        function linkify(text) {
+            // Регулярное выражение для поиска URL
+            const urlRegex = /(\b(https?|ftp|file):\/\/[-A-Z0-9+&@#\/%?=~_|!:,.;]*[-A-Z0-9+&@#\/%=~_|])/ig;
+            
+            return text.replace(urlRegex, function(url) {
+                // Проверяем, есть ли уже тег <a>
+                if (url.startsWith('<a ') && url.endsWith('</a>')) {
+                    return url;
+                }
+                
+                // Добавляем протокол если его нет
+                let href = url;
+                if (!href.match(/^[a-zA-Z]+:\/\//)) {
+                    href = 'http://' + href;
+                }
+                
+                // Создаем ссылку с безопасным открытием в новой вкладке
+                return `<a href="${href}" target="_blank" rel="noopener noreferrer">${url}</a>`;
+            });
         }
         
         // Функция проверки доступности имени
@@ -794,9 +837,12 @@
             const messageDiv = document.createElement('div');
             messageDiv.className = `message`;
             
+            // Преобразуем текст с ссылками
+            const linkedText = linkify(messageData.text);
+            
             messageDiv.innerHTML = `
                 <div class="sender">${messageData.sender}</div>
-                <div class="text">${messageData.text}</div>
+                <div class="text">${linkedText}</div>
                 <div class="time">${new Date(messageData.timestamp).toLocaleTimeString('ru-RU', {hour: '2-digit', minute:'2-digit'})}</div>
             `;
             
@@ -903,6 +949,15 @@
             checkSavedUser();
             if (!userName) {
                 usernameInput.focus();
+            }
+        });
+        
+        // Обработка кликов по ссылкам для безопасности
+        document.addEventListener('click', function(e) {
+            if (e.target.tagName === 'A' && e.target.href) {
+                // Открываем ссылку в новой вкладке безопасно
+                e.preventDefault();
+                window.open(e.target.href, '_blank', 'noopener,noreferrer');
             }
         });
     </script>
