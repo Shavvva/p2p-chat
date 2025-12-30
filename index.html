@@ -16,6 +16,70 @@
             flex-direction: column;
         }
         
+        /* Модальное окно авторизации */
+        .auth-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.9);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+        }
+        
+        .auth-content {
+            background: #1a1a1a;
+            padding: 30px;
+            border-radius: 10px;
+            width: 90%;
+            max-width: 400px;
+            border: 1px solid #333;
+        }
+        
+        .auth-content h2 {
+            color: white;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+        
+        .auth-input {
+            width: 100%;
+            padding: 12px 15px;
+            margin-bottom: 20px;
+            border: 1px solid #333;
+            border-radius: 5px;
+            background: #2a2a2a;
+            color: white;
+            font-size: 16px;
+        }
+        
+        .auth-button {
+            width: 100%;
+            padding: 12px;
+            background: #0066cc;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            font-size: 16px;
+            cursor: pointer;
+        }
+        
+        .auth-button:hover {
+            background: #0055aa;
+        }
+        
+        .error-message {
+            color: #ff4444;
+            font-size: 14px;
+            margin-top: 10px;
+            text-align: center;
+            display: none;
+        }
+        
+        /* Основной интерфейс */
         header {
             background: #1a1a1a;
             color: white;
@@ -23,7 +87,25 @@
             border-bottom: 1px solid #333;
             display: flex;
             align-items: center;
+            justify-content: space-between;
             height: 60px;
+        }
+        
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .user-avatar {
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            background: #0066cc;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
         }
         
         .menu-toggle {
@@ -32,7 +114,6 @@
             color: white;
             font-size: 20px;
             cursor: pointer;
-            margin-right: 15px;
             display: none;
         }
         
@@ -161,6 +242,7 @@
         }
         
         .user-name { font-size: 14px; }
+        
         .mobile-overlay {
             display: none;
             position: fixed;
@@ -203,17 +285,42 @@
                 font-size: 16px;
             }
         }
+        
+        .hidden {
+            display: none !important;
+        }
     </style>
 </head>
 <body>
-    <header>
+    <!-- Модальное окно авторизации -->
+    <div class="auth-modal" id="auth-modal">
+        <div class="auth-content">
+            <h2>Вход в чат</h2>
+            <input type="text" 
+                   class="auth-input" 
+                   id="username-input" 
+                   placeholder="Введите ваше имя"
+                   maxlength="20">
+            <button class="auth-button" id="auth-button">Войти в чат</button>
+            <div class="error-message" id="error-message">
+                Имя должно содержать от 2 до 20 символов
+            </div>
+        </div>
+    </div>
+    
+    <!-- Основной интерфейс -->
+    <header class="hidden" id="main-header">
         <button class="menu-toggle" id="menu-toggle">☰</button>
         <h1>Мессенджер</h1>
+        <div class="user-info">
+            <div class="user-avatar" id="user-avatar">?</div>
+            <span id="current-username">Гость</span>
+        </div>
     </header>
     
     <div class="mobile-overlay" id="mobile-overlay"></div>
     
-    <div class="container">
+    <div class="container hidden" id="main-container">
         <aside class="sidebar" id="sidebar">
             <h2>Участники (<span id="online-count">0</span>)</h2>
             <ul class="user-list" id="user-list"></ul>
@@ -246,12 +353,22 @@
         const app = firebase.initializeApp(firebaseConfig);
         const database = firebase.database();
         
-        const userId = 'user_' + Math.random().toString(36).substr(2, 9);
-        const userName = 'Пользователь_' + Math.floor(Math.random() * 1000);
+        let userId = '';
+        let userName = '';
+        
+        // Элементы DOM
+        const authModal = document.getElementById('auth-modal');
+        const usernameInput = document.getElementById('username-input');
+        const authButton = document.getElementById('auth-button');
+        const errorMessage = document.getElementById('error-message');
+        const mainHeader = document.getElementById('main-header');
+        const mainContainer = document.getElementById('main-container');
+        const userAvatar = document.getElementById('user-avatar');
+        const currentUsername = document.getElementById('current-username');
         
         const messagesRef = database.ref('messages');
         const onlineUsersRef = database.ref('onlineUsers');
-        const currentUserRef = onlineUsersRef.child(userId);
+        let currentUserRef = null;
         
         const messagesContainer = document.getElementById('messages-container');
         const messageInput = document.getElementById('message-input');
@@ -264,6 +381,115 @@
         
         let isMenuOpen = false;
         
+        // Функция авторизации
+        function authorizeUser() {
+            const name = usernameInput.value.trim();
+            
+            if (name.length < 2 || name.length > 20) {
+                errorMessage.style.display = 'block';
+                usernameInput.focus();
+                return;
+            }
+            
+            errorMessage.style.display = 'none';
+            userName = name;
+            userId = 'user_' + Math.random().toString(36).substr(2, 9);
+            
+            // Сохраняем в localStorage для восстановления сессии
+            localStorage.setItem('chatUsername', userName);
+            localStorage.setItem('chatUserId', userId);
+            
+            // Показываем основной интерфейс
+            authModal.classList.add('hidden');
+            mainHeader.classList.remove('hidden');
+            mainContainer.classList.remove('hidden');
+            
+            // Обновляем отображение имени пользователя
+            currentUsername.textContent = userName;
+            userAvatar.textContent = userName.charAt(0).toUpperCase();
+            
+            // Подключаемся к Firebase
+            currentUserRef = onlineUsersRef.child(userId);
+            
+            // Подключаем онлайн статус
+            const connectedRef = database.ref(".info/connected");
+            connectedRef.on("value", (snap) => {
+                if (snap.val() === true && currentUserRef) {
+                    currentUserRef.set({
+                        name: userName,
+                        timestamp: firebase.database.ServerValue.TIMESTAMP
+                    });
+                    currentUserRef.onDisconnect().remove();
+                }
+            });
+            
+            // Фокус на поле ввода
+            setTimeout(() => {
+                messageInput.focus();
+            }, 100);
+        }
+        
+        // Проверяем сохраненные данные
+        function checkSavedUser() {
+            const savedName = localStorage.getItem('chatUsername');
+            const savedId = localStorage.getItem('chatUserId');
+            
+            if (savedName && savedId) {
+                // Автоматический вход
+                userName = savedName;
+                userId = savedId;
+                
+                authModal.classList.add('hidden');
+                mainHeader.classList.remove('hidden');
+                mainContainer.classList.remove('hidden');
+                
+                currentUsername.textContent = userName;
+                userAvatar.textContent = userName.charAt(0).toUpperCase();
+                
+                currentUserRef = onlineUsersRef.child(userId);
+                
+                const connectedRef = database.ref(".info/connected");
+                connectedRef.on("value", (snap) => {
+                    if (snap.val() === true && currentUserRef) {
+                        currentUserRef.set({
+                            name: userName,
+                            timestamp: firebase.database.ServerValue.TIMESTAMP
+                        });
+                        currentUserRef.onDisconnect().remove();
+                    }
+                });
+                
+                setTimeout(() => {
+                    messageInput.focus();
+                }, 100);
+            }
+        }
+        
+        // События авторизации
+        authButton.addEventListener('click', authorizeUser);
+        usernameInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                authorizeUser();
+            }
+        });
+        
+        // Функция выхода
+        function logout() {
+            if (currentUserRef) {
+                currentUserRef.remove();
+            }
+            
+            localStorage.removeItem('chatUsername');
+            localStorage.removeItem('chatUserId');
+            
+            location.reload();
+        }
+        
+        // Добавляем возможность выхода по двойному клику на аватар
+        userAvatar.addEventListener('dblclick', logout);
+        currentUsername.addEventListener('dblclick', logout);
+        
+        // Мобильное меню
         menuToggle.addEventListener('click', () => {
             isMenuOpen = !isMenuOpen;
             sidebar.classList.toggle('active', isMenuOpen);
@@ -276,20 +502,10 @@
             mobileOverlay.classList.remove('active');
         });
         
-        const connectedRef = database.ref(".info/connected");
-        connectedRef.on("value", (snap) => {
-            if (snap.val() === true) {
-                currentUserRef.set({
-                    name: userName,
-                    timestamp: firebase.database.ServerValue.TIMESTAMP
-                });
-                currentUserRef.onDisconnect().remove();
-            }
-        });
-        
+        // Функция отправки сообщения
         function sendMessage() {
             const text = messageInput.value.trim();
-            if (!text) return;
+            if (!text || !userId) return;
             
             messagesRef.push({
                 text: text,
@@ -302,6 +518,7 @@
             });
         }
         
+        // Функция создания элемента сообщения
         function createMessageElement(messageData) {
             const isMyMessage = messageData.senderId === userId;
             const div = document.createElement('div');
@@ -316,6 +533,7 @@
             return div;
         }
         
+        // Загрузка сообщений
         messagesRef.orderByChild('timestamp').limitToLast(50).on('value', (snapshot) => {
             messagesContainer.innerHTML = '';
             
@@ -338,6 +556,7 @@
             messagesContainer.scrollTop = messagesContainer.scrollHeight;
         });
         
+        // Отслеживание онлайн пользователей
         onlineUsersRef.on('value', (snapshot) => {
             userList.innerHTML = '';
             
@@ -367,17 +586,25 @@
             });
         });
         
+        // Обработчики событий
         sendBtn.addEventListener('click', sendMessage);
         messageInput.addEventListener('keypress', (e) => {
             if (e.key === 'Enter') sendMessage();
         });
         
-        window.addEventListener('load', () => {
-            messageInput.focus();
+        // Очистка при закрытии страницы
+        window.addEventListener('beforeunload', () => {
+            if (currentUserRef) {
+                currentUserRef.remove();
+            }
         });
         
-        window.addEventListener('beforeunload', () => {
-            currentUserRef.remove();
+        // Проверяем сохраненного пользователя при загрузке
+        window.addEventListener('load', () => {
+            checkSavedUser();
+            if (!userName) {
+                usernameInput.focus();
+            }
         });
     </script>
 </body>
