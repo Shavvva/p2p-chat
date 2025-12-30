@@ -109,6 +109,18 @@
             z-index: 100;
         }
         
+        .header-left {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        
+        .header-right {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        
         .user-info {
             display: flex;
             align-items: center;
@@ -125,6 +137,167 @@
             justify-content: center;
             font-weight: bold;
             color: white;
+        }
+        
+        /* Кнопка поиска в хедере */
+        .search-toggle {
+            background: none;
+            border: none;
+            color: white;
+            font-size: 20px;
+            cursor: pointer;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: background 0.2s;
+        }
+        
+        .search-toggle:hover {
+            background: rgba(255, 255, 255, 0.1);
+        }
+        
+        /* Панель поиска */
+        .search-panel {
+            position: fixed;
+            top: 60px;
+            left: 0;
+            right: 0;
+            background: #1a1a1a;
+            padding: 15px 20px;
+            border-bottom: 1px solid #333;
+            display: none;
+            z-index: 99;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+        }
+        
+        .search-panel.active {
+            display: block;
+        }
+        
+        .search-input-wrapper {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+        
+        .search-input {
+            flex: 1;
+            padding: 10px 15px;
+            border: 1px solid #333;
+            border-radius: 20px;
+            background: #2a2a2a;
+            color: white;
+            font-size: 14px;
+        }
+        
+        .search-input:focus {
+            outline: none;
+            border-color: #0066cc;
+        }
+        
+        .search-controls {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+        
+        .search-btn {
+            background: #0066cc;
+            color: white;
+            border: none;
+            padding: 8px 20px;
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: background 0.2s;
+        }
+        
+        .search-btn:hover {
+            background: #0055aa;
+        }
+        
+        .search-btn:disabled {
+            background: #555;
+            cursor: not-allowed;
+        }
+        
+        .close-search {
+            background: none;
+            border: none;
+            color: #888;
+            cursor: pointer;
+            font-size: 20px;
+            width: 30px;
+            height: 30px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            transition: all 0.2s;
+        }
+        
+        .close-search:hover {
+            color: white;
+            background: rgba(255, 255, 255, 0.1);
+        }
+        
+        .search-info {
+            font-size: 12px;
+            color: #888;
+            margin-top: 8px;
+            text-align: center;
+        }
+        
+        .search-results-info {
+            position: fixed;
+            top: 130px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(0, 102, 204, 0.9);
+            color: white;
+            padding: 8px 15px;
+            border-radius: 20px;
+            font-size: 13px;
+            z-index: 98;
+            display: none;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+        }
+        
+        .search-results-info.active {
+            display: block;
+        }
+        
+        .search-nav {
+            display: flex;
+            gap: 10px;
+            margin-left: 10px;
+        }
+        
+        .search-nav-btn {
+            background: rgba(255, 255, 255, 0.1);
+            border: none;
+            color: white;
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            font-size: 12px;
+            transition: background 0.2s;
+        }
+        
+        .search-nav-btn:hover {
+            background: rgba(255, 255, 255, 0.2);
+        }
+        
+        .search-nav-btn:disabled {
+            opacity: 0.3;
+            cursor: not-allowed;
         }
         
         .menu-toggle {
@@ -150,6 +323,7 @@
             border-right: 1px solid #333;
             padding: 20px;
             overflow-y: auto;
+            transition: transform 0.3s ease;
         }
         
         .chat-area {
@@ -181,6 +355,24 @@
         
         .message-container.deleting {
             opacity: 0.5;
+        }
+        
+        .message-container.search-highlight {
+            background: rgba(255, 215, 0, 0.1);
+            border-radius: 10px;
+            animation: highlightPulse 2s ease-in-out;
+        }
+        
+        .message-container.search-current {
+            background: rgba(255, 215, 0, 0.2);
+            border-radius: 10px;
+            border: 1px solid rgba(255, 215, 0, 0.5);
+        }
+        
+        @keyframes highlightPulse {
+            0% { background: rgba(255, 215, 0, 0.1); }
+            50% { background: rgba(255, 215, 0, 0.3); }
+            100% { background: rgba(255, 215, 0, 0.1); }
         }
         
         .message-container.my {
@@ -236,6 +428,13 @@
         .message.editing {
             background: rgba(0, 102, 204, 0.3) !important;
             border: 1px solid #0066cc !important;
+        }
+        
+        .message .search-match {
+            background: rgba(255, 215, 0, 0.3);
+            padding: 0 2px;
+            border-radius: 2px;
+            font-weight: bold;
         }
         
         /* Блок ответа на сообщение */
@@ -725,6 +924,27 @@
                 padding: 6px 12px;
             }
             
+            .search-panel {
+                top: 60px;
+                padding: 12px 15px;
+            }
+            
+            .search-results-info {
+                top: 120px;
+                font-size: 12px;
+                padding: 6px 12px;
+            }
+            
+            .search-input-wrapper {
+                flex-direction: column;
+                gap: 8px;
+            }
+            
+            .search-controls {
+                width: 100%;
+                justify-content: space-between;
+            }
+            
             .emoji-picker {
                 bottom: 70px;
                 left: 15px;
@@ -777,6 +997,16 @@
             .reply-block {
                 padding: 6px 10px;
                 font-size: 11px;
+            }
+            
+            .header-right {
+                gap: 10px;
+            }
+            
+            .search-toggle {
+                width: 36px;
+                height: 36px;
+                font-size: 18px;
             }
         }
         
@@ -836,13 +1066,44 @@
     
     <!-- Основной интерфейс -->
     <header class="hidden" id="main-header">
-        <button class="menu-toggle" id="menu-toggle">☰</button>
-        <h1>Мессенджер</h1>
-        <div class="user-info">
-            <div class="user-avatar" id="user-avatar">?</div>
-            <span id="current-username">Гость</span>
+        <div class="header-left">
+            <button class="menu-toggle" id="menu-toggle">☰</button>
+            <h1>Мессенджер</h1>
+        </div>
+        <div class="header-right">
+            <button class="search-toggle" id="search-toggle" title="Поиск">🔍</button>
+            <div class="user-info">
+                <div class="user-avatar" id="user-avatar">?</div>
+                <span id="current-username">Гость</span>
+            </div>
         </div>
     </header>
+    
+    <!-- Панель поиска -->
+    <div class="search-panel" id="search-panel">
+        <div class="search-input-wrapper">
+            <input type="text" 
+                   class="search-input" 
+                   id="search-input" 
+                   placeholder="Введите текст для поиска...">
+            <div class="search-controls">
+                <button class="search-btn" id="search-btn">Найти</button>
+                <div class="search-nav">
+                    <button class="search-nav-btn" id="search-prev" title="Предыдущий результат">◀</button>
+                    <button class="search-nav-btn" id="search-next" title="Следующий результат">▶</button>
+                </div>
+                <button class="close-search" id="close-search">×</button>
+            </div>
+        </div>
+        <div class="search-info">
+            Поиск по всем сообщениям в чате. Нажмите Enter для поиска.
+        </div>
+    </div>
+    
+    <!-- Информация о результатах поиска -->
+    <div class="search-results-info" id="search-results-info">
+        <span id="search-results-text"></span>
+    </div>
     
     <!-- Подложка для закрытия меню -->
     <div class="menu-overlay" id="menu-overlay"></div>
@@ -860,7 +1121,7 @@
                     <div class="message-avatar other avatar-color-0">С</div>
                     <div class="message other">
                         <div class="sender">Система</div>
-                        <div class="text">Добро пожаловать в чат! Нажмите на иконку ☺ чтобы открыть панель эмодзи. Нажмите на сообщение, чтобы открыть меню.</div>
+                        <div class="text">Добро пожаловать в чат! Нажмите на иконку ☺ чтобы открыть панель эмодзи. Нажмите на сообщение, чтобы открыть меню. Используйте поиск 🔍 для быстрого нахождения сообщений.</div>
                         <div class="time">12:00</div>
                     </div>
                 </div>
@@ -921,7 +1182,11 @@
         let currentNameCheck = '';
         let editingMessageId = null;
         let activeMessageMenu = null;
-        let replyingToMessage = null; // Сообщение, на которое отвечаем
+        let replyingToMessage = null;
+        let searchResults = [];
+        let currentSearchIndex = -1;
+        let isSearchActive = false;
+        let searchQuery = '';
         
         // Элементы DOM
         const authModal = document.getElementById('auth-modal');
@@ -933,6 +1198,15 @@
         const mainContainer = document.getElementById('main-container');
         const userAvatar = document.getElementById('user-avatar');
         const currentUsername = document.getElementById('current-username');
+        const searchToggle = document.getElementById('search-toggle');
+        const searchPanel = document.getElementById('search-panel');
+        const searchInput = document.getElementById('search-input');
+        const searchBtn = document.getElementById('search-btn');
+        const closeSearch = document.getElementById('close-search');
+        const searchPrev = document.getElementById('search-prev');
+        const searchNext = document.getElementById('search-next');
+        const searchResultsInfo = document.getElementById('search-results-info');
+        const searchResultsText = document.getElementById('search-results-text');
         
         const messagesRef = database.ref('messages');
         const onlineUsersRef = database.ref('onlineUsers');
@@ -960,9 +1234,9 @@
         let isMenuOpen = false;
         let isEmojiPickerOpen = false;
         let currentContextMessage = null;
-        let messagesMap = new Map(); // Храним сообщения локально для быстрого доступа
+        let messagesMap = new Map();
         
-        // Набор эмодзи (12 популярных смайликов, включая 2 новых)
+        // Набор эмодзи (14 популярных смайликов)
         const emojis = [
             { emoji: '😊', name: 'Улыбка' },
             { emoji: '😂', name: 'Смех' },
@@ -974,10 +1248,10 @@
             { emoji: '😢', name: 'Плач' },
             { emoji: '🤔', name: 'Размышление' },
             { emoji: '😎', name: 'Круто' },
-            { emoji: '😍', name: 'Влюбленный' },      // НОВЫЙ 1
-            { emoji: '🥳', name: 'Тусовщик' },        // НОВЫЙ 2
-            { emoji: '😘', name: 'Воздушный поцелуй' }, // ДОПОЛНИТЕЛЬНЫЙ
-            { emoji: '✨', name: 'Блестки' }           // ДОПОЛНИТЕЛЬНЫЙ
+            { emoji: '😍', name: 'Влюбленный' },
+            { emoji: '🥳', name: 'Тусовщик' },
+            { emoji: '😘', name: 'Воздушный поцелуй' },
+            { emoji: '✨', name: 'Блестки' }
         ];
         
         // Хранилище онлайн пользователей для быстрой проверки
@@ -985,7 +1259,7 @@
         
         // Инициализация эмодзи панели
         function initEmojiPicker() {
-            emojiPicker.innerHTML = ''; // Очищаем панель перед инициализацией
+            emojiPicker.innerHTML = '';
             
             emojis.forEach(emoji => {
                 const emojiElement = document.createElement('div');
@@ -1012,11 +1286,9 @@
             
             messageInput.value = textBefore + emoji + textAfter;
             
-            // Обновляем курсор
             const newCursorPos = cursorPos + emoji.length;
             messageInput.selectionStart = messageInput.selectionEnd = newCursorPos;
             
-            // Фокус и обновление ввода
             messageInput.focus();
             messageInput.dispatchEvent(new Event('input', { bubbles: true }));
         }
@@ -1029,11 +1301,9 @@
             emojiPicker.classList.toggle('active', isEmojiPickerOpen);
             emojiToggle.classList.toggle('active', isEmojiPickerOpen);
             
-            // Закрываем другие меню
             if (isEmojiPickerOpen) {
                 closeMenu();
                 closeMessageMenu();
-                // Добавляем обработчик для закрытия при клике вне панели
                 setTimeout(() => {
                     document.addEventListener('click', closeEmojiPickerOnClickOutside);
                 }, 10);
@@ -1058,7 +1328,7 @@
         // Функция для получения цвета аватарки по имени
         function getAvatarColor(name) {
             if (!name) return 0;
-            const colors = 10; // количество цветов
+            const colors = 10;
             let hash = 0;
             for (let i = 0; i < name.length; i++) {
                 hash = name.charCodeAt(i) + ((hash << 5) - hash);
@@ -1076,27 +1346,33 @@
         function linkify(text) {
             if (!text) return '';
             
-            // Регулярное выражение для поиска URL
             const urlRegex = /(\b(https?|ftp|file):\/\/[-A-Z0-9+&@#\/%?=~_|!:,.;]*[-A-Z0-9+&@#\/%=~_|])/ig;
             
             return text.replace(urlRegex, function(url) {
-                // Проверяем, есть ли уже тег <a>
                 if (url.includes('<a ') && url.includes('</a>')) {
                     return url;
                 }
                 
-                // Добавляем протокол если его нет
                 let href = url;
                 if (!href.match(/^[a-zA-Z]+:\/\//)) {
                     href = 'http://' + href;
                 }
                 
-                // Создаем безопасную ссылку
                 return `<a href="${href}" target="_blank" rel="noopener noreferrer" class="message-link">${url}</a>`;
             });
         }
         
-        // Функция для удаления HTML тегов при отображении текста в предпросмотре
+        // Функция для выделения найденного текста
+        function highlightText(text, query) {
+            if (!query || !text) return text;
+            
+            const escapedQuery = query.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+            const regex = new RegExp(`(${escapedQuery})`, 'gi');
+            
+            return text.replace(regex, '<span class="search-match">$1</span>');
+        }
+        
+        // Функция для удаления HTML тегов
         function stripHtml(html) {
             if (!html) return '';
             return html.replace(/<[^>]*>/g, '');
@@ -1138,7 +1414,6 @@
         usernameInput.addEventListener('input', () => {
             const name = usernameInput.value.trim();
             
-            // Сбрасываем предыдущий таймер
             if (nameCheckTimeout) {
                 clearTimeout(nameCheckTimeout);
             }
@@ -1151,22 +1426,20 @@
                 return;
             }
             
-            // Показываем проверку
             authButton.disabled = true;
             authButton.textContent = 'Проверка...';
             errorMessage.style.display = 'none';
             checkingMessage.style.display = 'block';
             
-            // Запускаем проверку с задержкой
             nameCheckTimeout = setTimeout(async () => {
                 if (name !== usernameInput.value.trim()) {
-                    return; // Имя изменилось во время проверки
+                    return;
                 }
                 
                 const isAvailable = await checkNameAvailability(name);
                 
                 if (name !== usernameInput.value.trim()) {
-                    return; // Имя изменилось во время проверки
+                    return;
                 }
                 
                 checkingMessage.style.display = 'none';
@@ -1195,7 +1468,6 @@
                 return;
             }
             
-            // Двойная проверка перед входом
             const isAvailable = await checkNameAvailability(name);
             
             if (!isAvailable) {
@@ -1212,24 +1484,19 @@
             userName = name;
             userId = 'user_' + Math.random().toString(36).substr(2, 9);
             
-            // Сохраняем в localStorage для восстановления сессии
             localStorage.setItem('chatUsername', userName);
             localStorage.setItem('chatUserId', userId);
             
-            // Показываем основной интерфейс
             authModal.classList.add('hidden');
             mainHeader.classList.remove('hidden');
             mainContainer.classList.remove('hidden');
             
-            // Обновляем отображение имени пользователя
             currentUsername.textContent = userName;
             userAvatar.textContent = getFirstLetter(userName);
             userAvatar.className = `user-avatar avatar-color-${getAvatarColor(userName)}`;
             
-            // Подключаемся к Firebase
             currentUserRef = onlineUsersRef.child(userId);
             
-            // Подключаем онлайн статус
             const connectedRef = database.ref(".info/connected");
             connectedRef.on("value", (snap) => {
                 if (snap.val() === true && currentUserRef) {
@@ -1241,10 +1508,8 @@
                 }
             });
             
-            // Инициализируем панель эмодзи
             initEmojiPicker();
             
-            // Фокус на поле ввода
             setTimeout(() => {
                 messageInput.focus();
             }, 100);
@@ -1256,15 +1521,12 @@
             const savedId = localStorage.getItem('chatUserId');
             
             if (savedName && savedId) {
-                // Проверяем, не занято ли имя другим пользователем
                 const isAvailable = await checkNameAvailability(savedName);
                 
                 if (!isAvailable) {
-                    // Имя занято - предлагаем ввести новое
                     localStorage.removeItem('chatUsername');
                     localStorage.removeItem('chatUserId');
                     
-                    // Показываем сообщение
                     errorMessage.textContent = 'Ваше прежнее имя теперь занято. Выберите новое имя.';
                     errorMessage.style.display = 'block';
                     
@@ -1274,7 +1536,6 @@
                     return;
                 }
                 
-                // Автоматический вход
                 userName = savedName;
                 userId = savedId;
                 
@@ -1299,7 +1560,6 @@
                     }
                 });
                 
-                // Инициализируем панель эмодзи
                 initEmojiPicker();
                 
                 setTimeout(() => {
@@ -1330,7 +1590,6 @@
             }
         }
         
-        // Добавляем возможность выхода по двойному клику на аватар
         userAvatar.addEventListener('dblclick', logout);
         currentUsername.addEventListener('dblclick', logout);
         
@@ -1342,6 +1601,7 @@
             mobileOverlay.classList.toggle('active', isMenuOpen);
             closeEmojiPicker();
             closeMessageMenu();
+            if (isSearchActive) closeSearchPanel();
         });
         
         mobileOverlay.addEventListener('click', () => {
@@ -1350,6 +1610,7 @@
             mobileOverlay.classList.remove('active');
             closeEmojiPicker();
             closeMessageMenu();
+            if (isSearchActive) closeSearchPanel();
         });
         
         menuOverlay.addEventListener('click', closeMessageMenu);
@@ -1363,6 +1624,177 @@
         // Эмодзи панель
         emojiToggle.addEventListener('click', toggleEmojiPicker);
         
+        // Поиск сообщений
+        function openSearchPanel() {
+            searchPanel.classList.add('active');
+            isSearchActive = true;
+            searchInput.focus();
+            
+            // Закрываем другие панели
+            closeEmojiPicker();
+            closeMessageMenu();
+            closeMenu();
+        }
+        
+        function closeSearchPanel() {
+            searchPanel.classList.remove('active');
+            searchResultsInfo.classList.remove('active');
+            isSearchActive = false;
+            clearSearchHighlights();
+            searchInput.value = '';
+            searchResults = [];
+            currentSearchIndex = -1;
+            searchQuery = '';
+            
+            // Обновляем сообщения без подсветки
+            loadMessages();
+        }
+        
+        function clearSearchHighlights() {
+            const highlightedMessages = document.querySelectorAll('.message-container.search-highlight, .message-container.search-current');
+            highlightedMessages.forEach(msg => {
+                msg.classList.remove('search-highlight', 'search-current');
+            });
+            
+            // Удаляем подсветку текста
+            const searchMatches = document.querySelectorAll('.search-match');
+            searchMatches.forEach(match => {
+                const parent = match.parentNode;
+                parent.innerHTML = parent.innerHTML.replace(/<span class="search-match">(.*?)<\/span>/g, '$1');
+            });
+        }
+        
+        function performSearch() {
+            const query = searchInput.value.trim().toLowerCase();
+            if (!query || query.length < 2) {
+                alert('Введите хотя бы 2 символа для поиска');
+                return;
+            }
+            
+            searchQuery = query;
+            searchResults = [];
+            currentSearchIndex = -1;
+            
+            // Ищем сообщения в локальной карте
+            messagesMap.forEach((messageData, messageId) => {
+                const text = stripHtml(messageData.text).toLowerCase();
+                const sender = messageData.sender.toLowerCase();
+                
+                if (text.includes(query) || sender.includes(query)) {
+                    searchResults.push({
+                        id: messageId,
+                        data: messageData,
+                        textIndex: text.indexOf(query),
+                        senderIndex: sender.indexOf(query)
+                    });
+                }
+            });
+            
+            // Сортируем по времени (новые сверху)
+            searchResults.sort((a, b) => (b.data.timestamp || 0) - (a.data.timestamp || 0));
+            
+            if (searchResults.length === 0) {
+                searchResultsInfo.classList.add('active');
+                searchResultsText.textContent = 'Сообщения не найдены';
+                setTimeout(() => {
+                    searchResultsInfo.classList.remove('active');
+                }, 3000);
+                return;
+            }
+            
+            // Показываем результаты
+            showSearchResults();
+            navigateToSearchResult(0);
+        }
+        
+        function showSearchResults() {
+            clearSearchHighlights();
+            
+            // Подсвечиваем найденные сообщения
+            searchResults.forEach(result => {
+                const messageElement = document.querySelector(`[data-message-id="${result.id}"]`);
+                if (messageElement) {
+                    messageElement.classList.add('search-highlight');
+                    
+                    // Подсвечиваем текст в сообщении
+                    const textElement = messageElement.querySelector('.text');
+                    if (textElement) {
+                        const originalText = stripHtml(textElement.innerHTML);
+                        const highlightedText = highlightText(originalText, searchQuery);
+                        textElement.innerHTML = linkify(highlightedText).replace(
+                            /[\u{1F600}-\u{1F64F}\u{1F300}-\u{1F5FF}\u{1F680}-\u{1F6FF}\u{1F1E0}-\u{1F1FF}\u{2600}-\u{26FF}\u{2700}-\u{27BF}]/gu, 
+                            match => `<span class="emoji">${match}</span>`
+                        );
+                    }
+                }
+            });
+            
+            // Обновляем информацию о результатах
+            searchResultsInfo.classList.add('active');
+            searchResultsText.textContent = `Найдено: ${searchResults.length} сообщений`;
+        }
+        
+        function navigateToSearchResult(index) {
+            if (searchResults.length === 0) return;
+            
+            // Ограничиваем индекс
+            if (index < 0) index = 0;
+            if (index >= searchResults.length) index = searchResults.length - 1;
+            
+            // Снимаем выделение с предыдущего результата
+            if (currentSearchIndex >= 0 && currentSearchIndex < searchResults.length) {
+                const prevElement = document.querySelector(`[data-message-id="${searchResults[currentSearchIndex].id}"]`);
+                if (prevElement) {
+                    prevElement.classList.remove('search-current');
+                    prevElement.classList.add('search-highlight');
+                }
+            }
+            
+            currentSearchIndex = index;
+            
+            // Выделяем текущий результат
+            const currentResult = searchResults[currentSearchIndex];
+            const currentElement = document.querySelector(`[data-message-id="${currentResult.id}"]`);
+            if (currentElement) {
+                currentElement.classList.remove('search-highlight');
+                currentElement.classList.add('search-current');
+                
+                // Прокручиваем к сообщению
+                currentElement.scrollIntoView({ 
+                    behavior: 'smooth', 
+                    block: 'center' 
+                });
+                
+                // Обновляем информацию
+                searchResultsText.textContent = `${currentSearchIndex + 1} из ${searchResults.length}`;
+                
+                // Обновляем состояние кнопок навигации
+                searchPrev.disabled = currentSearchIndex === 0;
+                searchNext.disabled = currentSearchIndex === searchResults.length - 1;
+            }
+        }
+        
+        // Обработчики для поиска
+        searchToggle.addEventListener('click', openSearchPanel);
+        closeSearch.addEventListener('click', closeSearchPanel);
+        searchBtn.addEventListener('click', performSearch);
+        searchPrev.addEventListener('click', () => navigateToSearchResult(currentSearchIndex - 1));
+        searchNext.addEventListener('click', () => navigateToSearchResult(currentSearchIndex + 1));
+        
+        // Поиск по нажатию Enter
+        searchInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                performSearch();
+            }
+        });
+        
+        // Закрытие поиска по Escape
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape' && isSearchActive) {
+                closeSearchPanel();
+            }
+        });
+        
         // Контекстное меню для сообщений
         function showMessageMenu(messageId, messageData, x, y) {
             closeMessageMenu();
@@ -1372,20 +1804,17 @@
                 data: messageData
             };
             
-            // Позиционируем меню
             messageMenu.style.left = x + 'px';
             messageMenu.style.top = y + 'px';
             
-            // Показываем только соответствующие опции
             const isMyMessage = messageData.senderId === userId;
-            menuReplyBtn.style.display = 'flex'; // Ответить доступно всем
+            menuReplyBtn.style.display = 'flex';
             menuEditBtn.style.display = isMyMessage ? 'flex' : 'none';
             menuDeleteBtn.style.display = isMyMessage ? 'flex' : 'none';
             
             messageMenu.classList.add('active');
             menuOverlay.classList.add('active');
             
-            // Блокируем прокрутку
             document.body.style.overflow = 'hidden';
         }
         
@@ -1394,7 +1823,6 @@
             menuOverlay.classList.remove('active');
             currentContextMessage = null;
             
-            // Восстанавливаем прокрутку
             document.body.style.overflow = '';
         }
         
@@ -1425,17 +1853,14 @@
             replyingToMessage = {
                 id: messageId,
                 sender: messageData.sender,
-                text: stripHtml(messageData.text).substring(0, 100) // Обрезаем текст для предпросмотра
+                text: stripHtml(messageData.text).substring(0, 100)
             };
             
-            // Показываем индикатор ответа
             replyIndicator.classList.remove('hidden');
             replyIndicatorText.textContent = `Ответ ${messageData.sender}: ${replyingToMessage.text}${replyingToMessage.text.length >= 100 ? '...' : ''}`;
             
-            // Фокус на поле ввода
             messageInput.focus();
             
-            // Прокручиваем к полю ввода на мобильных
             if (window.innerWidth <= 768) {
                 setTimeout(() => {
                     messageInput.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
@@ -1457,18 +1882,13 @@
         // Функция удаления сообщения
         function deleteMessage(messageId) {
             if (confirm('Удалить это сообщение?')) {
-                // Находим элемент сообщения
                 const messageElement = document.querySelector(`[data-message-id="${messageId}"]`);
                 if (messageElement) {
-                    // Добавляем класс для анимации удаления
                     messageElement.classList.add('deleting');
                     
-                    // Удаляем из Firebase
                     messagesRef.child(messageId).remove().then(() => {
-                        // Удаляем из локальной карты
                         messagesMap.delete(messageId);
                         
-                        // Ждем анимацию и удаляем из DOM
                         setTimeout(() => {
                             if (messageElement.parentNode) {
                                 messageElement.remove();
@@ -1476,7 +1896,6 @@
                         }, 300);
                     });
                 } else {
-                    // Если элемент не найден, просто удаляем из Firebase
                     messagesRef.child(messageId).remove();
                 }
             }
@@ -1484,15 +1903,12 @@
         
         // Функция редактирования сообщения
         function editMessage(messageId, currentText) {
-            // Отменяем предыдущее редактирование если есть
             if (editingMessageId && editingMessageId !== messageId) {
                 cancelEdit();
             }
             
-            // Устанавливаем текущее редактируемое сообщение
             editingMessageId = messageId;
             
-            // Находим контейнер сообщения
             const messageElement = document.querySelector(`[data-message-id="${messageId}"]`);
             if (!messageElement) return;
             
@@ -1501,32 +1917,26 @@
             const timeElement = messageElement.querySelector('.time');
             
             if (textElement && messageDiv) {
-                // Сохраняем оригинальный текст и время
                 const originalText = textElement.innerHTML;
                 const originalTime = timeElement ? timeElement.innerHTML : '';
                 
-                // Добавляем метку редактирования
                 messageDiv.classList.add('editing');
                 
-                // Создаем поле ввода
                 const editInput = document.createElement('textarea');
                 editInput.className = 'edit-input';
-                editInput.value = stripHtml(currentText); // Убираем HTML теги
+                editInput.value = stripHtml(currentText);
                 editInput.rows = 1;
                 editInput.style.resize = 'none';
                 editInput.style.overflow = 'hidden';
                 
-                // Заменяем текст полем ввода
                 const parent = textElement.parentNode;
                 parent.replaceChild(editInput, textElement);
                 
-                // Автоматический подбор высоты
                 editInput.addEventListener('input', function() {
                     this.style.height = 'auto';
                     this.style.height = (this.scrollHeight) + 'px';
                 });
                 
-                // Инициализируем высоту
                 setTimeout(() => {
                     editInput.style.height = 'auto';
                     editInput.style.height = (editInput.scrollHeight) + 'px';
@@ -1534,7 +1944,6 @@
                     editInput.setSelectionRange(editInput.value.length, editInput.value.length);
                 }, 10);
                 
-                // Создаем кнопки сохранения/отмены
                 const editControls = document.createElement('div');
                 editControls.className = 'edit-controls';
                 editControls.innerHTML = `
@@ -1542,14 +1951,12 @@
                     <button class="edit-btn cancel-btn">Отмена</button>
                 `;
                 
-                // Добавляем после поля ввода
                 if (timeElement) {
                     parent.insertBefore(editControls, timeElement);
                 } else {
                     parent.appendChild(editControls);
                 }
                 
-                // Обработчики для кнопок
                 const saveBtn = editControls.querySelector('.save-btn');
                 const cancelBtn = editControls.querySelector('.cancel-btn');
                 
@@ -1561,7 +1968,6 @@
                     cancelEditMessage(messageElement, originalText, originalTime);
                 });
                 
-                // Сохранение по Enter, отмена по Escape
                 editInput.addEventListener('keydown', (e) => {
                     if (e.key === 'Enter' && !e.shiftKey) {
                         e.preventDefault();
@@ -1580,24 +1986,20 @@
                 return;
             }
             
-            // Обновляем сообщение в Firebase
             const updateData = {
                 text: newText,
                 edited: true,
                 editTimestamp: firebase.database.ServerValue.TIMESTAMP
             };
             
-            // Сразу обновляем локально ДО отправки в Firebase
             if (messagesMap.has(messageId)) {
                 const messageData = messagesMap.get(messageId);
                 messageData.text = newText;
                 messageData.edited = true;
                 messageData.editTimestamp = Date.now();
                 
-                // Немедленно обновляем DOM элемент для текущего пользователя
                 const messageElement = document.querySelector(`[data-message-id="${messageId}"]`);
                 if (messageElement) {
-                    // Выходим из режима редактирования
                     const editInput = messageElement.querySelector('.edit-input');
                     const editControls = messageElement.querySelector('.edit-controls');
                     const messageDiv = messageElement.querySelector('.message');
@@ -1605,10 +2007,10 @@
                     if (editInput) {
                         const textDiv = document.createElement('div');
                         textDiv.className = 'text';
-                        textDiv.innerHTML = linkify(newText).replace(
-                            /[\u{1F600}-\u{1F64F}\u{1F300}-\u{1F5FF}\u{1F680}-\u{1F6FF}\u{1F1E0}-\u{1F1FF}\u{2600}-\u{26FF}\u{2700}-\u{27BF}]/gu, 
-                            match => `<span class="emoji">${match}</span>`
-                        );
+                        let processedText = linkify(newText);
+                        processedText = processedText.replace(/[\u{1F600}-\u{1F64F}\u{1F300}-\u{1F5FF}\u{1F680}-\u{1F6FF}\u{1F1E0}-\u{1F1FF}\u{2600}-\u{26FF}\u{2700}-\u{27BF}]/gu, 
+                            match => `<span class="emoji">${match}</span>`);
+                        textDiv.innerHTML = processedText;
                         
                         editInput.parentNode.replaceChild(textDiv, editInput);
                     }
@@ -1621,7 +2023,6 @@
                         messageDiv.classList.remove('editing');
                     }
                     
-                    // Обновляем время с меткой редактирования
                     const timeElement = messageElement.querySelector('.time');
                     if (timeElement) {
                         const timeText = new Date(messageData.timestamp).toLocaleTimeString('ru-RU', {hour: '2-digit', minute:'2-digit'});
@@ -1633,7 +2034,6 @@
                 }
             }
             
-            // Теперь отправляем обновление в Firebase
             messagesRef.child(messageId).update(updateData).then(() => {
                 editingMessageId = null;
                 messageInput.focus();
@@ -1647,7 +2047,6 @@
             const messageDiv = messageElement.querySelector('.message');
             
             if (editInput && editControls) {
-                // Восстанавливаем оригинальный текст
                 const textDiv = document.createElement('div');
                 textDiv.className = 'text';
                 textDiv.innerHTML = originalText;
@@ -1655,10 +2054,8 @@
                 editInput.parentNode.replaceChild(textDiv, editInput);
                 editControls.remove();
                 
-                // Убираем класс редактирования
                 messageDiv.classList.remove('editing');
                 
-                // Восстанавливаем время если нужно
                 const timeElement = messageElement.querySelector('.time');
                 if (timeElement && originalTime) {
                     timeElement.innerHTML = originalTime;
@@ -1674,20 +2071,18 @@
             if (editingMessageId) {
                 const messageElement = document.querySelector(`[data-message-id="${editingMessageId}"]`);
                 if (messageElement) {
-                    // Получаем оригинальные данные из карты
                     const originalData = messagesMap.get(editingMessageId);
                     if (originalData) {
                         const textElement = messageElement.querySelector('.text');
                         const timeElement = messageElement.querySelector('.time');
                         
                         if (textElement) {
-                            textElement.innerHTML = linkify(originalData.text).replace(
-                                /[\u{1F600}-\u{1F64F}\u{1F300}-\u{1F5FF}\u{1F680}-\u{1F6FF}\u{1F1E0}-\u{1F1FF}\u{2600}-\u{26FF}\u{2700}-\u{27BF}]/gu, 
-                                match => `<span class="emoji">${match}</span>`
-                            );
+                            let processedText = linkify(originalData.text);
+                            processedText = processedText.replace(/[\u{1F600}-\u{1F64F}\u{1F300}-\u{1F5FF}\u{1F680}-\u{1F6FF}\u{1F1E0}-\u{1F1FF}\u{2600}-\u{26FF}\u{2700}-\u{27BF}]/gu, 
+                                match => `<span class="emoji">${match}</span>`);
+                            textElement.innerHTML = processedText;
                         }
                         
-                        // Убираем режим редактирования
                         const messageDiv = messageElement.querySelector('.message');
                         const editInput = messageElement.querySelector('.edit-input');
                         const editControls = messageElement.querySelector('.edit-controls');
@@ -1740,6 +2135,11 @@
             // Преобразуем текст с ссылками
             let processedText = linkify(messageData.text);
             
+            // Подсвечиваем текст если идет поиск
+            if (isSearchActive && searchQuery) {
+                processedText = highlightText(stripHtml(processedText), searchQuery);
+            }
+            
             // Добавляем классы для эмодзи
             processedText = processedText.replace(/[\u{1F600}-\u{1F64F}\u{1F300}-\u{1F5FF}\u{1F680}-\u{1F6FF}\u{1F1E0}-\u{1F1FF}\u{2600}-\u{26FF}\u{2700}-\u{27BF}]/gu, 
                 match => `<span class="emoji">${match}</span>`);
@@ -1761,7 +2161,6 @@
                 </div>
             `;
             
-            // Добавляем элементы в правильном порядке
             if (isMyMessage) {
                 container.appendChild(messageDiv);
                 container.appendChild(avatar);
@@ -1772,7 +2171,6 @@
             
             // Обработчик клика для открытия меню
             messageDiv.addEventListener('click', (e) => {
-                // Если клик по ссылке, не открываем меню
                 if (e.target.tagName === 'A' || e.target.closest('a')) {
                     return;
                 }
@@ -1780,11 +2178,9 @@
                 e.preventDefault();
                 e.stopPropagation();
                 
-                // Закрываем другие меню
                 closeEmojiPicker();
                 closeMenu();
                 
-                // Показываем контекстное меню
                 const rect = messageDiv.getBoundingClientRect();
                 const x = e.clientX;
                 const y = e.clientY;
@@ -1812,74 +2208,22 @@
             return container;
         }
         
-        // Функция отправки сообщения
-        function sendMessage() {
-            const text = messageInput.value.trim();
-            if (!text || !userId) return;
+        // Функция загрузки сообщений
+        function loadMessages() {
+            if (!messagesMap.size) return;
             
-            const messageData = {
-                text: text,
-                sender: userName,
-                senderId: userId,
-                timestamp: firebase.database.ServerValue.TIMESTAMP,
-                edited: false
-            };
-            
-            // Добавляем информацию о ответе если есть
-            if (replyingToMessage) {
-                messageData.replyTo = {
-                    messageId: replyingToMessage.id,
-                    sender: replyingToMessage.sender,
-                    text: replyingToMessage.text
-                };
-            }
-            
-            messagesRef.push(messageData).then(() => {
-                messageInput.value = '';
-                cancelReply(); // Сбрасываем ответ
-                messageInput.focus();
-                closeEmojiPicker();
-            });
-        }
-        
-        // Загрузка и обновление сообщений
-        messagesRef.orderByChild('timestamp').limitToLast(50).on('value', (snapshot) => {
-            if (!snapshot.exists()) {
-                messagesContainer.innerHTML = `
-                    <div class="message-container other">
-                        <div class="message-avatar other avatar-color-0">С</div>
-                        <div class="message other">
-                            <div class="text">Нет сообщений</div>
-                        </div>
-                    </div>
-                `;
-                messagesMap.clear();
-                return;
-            }
-            
-            const messages = [];
-            snapshot.forEach((child) => {
-                const messageData = {
-                    id: child.key,
-                    ...child.val()
-                };
-                messages.push(messageData);
-                
-                // Обновляем локальную карту сообщений
-                messagesMap.set(child.key, child.val());
-            });
+            const messages = Array.from(messagesMap.entries()).map(([id, data]) => ({
+                id: id,
+                ...data
+            }));
             
             messages.sort((a, b) => (a.timestamp || 0) - (b.timestamp || 0));
             
-            // Если есть редактируемое сообщение, обновляем его аккуратно
             if (editingMessageId) {
-                // Для редактируемого сообщения проверяем, изменилось ли оно
                 const editingMessage = messages.find(m => m.id === editingMessageId);
                 if (editingMessage) {
-                    // Если сообщение было отредактировано другим пользователем или самим собой через другое устройство
                     const messageElement = document.querySelector(`[data-message-id="${editingMessageId}"]`);
                     if (messageElement && !messageElement.querySelector('.edit-input')) {
-                        // Обновляем, только если не в режиме редактирования
                         const textElement = messageElement.querySelector('.text');
                         const timeElement = messageElement.querySelector('.time');
                         
@@ -1904,7 +2248,6 @@
                     }
                 }
                 
-                // Обрабатываем остальные сообщения
                 messages.forEach(msg => {
                     if (msg.id === editingMessageId) return;
                     
@@ -1914,22 +2257,42 @@
                     }
                 });
             } else {
-                // Полная перерисовка
                 messagesContainer.innerHTML = '';
                 messages.forEach(msg => {
                     messagesContainer.appendChild(createMessageElement(msg, msg.id));
                 });
             }
             
-            // Прокручиваем вниз с небольшой задержкой
             setTimeout(() => {
                 messagesContainer.scrollTop = messagesContainer.scrollHeight;
             }, 100);
+        }
+        
+        // Загрузка и обновление сообщений
+        messagesRef.orderByChild('timestamp').limitToLast(100).on('value', (snapshot) => {
+            if (!snapshot.exists()) {
+                messagesContainer.innerHTML = `
+                    <div class="message-container other">
+                        <div class="message-avatar other avatar-color-0">С</div>
+                        <div class="message other">
+                            <div class="text">Нет сообщений</div>
+                        </div>
+                    </div>
+                `;
+                messagesMap.clear();
+                return;
+            }
+            
+            messagesMap.clear();
+            snapshot.forEach((child) => {
+                messagesMap.set(child.key, child.val());
+            });
+            
+            loadMessages();
         });
         
         // Обработчик для добавления новых сообщений
         messagesRef.orderByChild('timestamp').limitToLast(1).on('child_added', (snapshot) => {
-            // Автоматическая прокрутка при новом сообщении
             setTimeout(() => {
                 messagesContainer.scrollTop = messagesContainer.scrollHeight;
             }, 100);
@@ -1940,10 +2303,8 @@
             const messageId = snapshot.key;
             const messageData = snapshot.val();
             
-            // Обновляем локальную карту
             messagesMap.set(messageId, messageData);
             
-            // Если это не текущее редактируемое сообщение, обновляем DOM
             if (messageId !== editingMessageId) {
                 const messageElement = document.querySelector(`[data-message-id="${messageId}"]`);
                 if (messageElement) {
@@ -1976,10 +2337,8 @@
         messagesRef.on('child_removed', (snapshot) => {
             const messageId = snapshot.key;
             
-            // Удаляем из локальной карты
             messagesMap.delete(messageId);
             
-            // Удаляем из DOM
             const messageElement = document.querySelector(`[data-message-id="${messageId}"]`);
             if (messageElement) {
                 messageElement.classList.add('deleting');
@@ -1988,6 +2347,86 @@
                         messageElement.remove();
                     }
                 }, 300);
+            }
+        });
+        
+        // Функция отправки сообщения
+        function sendMessage() {
+            const text = messageInput.value.trim();
+            if (!text || !userId) return;
+            
+            const messageData = {
+                text: text,
+                sender: userName,
+                senderId: userId,
+                timestamp: firebase.database.ServerValue.TIMESTAMP,
+                edited: false
+            };
+            
+            if (replyingToMessage) {
+                messageData.replyTo = {
+                    messageId: replyingToMessage.id,
+                    sender: replyingToMessage.sender,
+                    text: replyingToMessage.text
+                };
+            }
+            
+            messagesRef.push(messageData).then(() => {
+                messageInput.value = '';
+                cancelReply();
+                messageInput.focus();
+                closeEmojiPicker();
+            });
+        }
+        
+        // Обработчики событий
+        sendBtn.addEventListener('click', sendMessage);
+        messageInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter' && !e.shiftKey) {
+                e.preventDefault();
+                sendMessage();
+            }
+        });
+        
+        // Обработка кликов по ссылкам
+        document.addEventListener('click', function(e) {
+            const link = e.target.closest('a');
+            if (link && link.href) {
+                if (link.classList.contains('message-link')) {
+                    e.preventDefault();
+                    window.open(link.href, '_blank', 'noopener,noreferrer');
+                }
+            }
+        });
+        
+        // Закрытие всех меню при клике вне их
+        document.addEventListener('click', (e) => {
+            if (isEmojiPickerOpen && !emojiPicker.contains(e.target) && e.target !== emojiToggle) {
+                closeEmojiPicker();
+            }
+            if (isMenuOpen && !sidebar.contains(e.target) && e.target !== menuToggle) {
+                closeMenu();
+            }
+            if (isSearchActive && !searchPanel.contains(e.target) && e.target !== searchToggle) {
+                // Не закрываем при клике на результаты поиска
+                if (!searchResultsInfo.contains(e.target)) {
+                    closeSearchPanel();
+                }
+            }
+        });
+        
+        // Очистка при закрытии страницы
+        window.addEventListener('beforeunload', () => {
+            if (currentUserRef) {
+                currentUserRef.remove();
+            }
+        });
+        
+        // Проверяем сохраненного пользователя при загрузке
+        window.addEventListener('load', () => {
+            checkSavedUser();
+            if (!userName) {
+                usernameInput.focus();
             }
         });
         
@@ -2010,7 +2449,6 @@
             
             onlineCount.textContent = users.length;
             
-            // Сортируем: текущий пользователь первый, остальные по алфавиту
             users.sort((a, b) => {
                 if (a.id === userId) return -1;
                 if (b.id === userId) return 1;
@@ -2030,53 +2468,6 @@
                 `;
                 userList.appendChild(li);
             });
-        });
-        
-        // Обработчики событий
-        sendBtn.addEventListener('click', sendMessage);
-        messageInput.addEventListener('keypress', (e) => {
-            if (e.key === 'Enter' && !e.shiftKey) {
-                e.preventDefault();
-                sendMessage();
-            }
-        });
-        
-        // Обработка кликов по ссылкам
-        document.addEventListener('click', function(e) {
-            const link = e.target.closest('a');
-            if (link && link.href) {
-                // Проверяем, не является ли это внутренней ссылкой
-                if (link.classList.contains('message-link')) {
-                    e.preventDefault();
-                    // Открываем ссылку в новой вкладке безопасно
-                    window.open(link.href, '_blank', 'noopener,noreferrer');
-                }
-            }
-        });
-        
-        // Закрытие всех меню при клике вне их
-        document.addEventListener('click', (e) => {
-            if (isEmojiPickerOpen && !emojiPicker.contains(e.target) && e.target !== emojiToggle) {
-                closeEmojiPicker();
-            }
-            if (isMenuOpen && !sidebar.contains(e.target) && e.target !== menuToggle) {
-                closeMenu();
-            }
-        });
-        
-        // Очистка при закрытии страницы
-        window.addEventListener('beforeunload', () => {
-            if (currentUserRef) {
-                currentUserRef.remove();
-            }
-        });
-        
-        // Проверяем сохраненного пользователя при загрузке
-        window.addEventListener('load', () => {
-            checkSavedUser();
-            if (!userName) {
-                usernameInput.focus();
-            }
         });
     </script>
 </body>
