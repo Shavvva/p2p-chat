@@ -246,6 +246,14 @@
             color: #cce6ff;
         }
         
+        /* Стили для смайликов в тексте */
+        .emoji {
+            font-size: 18px;
+            display: inline-block;
+            margin: 0 2px;
+            vertical-align: middle;
+        }
+        
         .time { 
             font-size: 11px; 
             text-align: right;
@@ -260,16 +268,105 @@
             display: flex;
             gap: 10px;
             align-items: center;
+            position: relative;
+        }
+        
+        .input-wrapper {
+            flex: 1;
+            position: relative;
         }
         
         input[type="text"] {
-            flex: 1;
-            padding: 12px 15px;
+            width: 100%;
+            padding: 12px 15px 12px 45px;
             border: 1px solid #333;
             border-radius: 20px;
             background: #2a2a2a;
             color: white;
             font-size: 14px;
+        }
+        
+        /* Иконка смайлика как в Telegram */
+        .emoji-toggle {
+            position: absolute;
+            left: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: none;
+            border: none;
+            cursor: pointer;
+            width: 30px;
+            height: 30px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 0;
+        }
+        
+        .emoji-toggle svg {
+            width: 22px;
+            height: 22px;
+            fill: #888;
+            transition: fill 0.2s;
+        }
+        
+        .emoji-toggle:hover svg {
+            fill: #66b3ff;
+        }
+        
+        .emoji-toggle.active svg {
+            fill: #66b3ff;
+        }
+        
+        .emoji-picker {
+            position: absolute;
+            bottom: 70px;
+            left: 15px;
+            background: #2a2a2a;
+            border: 1px solid #333;
+            border-radius: 15px;
+            padding: 15px;
+            display: none;
+            flex-wrap: wrap;
+            gap: 10px;
+            width: 260px;
+            z-index: 200;
+            box-shadow: 0 8px 25px rgba(0,0,0,0.4);
+        }
+        
+        .emoji-picker.active {
+            display: flex;
+        }
+        
+        .emoji-picker::after {
+            content: '';
+            position: absolute;
+            bottom: -8px;
+            left: 20px;
+            width: 16px;
+            height: 16px;
+            background: #2a2a2a;
+            border-right: 1px solid #333;
+            border-bottom: 1px solid #333;
+            transform: rotate(45deg);
+        }
+        
+        .emoji-item {
+            width: 38px;
+            height: 38px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            cursor: pointer;
+            border-radius: 10px;
+            transition: all 0.2s;
+            background: transparent;
+        }
+        
+        .emoji-item:hover {
+            background: #3a3a3a;
+            transform: scale(1.15);
         }
         
         .send-icon {
@@ -343,6 +440,7 @@
             position: fixed;
             top: 0; left: 0; right: 0; bottom: 0;
             background: rgba(0,0,0,0.5);
+            z-index: 150;
         }
         
         @media (max-width: 768px) {
@@ -376,6 +474,17 @@
                 right: 0;
                 z-index: 100;
                 padding: 10px 15px;
+            }
+            
+            .emoji-picker {
+                bottom: 65px;
+                left: 15px;
+                right: 15px;
+                width: auto;
+            }
+            
+            .emoji-picker::after {
+                left: 20px;
             }
             
             .send-icon {
@@ -469,14 +578,27 @@
                     <div class="message-avatar other avatar-color-0">С</div>
                     <div class="message other">
                         <div class="sender">Система</div>
-                        <div class="text">Добро пожаловать в чат! Отправляйте ссылки, они будут кликабельными.</div>
+                        <div class="text">Добро пожаловать в чат! Нажмите на иконку смайлика, чтобы отправить эмодзи 😊</div>
                         <div class="time">12:00</div>
                     </div>
                 </div>
             </div>
             
             <div class="input-area">
-                <input type="text" id="message-input" placeholder="Сообщение или ссылка...">
+                <div class="input-wrapper">
+                    <button class="emoji-toggle" id="emoji-toggle">
+                        <svg viewBox="0 0 24 24">
+                            <path d="M12,2C6.486,2,2,6.486,2,12s4.486,10,10,10s10-4.486,10-10S17.514,2,12,2z M12,20c-4.411,0-8-3.589-8-8s3.589-8,8-8 s8,3.589,8,8S16.411,20,12,20z"/>
+                            <circle cx="8.5" cy="10.5" r="1.5"/>
+                            <circle cx="15.5" cy="10.5" r="1.5"/>
+                            <path d="M12,16c-2.325,0-4.284,1.486-5,3.542c0.836,0.818,1.874,1.423,3,1.756V20c0-1.654,1.346-3,3-3s3,1.346,3,3v1.298 c1.126-0.333,2.164-0.938,3-1.756C16.284,17.486,14.325,16,12,16z"/>
+                        </svg>
+                    </button>
+                    <input type="text" id="message-input" placeholder="Сообщение или ссылка...">
+                    <div class="emoji-picker" id="emoji-picker">
+                        <!-- Эмодзи будут добавлены через JavaScript -->
+                    </div>
+                </div>
                 <button class="send-icon" id="send-btn" title="Отправить">➤</button>
             </div>
         </main>
@@ -521,11 +643,79 @@
         const menuToggle = document.getElementById('menu-toggle');
         const sidebar = document.getElementById('sidebar');
         const mobileOverlay = document.getElementById('mobile-overlay');
+        const emojiToggle = document.getElementById('emoji-toggle');
+        const emojiPicker = document.getElementById('emoji-picker');
         
         let isMenuOpen = false;
+        let isEmojiPickerOpen = false;
+        
+        // Набор эмодзи (10 самых популярных)
+        const emojis = [
+            { emoji: '😊', name: 'Улыбка' },
+            { emoji: '😂', name: 'Смех' },
+            { emoji: '❤️', name: 'Сердце' },
+            { emoji: '🔥', name: 'Огонь' },
+            { emoji: '👍', name: 'Палец вверх' },
+            { emoji: '🎉', name: 'Праздник' },
+            { emoji: '🙏', name: 'Спасибо' },
+            { emoji: '😢', name: 'Плач' },
+            { emoji: '🤔', name: 'Размышление' },
+            { emoji: '😎', name: 'Круто' }
+        ];
         
         // Хранилище онлайн пользователей для быстрой проверки
         let onlineUsersMap = new Map();
+        
+        // Инициализация эмодзи панели
+        function initEmojiPicker() {
+            emojis.forEach(emoji => {
+                const emojiElement = document.createElement('div');
+                emojiElement.className = 'emoji-item';
+                emojiElement.innerHTML = emoji.emoji;
+                emojiElement.title = emoji.name;
+                
+                emojiElement.addEventListener('click', () => {
+                    insertEmoji(emoji.emoji);
+                    closeEmojiPicker();
+                    messageInput.focus();
+                });
+                
+                emojiPicker.appendChild(emojiElement);
+            });
+        }
+        
+        // Вставить эмодзи в поле ввода
+        function insertEmoji(emoji) {
+            const cursorPos = messageInput.selectionStart;
+            const textBefore = messageInput.value.substring(0, cursorPos);
+            const textAfter = messageInput.value.substring(cursorPos);
+            
+            messageInput.value = textBefore + emoji + textAfter;
+            
+            // Возвращаем курсор на место после эмодзи
+            setTimeout(() => {
+                messageInput.selectionStart = messageInput.selectionEnd = cursorPos + emoji.length;
+                messageInput.focus();
+            }, 0);
+        }
+        
+        // Открыть/закрыть панель эмодзи
+        function toggleEmojiPicker() {
+            isEmojiPickerOpen = !isEmojiPickerOpen;
+            emojiPicker.classList.toggle('active', isEmojiPickerOpen);
+            emojiToggle.classList.toggle('active', isEmojiPickerOpen);
+            
+            // Закрываем другие меню
+            if (isEmojiPickerOpen) {
+                closeMenu();
+            }
+        }
+        
+        function closeEmojiPicker() {
+            isEmojiPickerOpen = false;
+            emojiPicker.classList.remove('active');
+            emojiToggle.classList.remove('active');
+        }
         
         // Функция для получения цвета аватарки по имени
         function getAvatarColor(name) {
@@ -705,6 +895,9 @@
                 }
             });
             
+            // Инициализируем панель эмодзи
+            initEmojiPicker();
+            
             // Фокус на поле ввода
             setTimeout(() => {
                 messageInput.focus();
@@ -760,6 +953,9 @@
                     }
                 });
                 
+                // Инициализируем панель эмодзи
+                initEmojiPicker();
+                
                 setTimeout(() => {
                     messageInput.focus();
                 }, 100);
@@ -797,12 +993,33 @@
             isMenuOpen = !isMenuOpen;
             sidebar.classList.toggle('active', isMenuOpen);
             mobileOverlay.classList.toggle('active', isMenuOpen);
+            closeEmojiPicker();
         });
         
         mobileOverlay.addEventListener('click', () => {
             isMenuOpen = false;
             sidebar.classList.remove('active');
             mobileOverlay.classList.remove('active');
+            closeEmojiPicker();
+        });
+        
+        function closeMenu() {
+            isMenuOpen = false;
+            sidebar.classList.remove('active');
+            mobileOverlay.classList.remove('active');
+        }
+        
+        // Эмодзи панель
+        emojiToggle.addEventListener('click', (e) => {
+            e.stopPropagation();
+            toggleEmojiPicker();
+        });
+        
+        // Закрытие эмодзи панели при клике вне её
+        document.addEventListener('click', (e) => {
+            if (!emojiPicker.contains(e.target) && e.target !== emojiToggle) {
+                closeEmojiPicker();
+            }
         });
         
         // Функция отправки сообщения
@@ -818,6 +1035,7 @@
             }).then(() => {
                 messageInput.value = '';
                 messageInput.focus();
+                closeEmojiPicker();
             });
         }
         
@@ -838,11 +1056,15 @@
             messageDiv.className = `message`;
             
             // Преобразуем текст с ссылками
-            const linkedText = linkify(messageData.text);
+            let processedText = linkify(messageData.text);
+            
+            // Добавляем классы для эмодзи
+            processedText = processedText.replace(/[\u{1F600}-\u{1F64F}\u{1F300}-\u{1F5FF}\u{1F680}-\u{1F6FF}\u{1F1E0}-\u{1F1FF}\u{2600}-\u{26FF}\u{2700}-\u{27BF}]/gu, 
+                match => `<span class="emoji">${match}</span>`);
             
             messageDiv.innerHTML = `
                 <div class="sender">${messageData.sender}</div>
-                <div class="text">${linkedText}</div>
+                <div class="text">${processedText}</div>
                 <div class="time">${new Date(messageData.timestamp).toLocaleTimeString('ru-RU', {hour: '2-digit', minute:'2-digit'})}</div>
             `;
             
