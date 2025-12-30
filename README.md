@@ -1,1 +1,1 @@
-https://shavvva.github.io/p2p-chat/ 
+https://shavvva.github.io/mychat/
