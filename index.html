@@ -1409,50 +1409,60 @@
             }
             
             // Обновляем сообщение в Firebase
-            messagesRef.child(messageId).update({
+            const updateData = {
                 text: newText,
                 edited: true,
                 editTimestamp: firebase.database.ServerValue.TIMESTAMP
-            }).then(() => {
-                // Сразу обновляем локально
-                if (messagesMap.has(messageId)) {
-                    const messageData = messagesMap.get(messageId);
-                    messageData.text = newText;
-                    messageData.edited = true;
-                    messageData.editTimestamp = Date.now();
+            };
+            
+            // Сразу обновляем локально ДО отправки в Firebase
+            if (messagesMap.has(messageId)) {
+                const messageData = messagesMap.get(messageId);
+                messageData.text = newText;
+                messageData.edited = true;
+                messageData.editTimestamp = Date.now();
+                
+                // Немедленно обновляем DOM элемент для текущего пользователя
+                const messageElement = document.querySelector(`[data-message-id="${messageId}"]`);
+                if (messageElement) {
+                    // Выходим из режима редактирования
+                    const editInput = messageElement.querySelector('.edit-input');
+                    const editControls = messageElement.querySelector('.edit-controls');
+                    const messageDiv = messageElement.querySelector('.message');
                     
-                    // Обновляем DOM элемент
-                    const messageElement = document.querySelector(`[data-message-id="${messageId}"]`);
-                    if (messageElement) {
-                        const textElement = messageElement.querySelector('.text');
-                        const timeElement = messageElement.querySelector('.time');
+                    if (editInput) {
+                        const textDiv = document.createElement('div');
+                        textDiv.className = 'text';
+                        textDiv.innerHTML = linkify(newText).replace(
+                            /[\u{1F600}-\u{1F64F}\u{1F300}-\u{1F5FF}\u{1F680}-\u{1F6FF}\u{1F1E0}-\u{1F1FF}\u{2600}-\u{26FF}\u{2700}-\u{27BF}]/gu, 
+                            match => `<span class="emoji">${match}</span>`
+                        );
                         
-                        if (textElement) {
-                            textElement.innerHTML = linkify(newText).replace(
-                                /[\u{1F600}-\u{1F64F}\u{1F300}-\u{1F5FF}\u{1F680}-\u{1F6FF}\u{1F1E0}-\u{1F1FF}\u{2600}-\u{26FF}\u{2700}-\u{27BF}]/gu, 
-                                match => `<span class="emoji">${match}</span>`
-                            );
-                        }
-                        
-                        if (timeElement) {
-                            const timeText = new Date(messagesMap.get(messageId).timestamp).toLocaleTimeString('ru-RU', {hour: '2-digit', minute:'2-digit'});
-                            timeElement.innerHTML = `
-                                <span>${timeText}</span>
-                                <span class="edited-badge">(ред.)</span>
-                            `;
-                        }
-                        
-                        // Убираем режим редактирования
-                        const messageDiv = messageElement.querySelector('.message');
-                        const editInput = messageElement.querySelector('.edit-input');
-                        const editControls = messageElement.querySelector('.edit-controls');
-                        
-                        if (messageDiv) messageDiv.classList.remove('editing');
-                        if (editInput) editInput.remove();
-                        if (editControls) editControls.remove();
+                        editInput.parentNode.replaceChild(textDiv, editInput);
+                    }
+                    
+                    if (editControls) {
+                        editControls.remove();
+                    }
+                    
+                    if (messageDiv) {
+                        messageDiv.classList.remove('editing');
+                    }
+                    
+                    // Обновляем время с меткой редактирования
+                    const timeElement = messageElement.querySelector('.time');
+                    if (timeElement) {
+                        const timeText = new Date(messageData.timestamp).toLocaleTimeString('ru-RU', {hour: '2-digit', minute:'2-digit'});
+                        timeElement.innerHTML = `
+                            <span>${timeText}</span>
+                            <span class="edited-badge">(ред.)</span>
+                        `;
                     }
                 }
-                
+            }
+            
+            // Теперь отправляем обновление в Firebase
+            messagesRef.child(messageId).update(updateData).then(() => {
                 editingMessageId = null;
                 messageInput.focus();
             });
@@ -1636,43 +1646,29 @@
             
             messages.sort((a, b) => (a.timestamp || 0) - (b.timestamp || 0));
             
-            // Если есть редактируемое сообщение, не обновляем его
+            // Если есть редактируемое сообщение, обновляем его аккуратно
             if (editingMessageId) {
-                // Удаляем все сообщения кроме редактируемого
-                const messageElements = document.querySelectorAll('[data-message-id]');
-                messageElements.forEach(element => {
-                    const messageId = element.getAttribute('data-message-id');
-                    if (messageId !== editingMessageId && !messages.find(m => m.id === messageId)) {
-                        element.remove();
-                    }
-                });
-                
-                // Добавляем/обновляем остальные сообщения
-                messages.forEach(msg => {
-                    if (msg.id === editingMessageId) {
-                        return; // Пропускаем редактируемое сообщение
-                    }
-                    
-                    const existingElement = document.querySelector(`[data-message-id="${msg.id}"]`);
-                    if (!existingElement) {
-                        messagesContainer.appendChild(createMessageElement(msg, msg.id));
-                    } else {
-                        // Обновляем существующее сообщение
-                        const isMyMessage = msg.senderId === userId;
-                        const textElement = existingElement.querySelector('.text');
-                        const timeElement = existingElement.querySelector('.time');
+                // Для редактируемого сообщения проверяем, изменилось ли оно
+                const editingMessage = messages.find(m => m.id === editingMessageId);
+                if (editingMessage) {
+                    // Если сообщение было отредактировано другим пользователем или самим собой через другое устройство
+                    const messageElement = document.querySelector(`[data-message-id="${editingMessageId}"]`);
+                    if (messageElement && !messageElement.querySelector('.edit-input')) {
+                        // Обновляем, только если не в режиме редактирования
+                        const textElement = messageElement.querySelector('.text');
+                        const timeElement = messageElement.querySelector('.time');
                         
                         if (textElement) {
-                            let processedText = linkify(msg.text);
+                            let processedText = linkify(editingMessage.text);
                             processedText = processedText.replace(/[\u{1F600}-\u{1F64F}\u{1F300}-\u{1F5FF}\u{1F680}-\u{1F6FF}\u{1F1E0}-\u{1F1FF}\u{2600}-\u{26FF}\u{2700}-\u{27BF}]/gu, 
                                 match => `<span class="emoji">${match}</span>`);
                             textElement.innerHTML = processedText;
                         }
                         
                         if (timeElement) {
-                            let timeText = new Date(msg.timestamp).toLocaleTimeString('ru-RU', {hour: '2-digit', minute:'2-digit'});
+                            let timeText = new Date(editingMessage.timestamp).toLocaleTimeString('ru-RU', {hour: '2-digit', minute:'2-digit'});
                             let editedBadge = '';
-                            if (msg.edited) {
+                            if (editingMessage.edited) {
                                 editedBadge = '<span class="edited-badge">(ред.)</span>';
                             }
                             timeElement.innerHTML = `
@@ -1680,6 +1676,16 @@
                                 ${editedBadge}
                             `;
                         }
+                    }
+                }
+                
+                // Обрабатываем остальные сообщения
+                messages.forEach(msg => {
+                    if (msg.id === editingMessageId) return;
+                    
+                    const existingElement = document.querySelector(`[data-message-id="${msg.id}"]`);
+                    if (!existingElement) {
+                        messagesContainer.appendChild(createMessageElement(msg, msg.id));
                     }
                 });
             } else {
@@ -1702,6 +1708,62 @@
             setTimeout(() => {
                 messagesContainer.scrollTop = messagesContainer.scrollHeight;
             }, 100);
+        });
+        
+        // Обработчик для изменений в сообщениях (редактирование)
+        messagesRef.on('child_changed', (snapshot) => {
+            const messageId = snapshot.key;
+            const messageData = snapshot.val();
+            
+            // Обновляем локальную карту
+            messagesMap.set(messageId, messageData);
+            
+            // Если это не текущее редактируемое сообщение, обновляем DOM
+            if (messageId !== editingMessageId) {
+                const messageElement = document.querySelector(`[data-message-id="${messageId}"]`);
+                if (messageElement) {
+                    const textElement = messageElement.querySelector('.text');
+                    const timeElement = messageElement.querySelector('.time');
+                    
+                    if (textElement) {
+                        let processedText = linkify(messageData.text);
+                        processedText = processedText.replace(/[\u{1F600}-\u{1F64F}\u{1F300}-\u{1F5FF}\u{1F680}-\u{1F6FF}\u{1F1E0}-\u{1F1FF}\u{2600}-\u{26FF}\u{2700}-\u{27BF}]/gu, 
+                            match => `<span class="emoji">${match}</span>`);
+                        textElement.innerHTML = processedText;
+                    }
+                    
+                    if (timeElement) {
+                        let timeText = new Date(messageData.timestamp).toLocaleTimeString('ru-RU', {hour: '2-digit', minute:'2-digit'});
+                        let editedBadge = '';
+                        if (messageData.edited) {
+                            editedBadge = '<span class="edited-badge">(ред.)</span>';
+                        }
+                        timeElement.innerHTML = `
+                            <span>${timeText}</span>
+                            ${editedBadge}
+                        `;
+                    }
+                }
+            }
+        });
+        
+        // Обработчик для удаления сообщений
+        messagesRef.on('child_removed', (snapshot) => {
+            const messageId = snapshot.key;
+            
+            // Удаляем из локальной карты
+            messagesMap.delete(messageId);
+            
+            // Удаляем из DOM
+            const messageElement = document.querySelector(`[data-message-id="${messageId}"]`);
+            if (messageElement) {
+                messageElement.classList.add('deleting');
+                setTimeout(() => {
+                    if (messageElement.parentNode) {
+                        messageElement.remove();
+                    }
+                }, 300);
+            }
         });
         
         // Отслеживание онлайн пользователей
