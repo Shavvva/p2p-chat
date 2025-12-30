@@ -164,12 +164,11 @@
         .message-container {
             display: flex;
             align-items: flex-end;
-            gap: 10px;
             max-width: 100%;
         }
         
         .message-container.my {
-            flex-direction: row-reverse;
+            justify-content: flex-end;
         }
         
         .message-avatar {
@@ -184,14 +183,19 @@
             flex-shrink: 0;
             margin-bottom: 5px;
             color: white;
+            order: 2; /* Аватарка всегда справа для своих сообщений */
         }
         
-        .message-avatar.my {
-            background: #0066cc;
+        .message-container.my .message-avatar {
+            margin-left: 10px;
+            margin-right: 0;
+            order: 2; /* Явно указываем порядок */
         }
         
-        .message-avatar.other {
-            background: #333;
+        .message-container.other .message-avatar {
+            margin-right: 10px;
+            margin-left: 0;
+            order: 1; /* Для чужих - слева */
         }
         
         .message {
@@ -200,17 +204,20 @@
             border-radius: 18px;
             word-wrap: break-word;
             position: relative;
+            order: 1; /* Сообщение слева от аватарки для своих */
         }
         
-        .message.my {
+        .message-container.my .message {
             background: #0066cc;
             color: white;
             border-bottom-right-radius: 5px;
+            order: 1; /* Сообщение перед аватаркой */
         }
         
-        .message.other {
+        .message-container.other .message {
             background: #2a2a2a;
             border-bottom-left-radius: 5px;
+            order: 2; /* Сообщение после аватарки */
         }
         
         .sender {
@@ -781,11 +788,11 @@
             const firstLetter = getFirstLetter(messageData.sender);
             
             const avatar = document.createElement('div');
-            avatar.className = `message-avatar ${isMyMessage ? 'my' : 'other'} avatar-color-${avatarColor}`;
+            avatar.className = `message-avatar avatar-color-${avatarColor}`;
             avatar.textContent = firstLetter;
             
             const messageDiv = document.createElement('div');
-            messageDiv.className = `message ${isMyMessage ? 'my' : 'other'}`;
+            messageDiv.className = `message`;
             
             messageDiv.innerHTML = `
                 <div class="sender">${messageData.sender}</div>
@@ -793,10 +800,13 @@
                 <div class="time">${new Date(messageData.timestamp).toLocaleTimeString('ru-RU', {hour: '2-digit', minute:'2-digit'})}</div>
             `;
             
+            // Добавляем элементы в правильном порядке
             if (isMyMessage) {
+                // Свои сообщения: сообщение слева, аватарка справа
                 container.appendChild(messageDiv);
                 container.appendChild(avatar);
             } else {
+                // Чужие сообщения: аватарка слева, сообщение справа
                 container.appendChild(avatar);
                 container.appendChild(messageDiv);
             }
