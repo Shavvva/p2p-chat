@@ -139,12 +139,10 @@
             color: white;
         }
         
-        /* Кнопка поиска в хедере */
+        /* Кнопка поиска в стиле Telegram */
         .search-toggle {
             background: none;
             border: none;
-            color: white;
-            font-size: 20px;
             cursor: pointer;
             width: 40px;
             height: 40px;
@@ -152,11 +150,24 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            transition: background 0.2s;
+            transition: all 0.2s;
+            position: relative;
+            color: #a0a0a0;
+            font-size: 22px;
         }
         
         .search-toggle:hover {
-            background: rgba(255, 255, 255, 0.1);
+            background: rgba(255, 255, 255, 0.05);
+            color: #ffffff;
+        }
+        
+        .search-toggle:active {
+            transform: scale(0.95);
+        }
+        
+        .search-toggle.active {
+            color: #3390ec;
+            background: rgba(51, 144, 236, 0.1);
         }
         
         /* Панель поиска */
@@ -167,14 +178,26 @@
             right: 0;
             background: #1a1a1a;
             padding: 15px 20px;
-            border-bottom: 1px solid #333;
+            border-bottom: 1px solid #2d2d2d;
             display: none;
             z-index: 99;
+            animation: slideDown 0.2s ease;
             box-shadow: 0 4px 10px rgba(0,0,0,0.3);
         }
         
         .search-panel.active {
             display: block;
+        }
+        
+        @keyframes slideDown {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
         }
         
         .search-input-wrapper {
@@ -185,17 +208,20 @@
         
         .search-input {
             flex: 1;
-            padding: 10px 15px;
-            border: 1px solid #333;
+            padding: 12px 15px;
+            border: 1px solid #2d2d2d;
             border-radius: 20px;
             background: #2a2a2a;
             color: white;
-            font-size: 14px;
+            font-size: 15px;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            transition: all 0.2s;
         }
         
         .search-input:focus {
             outline: none;
-            border-color: #0066cc;
+            border-color: #3390ec;
+            box-shadow: 0 0 0 2px rgba(51, 144, 236, 0.2);
         }
         
         .search-controls {
@@ -205,18 +231,19 @@
         }
         
         .search-btn {
-            background: #0066cc;
+            background: #3390ec;
             color: white;
             border: none;
-            padding: 8px 20px;
+            padding: 10px 20px;
             border-radius: 20px;
             cursor: pointer;
             font-size: 14px;
             transition: background 0.2s;
+            font-weight: 500;
         }
         
         .search-btn:hover {
-            background: #0055aa;
+            background: #2a7bd8;
         }
         
         .search-btn:disabled {
@@ -225,13 +252,13 @@
         }
         
         .close-search {
-            background: none;
+            background: rgba(255, 255, 255, 0.08);
             border: none;
-            color: #888;
+            color: #a0a0a0;
             cursor: pointer;
-            font-size: 20px;
-            width: 30px;
-            height: 30px;
+            font-size: 24px;
+            width: 32px;
+            height: 32px;
             display: flex;
             align-items: center;
             justify-content: center;
@@ -240,59 +267,67 @@
         }
         
         .close-search:hover {
+            background: rgba(255, 255, 255, 0.12);
             color: white;
-            background: rgba(255, 255, 255, 0.1);
-        }
-        
-        .search-info {
-            font-size: 12px;
-            color: #888;
-            margin-top: 8px;
-            text-align: center;
         }
         
         .search-results-info {
             position: fixed;
-            top: 130px;
+            top: 125px;
             left: 50%;
             transform: translateX(-50%);
-            background: rgba(0, 102, 204, 0.9);
+            background: rgba(51, 144, 236, 0.95);
             color: white;
-            padding: 8px 15px;
+            padding: 10px 20px;
             border-radius: 20px;
-            font-size: 13px;
+            font-size: 14px;
             z-index: 98;
             display: none;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
+            backdrop-filter: blur(10px);
+            animation: fadeIn 0.2s ease;
         }
         
         .search-results-info.active {
             display: block;
         }
         
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateX(-50%) translateY(-10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(-50%) translateY(0);
+            }
+        }
+        
         .search-nav {
             display: flex;
-            gap: 10px;
+            gap: 8px;
             margin-left: 10px;
         }
         
         .search-nav-btn {
-            background: rgba(255, 255, 255, 0.1);
+            background: rgba(255, 255, 255, 0.08);
             border: none;
             color: white;
-            width: 30px;
-            height: 30px;
+            width: 32px;
+            height: 32px;
             border-radius: 50%;
             display: flex;
             align-items: center;
             justify-content: center;
             cursor: pointer;
-            font-size: 12px;
-            transition: background 0.2s;
+            font-size: 14px;
+            transition: all 0.2s;
+            opacity: 0.8;
         }
         
         .search-nav-btn:hover {
-            background: rgba(255, 255, 255, 0.2);
+            background: rgba(255, 255, 255, 0.12);
+            opacity: 1;
         }
         
         .search-nav-btn:disabled {
@@ -431,8 +466,8 @@
         }
         
         .message .search-match {
-            background: rgba(255, 215, 0, 0.3);
-            padding: 0 2px;
+            background: rgba(255, 204, 0, 0.4);
+            padding: 1px 3px;
             border-radius: 2px;
             font-weight: bold;
         }
@@ -932,7 +967,7 @@
             .search-results-info {
                 top: 120px;
                 font-size: 12px;
-                padding: 6px 12px;
+                padding: 8px 16px;
             }
             
             .search-input-wrapper {
@@ -943,6 +978,12 @@
             .search-controls {
                 width: 100%;
                 justify-content: space-between;
+            }
+            
+            .search-toggle {
+                width: 36px;
+                height: 36px;
+                font-size: 20px;
             }
             
             .emoji-picker {
@@ -1001,12 +1042,6 @@
             
             .header-right {
                 gap: 10px;
-            }
-            
-            .search-toggle {
-                width: 36px;
-                height: 36px;
-                font-size: 18px;
             }
         }
         
@@ -1094,9 +1129,6 @@
                 </div>
                 <button class="close-search" id="close-search">×</button>
             </div>
-        </div>
-        <div class="search-info">
-            Поиск по всем сообщениям в чате. Нажмите Enter для поиска.
         </div>
     </div>
     
@@ -1364,12 +1396,16 @@
         
         // Функция для выделения найденного текста
         function highlightText(text, query) {
-            if (!query || !text) return text;
+            if (!query || !text || query.length === 0) return text;
             
-            const escapedQuery = query.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-            const regex = new RegExp(`(${escapedQuery})`, 'gi');
-            
-            return text.replace(regex, '<span class="search-match">$1</span>');
+            try {
+                const escapedQuery = query.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+                const regex = new RegExp(`(${escapedQuery})`, 'gi');
+                
+                return text.replace(regex, '<span class="search-match">$1</span>');
+            } catch (e) {
+                return text;
+            }
         }
         
         // Функция для удаления HTML тегов
@@ -1627,6 +1663,7 @@
         // Поиск сообщений
         function openSearchPanel() {
             searchPanel.classList.add('active');
+            searchToggle.classList.add('active');
             isSearchActive = true;
             searchInput.focus();
             
@@ -1638,6 +1675,7 @@
         
         function closeSearchPanel() {
             searchPanel.classList.remove('active');
+            searchToggle.classList.remove('active');
             searchResultsInfo.classList.remove('active');
             isSearchActive = false;
             clearSearchHighlights();
@@ -1666,8 +1704,14 @@
         
         function performSearch() {
             const query = searchInput.value.trim().toLowerCase();
-            if (!query || query.length < 2) {
-                alert('Введите хотя бы 2 символа для поиска');
+            
+            // Разрешаем поиск по одному символу
+            if (!query || query.length < 1) {
+                searchResultsInfo.classList.add('active');
+                searchResultsText.textContent = 'Введите хотя бы 1 символ для поиска';
+                setTimeout(() => {
+                    searchResultsInfo.classList.remove('active');
+                }, 2000);
                 return;
             }
             
@@ -1705,6 +1749,15 @@
             // Показываем результаты
             showSearchResults();
             navigateToSearchResult(0);
+            
+            // Показываем уведомление о количестве результатов
+            searchResultsInfo.classList.add('active');
+            searchResultsText.textContent = `Найдено ${searchResults.length} сообщений`;
+            setTimeout(() => {
+                if (currentSearchIndex === -1) {
+                    searchResultsInfo.classList.remove('active');
+                }
+            }, 2000);
         }
         
         function showSearchResults() {
@@ -1728,10 +1781,6 @@
                     }
                 }
             });
-            
-            // Обновляем информацию о результатах
-            searchResultsInfo.classList.add('active');
-            searchResultsText.textContent = `Найдено: ${searchResults.length} сообщений`;
         }
         
         function navigateToSearchResult(index) {
@@ -1766,6 +1815,7 @@
                 });
                 
                 // Обновляем информацию
+                searchResultsInfo.classList.add('active');
                 searchResultsText.textContent = `${currentSearchIndex + 1} из ${searchResults.length}`;
                 
                 // Обновляем состояние кнопок навигации
