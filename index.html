@@ -157,6 +157,7 @@
             display: flex;
             flex-direction: column;
             height: 100%;
+            position: relative;
         }
         
         .messages {
@@ -311,6 +312,7 @@
             align-items: center;
             justify-content: center;
             padding: 0;
+            z-index: 10;
         }
         
         .emoji-toggle svg {
@@ -604,7 +606,7 @@
             
             <div class="input-area">
                 <div class="input-wrapper">
-                    <button class="emoji-toggle" id="emoji-toggle">
+                    <button class="emoji-toggle" id="emoji-toggle" type="button">
                         <svg viewBox="0 0 24 24">
                             <path d="M12,2C6.486,2,2,6.486,2,12s4.486,10,10,10s10-4.486,10-10S17.514,2,12,2z M12,20c-4.411,0-8-3.589-8-8s3.589-8,8-8 s8,3.589,8,8S16.411,20,12,20z"/>
                             <circle cx="8.5" cy="10.5" r="1.5"/>
@@ -617,7 +619,7 @@
                         <!-- Эмодзи будут добавлены через JavaScript -->
                     </div>
                 </div>
-                <button class="send-icon" id="send-btn" title="Отправить">➤</button>
+                <button class="send-icon" id="send-btn" title="Отправить" type="button">➤</button>
             </div>
         </main>
     </div>
@@ -686,13 +688,16 @@
         
         // Инициализация эмодзи панели
         function initEmojiPicker() {
+            emojiPicker.innerHTML = ''; // Очищаем панель перед инициализацией
+            
             emojis.forEach(emoji => {
                 const emojiElement = document.createElement('div');
                 emojiElement.className = 'emoji-item';
                 emojiElement.innerHTML = emoji.emoji;
                 emojiElement.title = emoji.name;
                 
-                emojiElement.addEventListener('click', () => {
+                emojiElement.addEventListener('click', (e) => {
+                    e.stopPropagation();
                     insertEmoji(emoji.emoji);
                     closeEmojiPicker();
                     messageInput.focus();
@@ -710,15 +715,19 @@
             
             messageInput.value = textBefore + emoji + textAfter;
             
-            // Возвращаем курсор на место после эмодзи
-            setTimeout(() => {
-                messageInput.selectionStart = messageInput.selectionEnd = cursorPos + emoji.length;
-                messageInput.focus();
-            }, 0);
+            // Обновляем курсор
+            const newCursorPos = cursorPos + emoji.length;
+            messageInput.selectionStart = messageInput.selectionEnd = newCursorPos;
+            
+            // Фокус и обновление ввода
+            messageInput.focus();
+            messageInput.dispatchEvent(new Event('input', { bubbles: true }));
         }
         
         // Открыть/закрыть панель эмодзи
-        function toggleEmojiPicker() {
+        function toggleEmojiPicker(e) {
+            if (e) e.stopPropagation();
+            
             isEmojiPickerOpen = !isEmojiPickerOpen;
             emojiPicker.classList.toggle('active', isEmojiPickerOpen);
             emojiToggle.classList.toggle('active', isEmojiPickerOpen);
@@ -726,6 +735,12 @@
             // Закрываем другие меню
             if (isEmojiPickerOpen) {
                 closeMenu();
+                // Добавляем обработчик для закрытия при клике вне панели
+                setTimeout(() => {
+                    document.addEventListener('click', closeEmojiPickerOnClickOutside);
+                }, 10);
+            } else {
+                document.removeEventListener('click', closeEmojiPickerOnClickOutside);
             }
         }
         
@@ -733,6 +748,13 @@
             isEmojiPickerOpen = false;
             emojiPicker.classList.remove('active');
             emojiToggle.classList.remove('active');
+            document.removeEventListener('click', closeEmojiPickerOnClickOutside);
+        }
+        
+        function closeEmojiPickerOnClickOutside(e) {
+            if (!emojiPicker.contains(e.target) && e.target !== emojiToggle) {
+                closeEmojiPicker();
+            }
         }
         
         // Функция для получения цвета аватарки по имени
@@ -1007,7 +1029,8 @@
         currentUsername.addEventListener('dblclick', logout);
         
         // Мобильное меню
-        menuToggle.addEventListener('click', () => {
+        menuToggle.addEventListener('click', (e) => {
+            e.stopPropagation();
             isMenuOpen = !isMenuOpen;
             sidebar.classList.toggle('active', isMenuOpen);
             mobileOverlay.classList.toggle('active', isMenuOpen);
@@ -1025,21 +1048,12 @@
             isMenuOpen = false;
             sidebar.classList.remove('active');
             mobileOverlay.classList.remove('active');
-            closeEmojiPicker();
         }
         
         // Эмодзи панель
-        emojiToggle.addEventListener('click', (e) => {
-            e.stopPropagation();
-            toggleEmojiPicker();
-        });
+        emojiToggle.addEventListener('click', toggleEmojiPicker);
         
-        // Закрытие эмодзи панели при клике вне её
-        document.addEventListener('click', (e) => {
-            if (!emojiPicker.contains(e.target) && e.target !== emojiToggle) {
-                closeEmojiPicker();
-            }
-        });
+        // Закрытие эмодзи панели при клике на эмодзи (обработка уже есть в initEmojiPicker)
         
         // Функция отправки сообщения
         function sendMessage() {
