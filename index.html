@@ -71,8 +71,21 @@
             background: #0055aa;
         }
         
+        .auth-button:disabled {
+            background: #555;
+            cursor: not-allowed;
+        }
+        
         .error-message {
             color: #ff4444;
+            font-size: 14px;
+            margin-top: 10px;
+            text-align: center;
+            display: none;
+        }
+        
+        .checking-message {
+            color: #00ff88;
             font-size: 14px;
             margin-top: 10px;
             text-align: center;
@@ -300,10 +313,14 @@
                    class="auth-input" 
                    id="username-input" 
                    placeholder="Введите ваше имя"
-                   maxlength="20">
-            <button class="auth-button" id="auth-button">Войти в чат</button>
+                   maxlength="20"
+                   autocomplete="off">
+            <button class="auth-button" id="auth-button" disabled>Проверка...</button>
             <div class="error-message" id="error-message">
                 Имя должно содержать от 2 до 20 символов
+            </div>
+            <div class="checking-message" id="checking-message">
+                Проверка имени...
             </div>
         </div>
     </div>
@@ -355,12 +372,15 @@
         
         let userId = '';
         let userName = '';
+        let nameCheckTimeout = null;
+        let currentNameCheck = '';
         
         // Элементы DOM
         const authModal = document.getElementById('auth-modal');
         const usernameInput = document.getElementById('username-input');
         const authButton = document.getElementById('auth-button');
         const errorMessage = document.getElementById('error-message');
+        const checkingMessage = document.getElementById('checking-message');
         const mainHeader = document.getElementById('main-header');
         const mainContainer = document.getElementById('main-container');
         const userAvatar = document.getElementById('user-avatar');
@@ -381,8 +401,94 @@
         
         let isMenuOpen = false;
         
+        // Хранилище онлайн пользователей для быстрой проверки
+        let onlineUsersMap = new Map();
+        
+        // Функция проверки доступности имени
+        async function checkNameAvailability(name) {
+            return new Promise((resolve) => {
+                onlineUsersRef.once('value', (snapshot) => {
+                    let isAvailable = true;
+                    
+                    if (snapshot.exists()) {
+                        snapshot.forEach((child) => {
+                            const user = child.val();
+                            if (user.name.toLowerCase() === name.toLowerCase()) {
+                                isAvailable = false;
+                            }
+                        });
+                    }
+                    
+                    resolve(isAvailable);
+                });
+            });
+        }
+        
+        // Обновляем карту онлайн пользователей
+        onlineUsersRef.on('value', (snapshot) => {
+            onlineUsersMap.clear();
+            
+            if (snapshot.exists()) {
+                snapshot.forEach((child) => {
+                    const user = child.val();
+                    onlineUsersMap.set(child.key, user);
+                });
+            }
+        });
+        
+        // Обработчик изменения поля имени
+        usernameInput.addEventListener('input', () => {
+            const name = usernameInput.value.trim();
+            
+            // Сбрасываем предыдущий таймер
+            if (nameCheckTimeout) {
+                clearTimeout(nameCheckTimeout);
+            }
+            
+            if (name.length < 2 || name.length > 20) {
+                authButton.disabled = true;
+                authButton.textContent = 'Войти в чат';
+                errorMessage.style.display = 'block';
+                checkingMessage.style.display = 'none';
+                return;
+            }
+            
+            // Показываем проверку
+            authButton.disabled = true;
+            authButton.textContent = 'Проверка...';
+            errorMessage.style.display = 'none';
+            checkingMessage.style.display = 'block';
+            
+            // Запускаем проверку с задержкой
+            nameCheckTimeout = setTimeout(async () => {
+                if (name !== usernameInput.value.trim()) {
+                    return; // Имя изменилось во время проверки
+                }
+                
+                const isAvailable = await checkNameAvailability(name);
+                
+                if (name !== usernameInput.value.trim()) {
+                    return; // Имя изменилось во время проверки
+                }
+                
+                checkingMessage.style.display = 'none';
+                
+                if (isAvailable) {
+                    authButton.disabled = false;
+                    authButton.textContent = 'Войти в чат';
+                } else {
+                    authButton.disabled = true;
+                    authButton.textContent = 'Имя занято';
+                    errorMessage.textContent = 'Это имя уже используется в чате';
+                    errorMessage.style.display = 'block';
+                }
+                
+                currentNameCheck = name;
+            }, 500);
+        });
+        
         // Функция авторизации
-        function authorizeUser() {
+        async function authorizeUser() {
             const name = usernameInput.value.trim();
             
             if (name.length < 2 || name.length > 20) {
@@ -391,7 +497,20 @@
                 return;
             }
             
+            // Двойная проверка перед входом
+            const isAvailable = await checkNameAvailability(name);
+            
+            if (!isAvailable) {
+                authButton.disabled = true;
+                authButton.textContent = 'Имя занято';
+                errorMessage.textContent = 'Это имя уже используется в чате';
+                errorMessage.style.display = 'block';
+                usernameInput.focus();
+                return;
+            }
+            
             errorMessage.style.display = 'none';
+            checkingMessage.style.display = 'none';
             userName = name;
             userId = 'user_' + Math.random().toString(36).substr(2, 9);
             
@@ -430,11 +549,29 @@
         }
         
         // Проверяем сохраненные данные
-        function checkSavedUser() {
+        async function checkSavedUser() {
             const savedName = localStorage.getItem('chatUsername');
             const savedId = localStorage.getItem('chatUserId');
             
             if (savedName && savedId) {
+                // Проверяем, не занято ли имя другим пользователем
+                const isAvailable = await checkNameAvailability(savedName);
+                
+                if (!isAvailable) {
+                    // Имя занято - предлагаем ввести новое
+                    localStorage.removeItem('chatUsername');
+                    localStorage.removeItem('chatUserId');
+                    
+                    // Показываем сообщение
+                    errorMessage.textContent = 'Ваше прежнее имя теперь занято. Выберите новое имя.';
+                    errorMessage.style.display = 'block';
+                    
+                    setTimeout(() => {
+                        usernameInput.focus();
+                    }, 100);
+                    return;
+                }
+                
                 // Автоматический вход
                 userName = savedName;
                 userId = savedId;
@@ -468,21 +605,23 @@
         // События авторизации
         authButton.addEventListener('click', authorizeUser);
         usernameInput.addEventListener('keypress', (e) => {
-            if (e.key === 'Enter') {
+            if (e.key === 'Enter' && !authButton.disabled) {
                 authorizeUser();
             }
         });
         
         // Функция выхода
         function logout() {
-            if (currentUserRef) {
-                currentUserRef.remove();
+            if (confirm('Выйти из чата?')) {
+                if (currentUserRef) {
+                    currentUserRef.remove();
+                }
+                
+                localStorage.removeItem('chatUsername');
+                localStorage.removeItem('chatUserId');
+                
+                location.reload();
             }
-            
-            localStorage.removeItem('chatUsername');
-            localStorage.removeItem('chatUserId');
-            
-            location.reload();
         }
         
         // Добавляем возможность выхода по двойному клику на аватар
