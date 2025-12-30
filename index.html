@@ -119,6 +119,7 @@
             align-items: center;
             justify-content: center;
             font-weight: bold;
+            color: white;
         }
         
         .menu-toggle {
@@ -157,7 +158,40 @@
             background: #0f0f0f;
             display: flex;
             flex-direction: column;
+            gap: 15px;
+        }
+        
+        .message-container {
+            display: flex;
+            align-items: flex-end;
             gap: 10px;
+            max-width: 100%;
+        }
+        
+        .message-container.my {
+            flex-direction: row-reverse;
+        }
+        
+        .message-avatar {
+            width: 35px;
+            height: 35px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 14px;
+            flex-shrink: 0;
+            margin-bottom: 5px;
+            color: white;
+        }
+        
+        .message-avatar.my {
+            background: #0066cc;
+        }
+        
+        .message-avatar.other {
+            background: #333;
         }
         
         .message {
@@ -165,17 +199,18 @@
             padding: 12px 16px;
             border-radius: 18px;
             word-wrap: break-word;
+            position: relative;
         }
         
         .message.my {
-            align-self: flex-end;
             background: #0066cc;
             color: white;
+            border-bottom-right-radius: 5px;
         }
         
         .message.other {
-            align-self: flex-start;
             background: #2a2a2a;
+            border-bottom-left-radius: 5px;
         }
         
         .sender {
@@ -184,11 +219,15 @@
             margin-bottom: 4px;
         }
         
-        .text { font-size: 14px; }
+        .text { 
+            font-size: 14px; 
+            line-height: 1.4;
+        }
+        
         .time { 
             font-size: 11px; 
             text-align: right;
-            margin-top: 5px;
+            margin-top: 8px;
             opacity: 0.7;
         }
         
@@ -236,25 +275,46 @@
             font-size: 18px;
         }
         
-        .user-list { list-style: none; }
+        .user-list { 
+            list-style: none; 
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+        
         .user-item {
             padding: 10px;
-            margin-bottom: 8px;
             background: #2a2a2a;
             border-radius: 8px;
             display: flex;
             align-items: center;
-            gap: 10px;
+            gap: 12px;
         }
         
-        .user-status {
-            width: 10px;
-            height: 10px;
+        .user-item.you {
+            background: rgba(0, 102, 204, 0.2);
+            border: 1px solid rgba(0, 102, 204, 0.3);
+        }
+        
+        .user-name { 
+            font-size: 14px;
+            font-weight: bold;
+            flex: 1;
+        }
+        
+        .user-avatar-small {
+            width: 32px;
+            height: 32px;
             border-radius: 50%;
-            background: #00ff88;
+            background: #0066cc;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 13px;
+            font-weight: bold;
+            color: white;
+            flex-shrink: 0;
         }
-        
-        .user-name { font-size: 14px; }
         
         .mobile-overlay {
             display: none;
@@ -281,7 +341,11 @@
             .mobile-overlay.active { display: block; z-index: 80; }
             
             .chat-area { margin-top: 60px; }
-            .messages { height: calc(100vh - 130px); }
+            .messages { 
+                height: calc(100vh - 130px);
+                padding: 15px;
+                gap: 12px;
+            }
             
             .input-area {
                 position: fixed;
@@ -297,11 +361,39 @@
                 height: 36px;
                 font-size: 16px;
             }
+            
+            .message {
+                max-width: 75%;
+            }
+            
+            .message-avatar {
+                width: 32px;
+                height: 32px;
+                font-size: 13px;
+            }
+            
+            .user-avatar-small {
+                width: 28px;
+                height: 28px;
+                font-size: 12px;
+            }
         }
         
         .hidden {
             display: none !important;
         }
+        
+        /* Цвета для аватарок */
+        .avatar-color-0 { background: #FF6B6B !important; }
+        .avatar-color-1 { background: #4ECDC4 !important; }
+        .avatar-color-2 { background: #FFD166 !important; }
+        .avatar-color-3 { background: #06D6A0 !important; }
+        .avatar-color-4 { background: #118AB2 !important; }
+        .avatar-color-5 { background: #EF476F !important; }
+        .avatar-color-6 { background: #7B68EE !important; }
+        .avatar-color-7 { background: #20B2AA !important; }
+        .avatar-color-8 { background: #FF8C00 !important; }
+        .avatar-color-9 { background: #9B59B6 !important; }
     </style>
 </head>
 <body>
@@ -345,10 +437,13 @@
         
         <main class="chat-area">
             <div class="messages" id="messages-container">
-                <div class="message other">
-                    <div class="sender">Система</div>
-                    <div class="text">Добро пожаловать в чат!</div>
-                    <div class="time">12:00</div>
+                <div class="message-container other">
+                    <div class="message-avatar other avatar-color-0">С</div>
+                    <div class="message other">
+                        <div class="sender">Система</div>
+                        <div class="text">Добро пожаловать в чат!</div>
+                        <div class="time">12:00</div>
+                    </div>
                 </div>
             </div>
             
@@ -403,6 +498,23 @@
         
         // Хранилище онлайн пользователей для быстрой проверки
         let onlineUsersMap = new Map();
+        
+        // Функция для получения цвета аватарки по имени
+        function getAvatarColor(name) {
+            if (!name) return 0;
+            const colors = 10; // количество цветов
+            let hash = 0;
+            for (let i = 0; i < name.length; i++) {
+                hash = name.charCodeAt(i) + ((hash << 5) - hash);
+            }
+            return Math.abs(hash) % colors;
+        }
+        
+        // Функция для получения первой буквы имени
+        function getFirstLetter(name) {
+            if (!name || name.length === 0) return '?';
+            return name.charAt(0).toUpperCase();
+        }
         
         // Функция проверки доступности имени
         async function checkNameAvailability(name) {
@@ -525,7 +637,8 @@
             
             // Обновляем отображение имени пользователя
             currentUsername.textContent = userName;
-            userAvatar.textContent = userName.charAt(0).toUpperCase();
+            userAvatar.textContent = getFirstLetter(userName);
+            userAvatar.className = `user-avatar avatar-color-${getAvatarColor(userName)}`;
             
             // Подключаемся к Firebase
             currentUserRef = onlineUsersRef.child(userId);
@@ -581,7 +694,8 @@
                 mainContainer.classList.remove('hidden');
                 
                 currentUsername.textContent = userName;
-                userAvatar.textContent = userName.charAt(0).toUpperCase();
+                userAvatar.textContent = getFirstLetter(userName);
+                userAvatar.className = `user-avatar avatar-color-${getAvatarColor(userName)}`;
                 
                 currentUserRef = onlineUsersRef.child(userId);
                 
@@ -660,16 +774,34 @@
         // Функция создания элемента сообщения
         function createMessageElement(messageData) {
             const isMyMessage = messageData.senderId === userId;
-            const div = document.createElement('div');
-            div.className = `message ${isMyMessage ? 'my' : 'other'}`;
+            const container = document.createElement('div');
+            container.className = `message-container ${isMyMessage ? 'my' : 'other'}`;
             
-            div.innerHTML = `
+            const avatarColor = getAvatarColor(messageData.sender);
+            const firstLetter = getFirstLetter(messageData.sender);
+            
+            const avatar = document.createElement('div');
+            avatar.className = `message-avatar ${isMyMessage ? 'my' : 'other'} avatar-color-${avatarColor}`;
+            avatar.textContent = firstLetter;
+            
+            const messageDiv = document.createElement('div');
+            messageDiv.className = `message ${isMyMessage ? 'my' : 'other'}`;
+            
+            messageDiv.innerHTML = `
                 <div class="sender">${messageData.sender}</div>
                 <div class="text">${messageData.text}</div>
                 <div class="time">${new Date(messageData.timestamp).toLocaleTimeString('ru-RU', {hour: '2-digit', minute:'2-digit'})}</div>
             `;
             
-            return div;
+            if (isMyMessage) {
+                container.appendChild(messageDiv);
+                container.appendChild(avatar);
+            } else {
+                container.appendChild(avatar);
+                container.appendChild(messageDiv);
+            }
+            
+            return container;
         }
         
         // Загрузка сообщений
@@ -677,7 +809,14 @@
             messagesContainer.innerHTML = '';
             
             if (!snapshot.exists()) {
-                messagesContainer.innerHTML = '<div class="message other"><div class="text">Нет сообщений</div></div>';
+                messagesContainer.innerHTML = `
+                    <div class="message-container other">
+                        <div class="message-avatar other avatar-color-0">С</div>
+                        <div class="message other">
+                            <div class="text">Нет сообщений</div>
+                        </div>
+                    </div>
+                `;
                 return;
             }
             
@@ -714,11 +853,22 @@
             
             onlineCount.textContent = users.length;
             
+            // Сортируем: текущий пользователь первый, остальные по алфавиту
+            users.sort((a, b) => {
+                if (a.id === userId) return -1;
+                if (b.id === userId) return 1;
+                return a.name.localeCompare(b.name);
+            });
+            
             users.forEach(user => {
                 const li = document.createElement('li');
                 li.className = `user-item ${user.id === userId ? 'you' : ''}`;
+                
+                const avatarColor = getAvatarColor(user.name);
+                const firstLetter = getFirstLetter(user.name);
+                
                 li.innerHTML = `
-                    <div class="user-status online"></div>
+                    <div class="user-avatar-small avatar-color-${avatarColor}">${firstLetter}</div>
                     <div class="user-name">${user.name}${user.id === userId ? ' (Вы)' : ''}</div>
                 `;
                 userList.appendChild(li);
