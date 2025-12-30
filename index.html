@@ -235,6 +235,153 @@
             line-height: 1.4;
         }
         
+        /* Стили для файлов и изображений */
+        .file-attachment {
+            margin-top: 8px;
+            padding: 10px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 8px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        
+        .file-info {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .file-icon {
+            width: 40px;
+            height: 40px;
+            background: #0066cc;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 18px;
+        }
+        
+        .file-details {
+            flex: 1;
+            min-width: 0;
+        }
+        
+        .file-name {
+            font-weight: bold;
+            font-size: 13px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        
+        .file-size {
+            font-size: 11px;
+            color: #888;
+            margin-top: 2px;
+        }
+        
+        .download-btn {
+            background: #0066cc;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            padding: 6px 12px;
+            font-size: 12px;
+            cursor: pointer;
+            text-decoration: none;
+            display: inline-block;
+        }
+        
+        .download-btn:hover {
+            background: #0055aa;
+        }
+        
+        .message-container.my .download-btn {
+            background: rgba(255, 255, 255, 0.2);
+        }
+        
+        .message-container.my .download-btn:hover {
+            background: rgba(255, 255, 255, 0.3);
+        }
+        
+        /* Стили для изображений */
+        .image-attachment {
+            margin-top: 8px;
+            max-width: 100%;
+            border-radius: 8px;
+            overflow: hidden;
+            position: relative;
+        }
+        
+        .message-image {
+            max-width: 300px;
+            max-height: 300px;
+            border-radius: 8px;
+            display: block;
+            cursor: pointer;
+            transition: transform 0.2s;
+            background: #1a1a1a;
+        }
+        
+        .message-image:hover {
+            transform: scale(1.02);
+        }
+        
+        .image-loading {
+            width: 300px;
+            height: 200px;
+            background: #2a2a2a;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #888;
+        }
+        
+        /* Модальное окно для просмотра изображений */
+        .image-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.95);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 2000;
+            display: none;
+        }
+        
+        .image-modal.active {
+            display: flex;
+        }
+        
+        .modal-image {
+            max-width: 90%;
+            max-height: 90%;
+            border-radius: 4px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
+        }
+        
+        .close-modal {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: rgba(255, 255, 255, 0.1);
+            border: none;
+            color: white;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            font-size: 20px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
         /* Стили для ссылок */
         .text a {
             color: #66b3ff;
@@ -285,6 +432,8 @@
         .input-wrapper {
             flex: 1;
             position: relative;
+            display: flex;
+            align-items: center;
         }
         
         input[type="text"] {
@@ -295,6 +444,7 @@
             background: #2a2a2a;
             color: white;
             font-size: 14px;
+            padding-left: 85px; /* Увеличиваем отступ для двух иконок */
         }
         
         /* Иконка смайлика как в Telegram */
@@ -328,6 +478,105 @@
         
         .emoji-toggle.active svg {
             fill: #66b3ff;
+        }
+        
+        /* Иконка загрузки файлов */
+        .file-toggle {
+            position: absolute;
+            left: 50px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: none;
+            border: none;
+            cursor: pointer;
+            width: 30px;
+            height: 30px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 0;
+            z-index: 10;
+        }
+        
+        .file-toggle svg {
+            width: 22px;
+            height: 22px;
+            fill: #888;
+            transition: fill 0.2s;
+        }
+        
+        .file-toggle:hover svg {
+            fill: #66b3ff;
+        }
+        
+        .file-toggle.active svg {
+            fill: #66b3ff;
+        }
+        
+        /* Скрытый input для файлов */
+        .file-input {
+            display: none;
+        }
+        
+        /* Панель выбора файлов */
+        .file-picker {
+            position: absolute;
+            bottom: 70px;
+            left: 15px;
+            background: #2a2a2a;
+            border: 1px solid #333;
+            border-radius: 15px;
+            padding: 15px;
+            display: none;
+            flex-direction: column;
+            gap: 10px;
+            width: 200px;
+            z-index: 200;
+            box-shadow: 0 8px 25px rgba(0,0,0,0.4);
+        }
+        
+        .file-picker.active {
+            display: flex;
+        }
+        
+        .file-picker::after {
+            content: '';
+            position: absolute;
+            bottom: -8px;
+            left: 20px;
+            width: 16px;
+            height: 16px;
+            background: #2a2a2a;
+            border-right: 1px solid #333;
+            border-bottom: 1px solid #333;
+            transform: rotate(45deg);
+        }
+        
+        .file-option {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 10px;
+            cursor: pointer;
+            border-radius: 8px;
+            transition: background 0.2s;
+        }
+        
+        .file-option:hover {
+            background: #3a3a3a;
+        }
+        
+        .file-option-icon {
+            width: 24px;
+            height: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+        }
+        
+        .file-option-text {
+            font-size: 14px;
         }
         
         .emoji-picker {
@@ -398,6 +647,46 @@
         
         .send-icon:hover {
             background: #0055aa;
+        }
+        
+        /* Индикатор загрузки */
+        .upload-indicator {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: rgba(0, 0, 0, 0.9);
+            padding: 20px 30px;
+            border-radius: 10px;
+            z-index: 3000;
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            gap: 15px;
+        }
+        
+        .upload-indicator.active {
+            display: flex;
+        }
+        
+        .upload-progress {
+            width: 200px;
+            height: 4px;
+            background: #333;
+            border-radius: 2px;
+            overflow: hidden;
+        }
+        
+        .upload-progress-bar {
+            height: 100%;
+            background: #0066cc;
+            width: 0%;
+            transition: width 0.3s;
+        }
+        
+        .upload-text {
+            color: white;
+            font-size: 14px;
         }
         
         h2 {
@@ -495,7 +784,8 @@
                 height: 70px;
             }
             
-            .emoji-picker {
+            .emoji-picker,
+            .file-picker {
                 bottom: 70px;
                 left: 15px;
                 right: 15px;
@@ -503,7 +793,8 @@
                 max-width: calc(100% - 30px);
             }
             
-            .emoji-picker::after {
+            .emoji-picker::after,
+            .file-picker::after {
                 left: 20px;
             }
             
@@ -527,6 +818,11 @@
                 width: 28px;
                 height: 28px;
                 font-size: 12px;
+            }
+            
+            .message-image {
+                max-width: 200px;
+                max-height: 200px;
             }
             
             /* Улучшенные ссылки на мобильных */
@@ -584,6 +880,20 @@
         </div>
     </header>
     
+    <!-- Модальное окно для просмотра изображений -->
+    <div class="image-modal" id="image-modal">
+        <button class="close-modal" id="close-modal">✕</button>
+        <img class="modal-image" id="modal-image" src="" alt="Увеличенное изображение">
+    </div>
+    
+    <!-- Индикатор загрузки -->
+    <div class="upload-indicator" id="upload-indicator">
+        <div class="upload-text" id="upload-text">Загрузка файла...</div>
+        <div class="upload-progress">
+            <div class="upload-progress-bar" id="upload-progress-bar"></div>
+        </div>
+    </div>
+    
     <div class="mobile-overlay" id="mobile-overlay"></div>
     
     <div class="container hidden" id="main-container">
@@ -598,7 +908,7 @@
                     <div class="message-avatar other avatar-color-0">С</div>
                     <div class="message other">
                         <div class="sender">Система</div>
-                        <div class="text">Добро пожаловать в чат! Нажмите на иконку смайлика, чтобы отправить эмодзи 😊</div>
+                        <div class="text">Добро пожаловать в чат! Вы можете отправлять текстовые сообщения, эмодзи, файлы и изображения 📎📷</div>
                         <div class="time">12:00</div>
                     </div>
                 </div>
@@ -606,7 +916,18 @@
             
             <div class="input-area">
                 <div class="input-wrapper">
-                    <button class="emoji-toggle" id="emoji-toggle" type="button">
+                    <!-- Кнопка загрузки файлов -->
+                    <button class="file-toggle" id="file-toggle" type="button" title="Прикрепить файл">
+                        <svg viewBox="0 0 24 24">
+                            <path d="M14,2H6A2,2,0,0,0,4,4V20a2,2,0,0,0,2,2H18a2,2,0,0,0,2-2V8Z"/>
+                            <polyline points="14 2 14 8 20 8"/>
+                            <line x1="12" y1="18" x2="12" y2="12"/>
+                            <line x1="9" y1="15" x2="15" y2="15"/>
+                        </svg>
+                    </button>
+                    
+                    <!-- Кнопка эмодзи -->
+                    <button class="emoji-toggle" id="emoji-toggle" type="button" title="Эмодзи">
                         <svg viewBox="0 0 24 24">
                             <path d="M12,2C6.486,2,2,6.486,2,12s4.486,10,10,10s10-4.486,10-10S17.514,2,12,2z M12,20c-4.411,0-8-3.589-8-8s3.589-8,8-8 s8,3.589,8,8S16.411,20,12,20z"/>
                             <circle cx="8.5" cy="10.5" r="1.5"/>
@@ -614,10 +935,26 @@
                             <path d="M12,16c-2.325,0-4.284,1.486-5,3.542c0.836,0.818,1.874,1.423,3,1.756V20c0-1.654,1.346-3,3-3s3,1.346,3,3v1.298 c1.126-0.333,2.164-0.938,3-1.756C16.284,17.486,14.325,16,12,16z"/>
                         </svg>
                     </button>
+                    
+                    <!-- Скрытый input для файлов -->
+                    <input type="file" class="file-input" id="file-input" accept="image/*,.pdf,.doc,.docx,.txt,.zip,.rar" multiple>
+                    
                     <input type="text" id="message-input" placeholder="Сообщение или ссылка...">
-                    <div class="emoji-picker" id="emoji-picker">
-                        <!-- Эмодзи будут добавлены через JavaScript -->
+                    
+                    <!-- Панель выбора файлов -->
+                    <div class="file-picker" id="file-picker">
+                        <div class="file-option" id="photo-option">
+                            <div class="file-option-icon">📷</div>
+                            <div class="file-option-text">Фото и видео</div>
+                        </div>
+                        <div class="file-option" id="document-option">
+                            <div class="file-option-icon">📄</div>
+                            <div class="file-option-text">Документ</div>
+                        </div>
                     </div>
+                    
+                    <!-- Панель эмодзи -->
+                    <div class="emoji-picker" id="emoji-picker"></div>
                 </div>
                 <button class="send-icon" id="send-btn" title="Отправить" type="button">➤</button>
             </div>
@@ -626,14 +963,17 @@
 
     <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-database-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-storage-compat.js"></script>
 
     <script>
         const firebaseConfig = {
-            databaseURL: "https://chat-c54e2-default-rtdb.europe-west1.firebasedatabase.app/"
+            databaseURL: "https://chat-c54e2-default-rtdb.europe-west1.firebasedatabase.app/",
+            storageBucket: "chat-c54e2.appspot.com"
         };
         
         const app = firebase.initializeApp(firebaseConfig);
         const database = firebase.database();
+        const storage = firebase.storage();
         
         let userId = '';
         let userName = '';
@@ -665,9 +1005,21 @@
         const mobileOverlay = document.getElementById('mobile-overlay');
         const emojiToggle = document.getElementById('emoji-toggle');
         const emojiPicker = document.getElementById('emoji-picker');
+        const fileToggle = document.getElementById('file-toggle');
+        const filePicker = document.getElementById('file-picker');
+        const fileInput = document.getElementById('file-input');
+        const photoOption = document.getElementById('photo-option');
+        const documentOption = document.getElementById('document-option');
+        const imageModal = document.getElementById('image-modal');
+        const modalImage = document.getElementById('modal-image');
+        const closeModal = document.getElementById('close-modal');
+        const uploadIndicator = document.getElementById('upload-indicator');
+        const uploadText = document.getElementById('upload-text');
+        const uploadProgressBar = document.getElementById('upload-progress-bar');
         
         let isMenuOpen = false;
         let isEmojiPickerOpen = false;
+        let isFilePickerOpen = false;
         
         // Набор эмодзи (10 самых популярных)
         const emojis = [
@@ -734,6 +1086,7 @@
             
             // Закрываем другие меню
             if (isEmojiPickerOpen) {
+                closeFilePicker();
                 closeMenu();
                 // Добавляем обработчик для закрытия при клике вне панели
                 setTimeout(() => {
@@ -754,6 +1107,40 @@
         function closeEmojiPickerOnClickOutside(e) {
             if (!emojiPicker.contains(e.target) && e.target !== emojiToggle) {
                 closeEmojiPicker();
+            }
+        }
+        
+        // Открыть/закрыть панель файлов
+        function toggleFilePicker(e) {
+            if (e) e.stopPropagation();
+            
+            isFilePickerOpen = !isFilePickerOpen;
+            filePicker.classList.toggle('active', isFilePickerOpen);
+            fileToggle.classList.toggle('active', isFilePickerOpen);
+            
+            // Закрываем другие меню
+            if (isFilePickerOpen) {
+                closeEmojiPicker();
+                closeMenu();
+                // Добавляем обработчик для закрытия при клике вне панели
+                setTimeout(() => {
+                    document.addEventListener('click', closeFilePickerOnClickOutside);
+                }, 10);
+            } else {
+                document.removeEventListener('click', closeFilePickerOnClickOutside);
+            }
+        }
+        
+        function closeFilePicker() {
+            isFilePickerOpen = false;
+            filePicker.classList.remove('active');
+            fileToggle.classList.remove('active');
+            document.removeEventListener('click', closeFilePickerOnClickOutside);
+        }
+        
+        function closeFilePickerOnClickOutside(e) {
+            if (!filePicker.contains(e.target) && e.target !== fileToggle) {
+                closeFilePicker();
             }
         }
         
@@ -794,6 +1181,36 @@
                 // Создаем ссылку с безопасным открытием в новой вкладке
                 return `<a href="${href}" target="_blank" rel="noopener noreferrer">${url}</a>`;
             });
+        }
+        
+        // Функция для форматирования размера файла
+        function formatFileSize(bytes) {
+            if (bytes === 0) return '0 Б';
+            const k = 1024;
+            const sizes = ['Б', 'КБ', 'МБ', 'ГБ'];
+            const i = Math.floor(Math.log(bytes) / Math.log(k));
+            return parseFloat((bytes / Math.pow(k, i)).toFixed(1)) + ' ' + sizes[i];
+        }
+        
+        // Функция для получения иконки файла по расширению
+        function getFileIcon(filename) {
+            const extension = filename.split('.').pop().toLowerCase();
+            const icons = {
+                pdf: '📕',
+                doc: '📘',
+                docx: '📘',
+                txt: '📝',
+                zip: '📦',
+                rar: '📦',
+                jpg: '🖼️',
+                jpeg: '🖼️',
+                png: '🖼️',
+                gif: '🖼️',
+                mp4: '🎬',
+                avi: '🎬',
+                mov: '🎬'
+            };
+            return icons[extension] || '📎';
         }
         
         // Функция проверки доступности имени
@@ -1035,6 +1452,7 @@
             sidebar.classList.toggle('active', isMenuOpen);
             mobileOverlay.classList.toggle('active', isMenuOpen);
             closeEmojiPicker();
+            closeFilePicker();
         });
         
         mobileOverlay.addEventListener('click', () => {
@@ -1042,6 +1460,7 @@
             sidebar.classList.remove('active');
             mobileOverlay.classList.remove('active');
             closeEmojiPicker();
+            closeFilePicker();
         });
         
         function closeMenu() {
@@ -1053,7 +1472,114 @@
         // Эмодзи панель
         emojiToggle.addEventListener('click', toggleEmojiPicker);
         
-        // Закрытие эмодзи панели при клике на эмодзи (обработка уже есть в initEmojiPicker)
+        // Панель файлов
+        fileToggle.addEventListener('click', toggleFilePicker);
+        
+        // Обработчики для выбора файлов
+        photoOption.addEventListener('click', () => {
+            fileInput.accept = 'image/*,video/*';
+            fileInput.click();
+            closeFilePicker();
+        });
+        
+        documentOption.addEventListener('click', () => {
+            fileInput.accept = '.pdf,.doc,.docx,.txt,.zip,.rar,.xls,.xlsx,.ppt,.pptx';
+            fileInput.click();
+            closeFilePicker();
+        });
+        
+        // Обработчик выбора файлов
+        fileInput.addEventListener('change', handleFileSelect);
+        
+        // Функция обработки выбранных файлов
+        async function handleFileSelect(e) {
+            const files = e.target.files;
+            if (!files || files.length === 0) return;
+            
+            for (let i = 0; i < files.length; i++) {
+                await uploadFile(files[i]);
+            }
+            
+            // Сбрасываем input
+            fileInput.value = '';
+        }
+        
+        // Функция загрузки файла
+        async function uploadFile(file) {
+            if (!userId) return;
+            
+            // Проверяем размер файла (максимум 10 МБ)
+            const maxSize = 10 * 1024 * 1024; // 10 МБ
+            if (file.size > maxSize) {
+                alert(`Файл "${file.name}" слишком большой. Максимальный размер: 10 МБ`);
+                return;
+            }
+            
+            // Показываем индикатор загрузки
+            uploadText.textContent = `Загрузка: ${file.name}`;
+            uploadProgressBar.style.width = '0%';
+            uploadIndicator.classList.add('active');
+            
+            try {
+                // Создаем уникальное имя файла
+                const timestamp = Date.now();
+                const randomString = Math.random().toString(36).substring(2, 15);
+                const fileName = `${userId}_${timestamp}_${randomString}_${file.name}`;
+                
+                // Определяем тип файла
+                const isImage = file.type.startsWith('image/');
+                const isVideo = file.type.startsWith('video/');
+                
+                // Загружаем файл в Firebase Storage
+                const storageRef = storage.ref();
+                const fileRef = storageRef.child('chat_files/' + fileName);
+                const uploadTask = fileRef.put(file);
+                
+                // Следим за прогрессом загрузки
+                uploadTask.on('state_changed',
+                    (snapshot) => {
+                        // Обновляем прогресс
+                        const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
+                        uploadProgressBar.style.width = progress + '%';
+                    },
+                    (error) => {
+                        // Ошибка загрузки
+                        console.error('Ошибка загрузки файла:', error);
+                        alert(`Ошибка загрузки файла: ${file.name}`);
+                        uploadIndicator.classList.remove('active');
+                    },
+                    async () => {
+                        // Загрузка завершена
+                        const downloadURL = await uploadTask.snapshot.ref.getDownloadURL();
+                        
+                        // Отправляем сообщение с файлом
+                        const messageData = {
+                            text: messageInput.value.trim() || (isImage ? '📷 Фото' : isVideo ? '🎬 Видео' : '📎 Файл'),
+                            sender: userName,
+                            senderId: userId,
+                            timestamp: firebase.database.ServerValue.TIMESTAMP,
+                            file: {
+                                name: file.name,
+                                url: downloadURL,
+                                type: file.type,
+                                size: file.size
+                            }
+                        };
+                        
+                        await messagesRef.push(messageData);
+                        
+                        // Скрываем индикатор и очищаем поле ввода
+                        uploadIndicator.classList.remove('active');
+                        messageInput.value = '';
+                        messageInput.focus();
+                    }
+                );
+            } catch (error) {
+                console.error('Ошибка при загрузке файла:', error);
+                alert(`Ошибка при загрузке файла: ${file.name}`);
+                uploadIndicator.classList.remove('active');
+            }
+        }
         
         // Функция отправки сообщения
         function sendMessage() {
@@ -1069,6 +1595,7 @@
                 messageInput.value = '';
                 messageInput.focus();
                 closeEmojiPicker();
+                closeFilePicker();
             });
         }
         
@@ -1089,17 +1616,76 @@
             messageDiv.className = `message`;
             
             // Преобразуем текст с ссылками
-            let processedText = linkify(messageData.text);
+            let processedText = messageData.text ? linkify(messageData.text) : '';
             
             // Добавляем классы для эмодзи
-            processedText = processedText.replace(/[\u{1F600}-\u{1F64F}\u{1F300}-\u{1F5FF}\u{1F680}-\u{1F6FF}\u{1F1E0}-\u{1F1FF}\u{2600}-\u{26FF}\u{2700}-\u{27BF}]/gu, 
-                match => `<span class="emoji">${match}</span>`);
+            if (processedText) {
+                processedText = processedText.replace(/[\u{1F600}-\u{1F64F}\u{1F300}-\u{1F5FF}\u{1F680}-\u{1F6FF}\u{1F1E0}-\u{1F1FF}\u{2600}-\u{26FF}\u{2700}-\u{27BF}]/gu, 
+                    match => `<span class="emoji">${match}</span>`);
+            }
             
-            messageDiv.innerHTML = `
+            let contentHTML = `
                 <div class="sender">${messageData.sender}</div>
-                <div class="text">${processedText}</div>
-                <div class="time">${new Date(messageData.timestamp).toLocaleTimeString('ru-RU', {hour: '2-digit', minute:'2-digit'})}</div>
             `;
+            
+            // Добавляем текст, если есть
+            if (processedText) {
+                contentHTML += `<div class="text">${processedText}</div>`;
+            }
+            
+            // Добавляем файл, если есть
+            if (messageData.file) {
+                const isImage = messageData.file.type.startsWith('image/');
+                const isVideo = messageData.file.type.startsWith('video/');
+                
+                if (isImage) {
+                    // Изображение
+                    contentHTML += `
+                        <div class="image-attachment">
+                            <img class="message-image" 
+                                 src="${messageData.file.url}" 
+                                 alt="${messageData.file.name}"
+                                 loading="lazy"
+                                 onload="this.style.opacity='1'"
+                                 onerror="this.src='data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMzAwIiBoZWlnaHQ9IjIwMCIgdmVyc2lvbj0iMS4xIiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciPjxyZWN0IHdpZHRoPSIzMDAiIGhlaWdodD0iMjAwIiBmaWxsPSIjMmEyYTJhIi8+PHRleHQgeD0iMTUwIiB5PSIxMDAiIGZvbnQtZmFtaWx5PSJBcmlhbCIgZm9udC1zaXplPSIxNCIgZmlsbD0iI2ZmZiIgdGV4dC1hbmNob3I9Im1pZGRsZSI+RnJhaWxtZW50IGltYWdlPC90ZXh0Pjwvc3ZnPg=='"
+                                 style="opacity:0; transition:opacity 0.3s">
+                        </div>
+                    `;
+                } else if (isVideo) {
+                    // Видео
+                    contentHTML += `
+                        <div class="file-attachment">
+                            <div class="file-info">
+                                <div class="file-icon">🎬</div>
+                                <div class="file-details">
+                                    <div class="file-name">${messageData.file.name}</div>
+                                    <div class="file-size">${formatFileSize(messageData.file.size)} • Видео</div>
+                                </div>
+                                <a href="${messageData.file.url}" target="_blank" class="download-btn">Открыть</a>
+                            </div>
+                        </div>
+                    `;
+                } else {
+                    // Документ
+                    const fileIcon = getFileIcon(messageData.file.name);
+                    contentHTML += `
+                        <div class="file-attachment">
+                            <div class="file-info">
+                                <div class="file-icon">${fileIcon}</div>
+                                <div class="file-details">
+                                    <div class="file-name">${messageData.file.name}</div>
+                                    <div class="file-size">${formatFileSize(messageData.file.size)}</div>
+                                </div>
+                                <a href="${messageData.file.url}" target="_blank" class="download-btn">Скачать</a>
+                            </div>
+                        </div>
+                    `;
+                }
+            }
+            
+            contentHTML += `<div class="time">${new Date(messageData.timestamp).toLocaleTimeString('ru-RU', {hour: '2-digit', minute:'2-digit'})}</div>`;
+            
+            messageDiv.innerHTML = contentHTML;
             
             // Добавляем элементы в правильном порядке
             if (isMyMessage) {
@@ -1112,8 +1698,40 @@
                 container.appendChild(messageDiv);
             }
             
+            // Добавляем обработчик клика на изображение для открытия в модальном окне
+            if (messageData.file && messageData.file.type.startsWith('image/')) {
+                const img = messageDiv.querySelector('.message-image');
+                if (img) {
+                    img.addEventListener('click', () => {
+                        modalImage.src = messageData.file.url;
+                        imageModal.classList.add('active');
+                        closeEmojiPicker();
+                        closeFilePicker();
+                        closeMenu();
+                    });
+                }
+            }
+            
             return container;
         }
+        
+        // Закрытие модального окна изображения
+        closeModal.addEventListener('click', () => {
+            imageModal.classList.remove('active');
+        });
+        
+        imageModal.addEventListener('click', (e) => {
+            if (e.target === imageModal) {
+                imageModal.classList.remove('active');
+            }
+        });
+        
+        // Закрытие по Escape
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') {
+                imageModal.classList.remove('active');
+            }
+        });
         
         // Загрузка сообщений
         messagesRef.orderByChild('timestamp').limitToLast(50).on('value', (snapshot) => {
