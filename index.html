@@ -175,6 +175,12 @@
             display: flex;
             align-items: flex-end;
             max-width: 100%;
+            position: relative;
+            transition: opacity 0.3s ease;
+        }
+        
+        .message-container.deleting {
+            opacity: 0.5;
         }
         
         .message-container.my {
@@ -211,6 +217,9 @@
             border-radius: 18px;
             word-wrap: break-word;
             position: relative;
+            min-width: 120px;
+            cursor: pointer;
+            user-select: none;
         }
         
         .message-container.my .message {
@@ -222,6 +231,11 @@
         .message-container.other .message {
             background: #2a2a2a;
             border-bottom-left-radius: 5px;
+        }
+        
+        .message.editing {
+            background: rgba(0, 102, 204, 0.3) !important;
+            border: 1px solid #0066cc !important;
         }
         
         .sender {
@@ -269,6 +283,115 @@
             text-align: right;
             margin-top: 8px;
             opacity: 0.7;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .edited-badge {
+            font-size: 10px;
+            opacity: 0.7;
+        }
+        
+        /* Меню действий для сообщения */
+        .message-menu {
+            position: fixed;
+            background: #2a2a2a;
+            border: 1px solid #333;
+            border-radius: 8px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+            z-index: 1000;
+            min-width: 140px;
+            overflow: hidden;
+            display: none;
+        }
+        
+        .message-menu.active {
+            display: block;
+        }
+        
+        .message-menu-item {
+            padding: 10px 15px;
+            background: none;
+            border: none;
+            color: #e0e0e0;
+            cursor: pointer;
+            font-size: 13px;
+            text-align: left;
+            width: 100%;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: background 0.2s;
+        }
+        
+        .message-menu-item:hover {
+            background: #3a3a3a;
+        }
+        
+        .message-menu-item.delete {
+            color: #ff6b6b;
+        }
+        
+        .message-menu-item.delete:hover {
+            background: rgba(255, 107, 107, 0.1);
+        }
+        
+        /* Режим редактирования */
+        .edit-input {
+            width: 100%;
+            background: transparent;
+            border: none;
+            color: white;
+            font-size: 14px;
+            line-height: 1.4;
+            padding: 0;
+            outline: none;
+            font-family: inherit;
+            resize: none;
+            overflow: hidden;
+        }
+        
+        .message-container.my .edit-input {
+            color: white;
+        }
+        
+        .message-container.other .edit-input {
+            color: #e0e0e0;
+        }
+        
+        .edit-controls {
+            display: flex;
+            gap: 8px;
+            margin-top: 8px;
+            justify-content: flex-end;
+        }
+        
+        .edit-btn {
+            padding: 4px 12px;
+            border: none;
+            border-radius: 4px;
+            font-size: 12px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .save-btn {
+            background: #00cc66;
+            color: white;
+        }
+        
+        .save-btn:hover {
+            background: #00aa55;
+        }
+        
+        .cancel-btn {
+            background: #ff4444;
+            color: white;
+        }
+        
+        .cancel-btn:hover {
+            background: #cc3333;
         }
         
         .input-area {
@@ -534,6 +657,15 @@
                 word-break: break-word;
                 hyphens: auto;
             }
+            
+            /* На мобильных меню по долгому тапу */
+            .message {
+                -webkit-tap-highlight-color: transparent;
+            }
+            
+            .message-menu {
+                min-width: 120px;
+            }
         }
         
         .hidden {
@@ -551,6 +683,22 @@
         .avatar-color-7 { background: #20B2AA !important; }
         .avatar-color-8 { background: #FF8C00 !important; }
         .avatar-color-9 { background: #9B59B6 !important; }
+        
+        /* Подложка для закрытия меню */
+        .menu-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: transparent;
+            z-index: 999;
+            display: none;
+        }
+        
+        .menu-overlay.active {
+            display: block;
+        }
     </style>
 </head>
 <body>
@@ -584,6 +732,8 @@
         </div>
     </header>
     
+    <!-- Подложка для закрытия меню -->
+    <div class="menu-overlay" id="menu-overlay"></div>
     <div class="mobile-overlay" id="mobile-overlay"></div>
     
     <div class="container hidden" id="main-container">
@@ -598,7 +748,7 @@
                     <div class="message-avatar other avatar-color-0">С</div>
                     <div class="message other">
                         <div class="sender">Система</div>
-                        <div class="text">Добро пожаловать в чат! Нажмите на иконку смайлика, чтобы отправить эмодзи 😊</div>
+                        <div class="text">Добро пожаловать в чат! Нажмите на сообщение, чтобы открыть меню. Для своих сообщений доступно редактирование и удаление.</div>
                         <div class="time">12:00</div>
                     </div>
                 </div>
@@ -624,6 +774,18 @@
         </main>
     </div>
 
+    <!-- Контекстное меню для сообщений -->
+    <div class="message-menu" id="message-menu">
+        <button class="message-menu-item" id="menu-edit">
+            <span>✏️</span>
+            <span>Редактировать</span>
+        </button>
+        <button class="message-menu-item delete" id="menu-delete">
+            <span>🗑️</span>
+            <span>Удалить</span>
+        </button>
+    </div>
+
     <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-database-compat.js"></script>
 
@@ -639,6 +801,8 @@
         let userName = '';
         let nameCheckTimeout = null;
         let currentNameCheck = '';
+        let editingMessageId = null;
+        let activeMessageMenu = null;
         
         // Элементы DOM
         const authModal = document.getElementById('auth-modal');
@@ -663,11 +827,17 @@
         const menuToggle = document.getElementById('menu-toggle');
         const sidebar = document.getElementById('sidebar');
         const mobileOverlay = document.getElementById('mobile-overlay');
+        const menuOverlay = document.getElementById('menu-overlay');
         const emojiToggle = document.getElementById('emoji-toggle');
         const emojiPicker = document.getElementById('emoji-picker');
+        const messageMenu = document.getElementById('message-menu');
+        const menuEditBtn = document.getElementById('menu-edit');
+        const menuDeleteBtn = document.getElementById('menu-delete');
         
         let isMenuOpen = false;
         let isEmojiPickerOpen = false;
+        let currentContextMessage = null;
+        let messagesMap = new Map(); // Храним сообщения локально для быстрого доступа
         
         // Набор эмодзи (10 самых популярных)
         const emojis = [
@@ -735,6 +905,7 @@
             // Закрываем другие меню
             if (isEmojiPickerOpen) {
                 closeMenu();
+                closeMessageMenu();
                 // Добавляем обработчик для закрытия при клике вне панели
                 setTimeout(() => {
                     document.addEventListener('click', closeEmojiPickerOnClickOutside);
@@ -1035,6 +1206,7 @@
             sidebar.classList.toggle('active', isMenuOpen);
             mobileOverlay.classList.toggle('active', isMenuOpen);
             closeEmojiPicker();
+            closeMessageMenu();
         });
         
         mobileOverlay.addEventListener('click', () => {
@@ -1042,7 +1214,10 @@
             sidebar.classList.remove('active');
             mobileOverlay.classList.remove('active');
             closeEmojiPicker();
+            closeMessageMenu();
         });
+        
+        menuOverlay.addEventListener('click', closeMessageMenu);
         
         function closeMenu() {
             isMenuOpen = false;
@@ -1053,30 +1228,304 @@
         // Эмодзи панель
         emojiToggle.addEventListener('click', toggleEmojiPicker);
         
-        // Закрытие эмодзи панели при клике на эмодзи (обработка уже есть в initEmojiPicker)
-        
-        // Функция отправки сообщения
-        function sendMessage() {
-            const text = messageInput.value.trim();
-            if (!text || !userId) return;
+        // Контекстное меню для сообщений
+        function showMessageMenu(messageId, messageData, x, y) {
+            closeMessageMenu();
             
-            messagesRef.push({
-                text: text,
-                sender: userName,
-                senderId: userId,
-                timestamp: firebase.database.ServerValue.TIMESTAMP
+            currentContextMessage = {
+                id: messageId,
+                data: messageData
+            };
+            
+            // Позиционируем меню
+            messageMenu.style.left = x + 'px';
+            messageMenu.style.top = y + 'px';
+            
+            // Показываем только соответствующие опции
+            const isMyMessage = messageData.senderId === userId;
+            menuEditBtn.style.display = isMyMessage ? 'flex' : 'none';
+            menuDeleteBtn.style.display = isMyMessage ? 'flex' : 'none';
+            
+            // Если не свое сообщение, скрываем меню
+            if (!isMyMessage) {
+                return;
+            }
+            
+            messageMenu.classList.add('active');
+            menuOverlay.classList.add('active');
+            
+            // Блокируем прокрутку
+            document.body.style.overflow = 'hidden';
+        }
+        
+        function closeMessageMenu() {
+            messageMenu.classList.remove('active');
+            menuOverlay.classList.remove('active');
+            currentContextMessage = null;
+            
+            // Восстанавливаем прокрутку
+            document.body.style.overflow = '';
+        }
+        
+        // Обработчики для меню
+        menuEditBtn.addEventListener('click', () => {
+            if (currentContextMessage) {
+                editMessage(currentContextMessage.id, currentContextMessage.data.text);
+                closeMessageMenu();
+            }
+        });
+        
+        menuDeleteBtn.addEventListener('click', () => {
+            if (currentContextMessage) {
+                deleteMessage(currentContextMessage.id);
+                closeMessageMenu();
+            }
+        });
+        
+        // Функция удаления сообщения
+        function deleteMessage(messageId) {
+            if (confirm('Удалить это сообщение?')) {
+                // Находим элемент сообщения
+                const messageElement = document.querySelector(`[data-message-id="${messageId}"]`);
+                if (messageElement) {
+                    // Добавляем класс для анимации удаления
+                    messageElement.classList.add('deleting');
+                    
+                    // Удаляем из Firebase
+                    messagesRef.child(messageId).remove().then(() => {
+                        // Удаляем из локальной карты
+                        messagesMap.delete(messageId);
+                        
+                        // Ждем анимацию и удаляем из DOM
+                        setTimeout(() => {
+                            if (messageElement.parentNode) {
+                                messageElement.remove();
+                            }
+                        }, 300);
+                    });
+                } else {
+                    // Если элемент не найден, просто удаляем из Firebase
+                    messagesRef.child(messageId).remove();
+                }
+            }
+        }
+        
+        // Функция редактирования сообщения
+        function editMessage(messageId, currentText) {
+            // Отменяем предыдущее редактирование если есть
+            if (editingMessageId && editingMessageId !== messageId) {
+                cancelEdit();
+            }
+            
+            // Устанавливаем текущее редактируемое сообщение
+            editingMessageId = messageId;
+            
+            // Находим контейнер сообщения
+            const messageElement = document.querySelector(`[data-message-id="${messageId}"]`);
+            if (!messageElement) return;
+            
+            const textElement = messageElement.querySelector('.text');
+            const messageDiv = messageElement.querySelector('.message');
+            const timeElement = messageElement.querySelector('.time');
+            
+            if (textElement && messageDiv) {
+                // Сохраняем оригинальный текст и время
+                const originalText = textElement.innerHTML;
+                const originalTime = timeElement ? timeElement.innerHTML : '';
+                
+                // Добавляем метку редактирования
+                messageDiv.classList.add('editing');
+                
+                // Создаем поле ввода
+                const editInput = document.createElement('textarea');
+                editInput.className = 'edit-input';
+                editInput.value = currentText.replace(/<[^>]*>/g, ''); // Убираем HTML теги
+                editInput.rows = 1;
+                editInput.style.resize = 'none';
+                editInput.style.overflow = 'hidden';
+                
+                // Заменяем текст полем ввода
+                const parent = textElement.parentNode;
+                parent.replaceChild(editInput, textElement);
+                
+                // Автоматический подбор высоты
+                editInput.addEventListener('input', function() {
+                    this.style.height = 'auto';
+                    this.style.height = (this.scrollHeight) + 'px';
+                });
+                
+                // Инициализируем высоту
+                setTimeout(() => {
+                    editInput.style.height = 'auto';
+                    editInput.style.height = (editInput.scrollHeight) + 'px';
+                    editInput.focus();
+                    editInput.setSelectionRange(editInput.value.length, editInput.value.length);
+                }, 10);
+                
+                // Создаем кнопки сохранения/отмены
+                const editControls = document.createElement('div');
+                editControls.className = 'edit-controls';
+                editControls.innerHTML = `
+                    <button class="edit-btn save-btn">Сохранить</button>
+                    <button class="edit-btn cancel-btn">Отмена</button>
+                `;
+                
+                // Добавляем после поля ввода
+                if (timeElement) {
+                    parent.insertBefore(editControls, timeElement);
+                } else {
+                    parent.appendChild(editControls);
+                }
+                
+                // Обработчики для кнопок
+                const saveBtn = editControls.querySelector('.save-btn');
+                const cancelBtn = editControls.querySelector('.cancel-btn');
+                
+                saveBtn.addEventListener('click', () => {
+                    saveEditedMessage(messageId, editInput.value.trim());
+                });
+                
+                cancelBtn.addEventListener('click', () => {
+                    cancelEditMessage(messageElement, originalText, originalTime);
+                });
+                
+                // Сохранение по Enter, отмена по Escape
+                editInput.addEventListener('keydown', (e) => {
+                    if (e.key === 'Enter' && !e.shiftKey) {
+                        e.preventDefault();
+                        saveEditedMessage(messageId, editInput.value.trim());
+                    } else if (e.key === 'Escape') {
+                        cancelEditMessage(messageElement, originalText, originalTime);
+                    }
+                });
+            }
+        }
+        
+        // Функция сохранения отредактированного сообщения
+        function saveEditedMessage(messageId, newText) {
+            if (!newText || newText.trim() === '') {
+                alert('Сообщение не может быть пустым');
+                return;
+            }
+            
+            // Обновляем сообщение в Firebase
+            messagesRef.child(messageId).update({
+                text: newText,
+                edited: true,
+                editTimestamp: firebase.database.ServerValue.TIMESTAMP
             }).then(() => {
-                messageInput.value = '';
+                // Сразу обновляем локально
+                if (messagesMap.has(messageId)) {
+                    const messageData = messagesMap.get(messageId);
+                    messageData.text = newText;
+                    messageData.edited = true;
+                    messageData.editTimestamp = Date.now();
+                    
+                    // Обновляем DOM элемент
+                    const messageElement = document.querySelector(`[data-message-id="${messageId}"]`);
+                    if (messageElement) {
+                        const textElement = messageElement.querySelector('.text');
+                        const timeElement = messageElement.querySelector('.time');
+                        
+                        if (textElement) {
+                            textElement.innerHTML = linkify(newText).replace(
+                                /[\u{1F600}-\u{1F64F}\u{1F300}-\u{1F5FF}\u{1F680}-\u{1F6FF}\u{1F1E0}-\u{1F1FF}\u{2600}-\u{26FF}\u{2700}-\u{27BF}]/gu, 
+                                match => `<span class="emoji">${match}</span>`
+                            );
+                        }
+                        
+                        if (timeElement) {
+                            const timeText = new Date(messagesMap.get(messageId).timestamp).toLocaleTimeString('ru-RU', {hour: '2-digit', minute:'2-digit'});
+                            timeElement.innerHTML = `
+                                <span>${timeText}</span>
+                                <span class="edited-badge">(ред.)</span>
+                            `;
+                        }
+                        
+                        // Убираем режим редактирования
+                        const messageDiv = messageElement.querySelector('.message');
+                        const editInput = messageElement.querySelector('.edit-input');
+                        const editControls = messageElement.querySelector('.edit-controls');
+                        
+                        if (messageDiv) messageDiv.classList.remove('editing');
+                        if (editInput) editInput.remove();
+                        if (editControls) editControls.remove();
+                    }
+                }
+                
+                editingMessageId = null;
                 messageInput.focus();
-                closeEmojiPicker();
             });
         }
         
+        // Функция отмены редактирования конкретного сообщения
+        function cancelEditMessage(messageElement, originalText, originalTime) {
+            const editInput = messageElement.querySelector('.edit-input');
+            const editControls = messageElement.querySelector('.edit-controls');
+            const messageDiv = messageElement.querySelector('.message');
+            
+            if (editInput && editControls) {
+                // Восстанавливаем оригинальный текст
+                const textDiv = document.createElement('div');
+                textDiv.className = 'text';
+                textDiv.innerHTML = originalText;
+                
+                editInput.parentNode.replaceChild(textDiv, editInput);
+                editControls.remove();
+                
+                // Убираем класс редактирования
+                messageDiv.classList.remove('editing');
+                
+                // Восстанавливаем время если нужно
+                const timeElement = messageElement.querySelector('.time');
+                if (timeElement && originalTime) {
+                    timeElement.innerHTML = originalTime;
+                }
+            }
+            
+            editingMessageId = null;
+            messageInput.focus();
+        }
+        
+        // Функция отмены редактирования
+        function cancelEdit() {
+            if (editingMessageId) {
+                const messageElement = document.querySelector(`[data-message-id="${editingMessageId}"]`);
+                if (messageElement) {
+                    // Получаем оригинальные данные из карты
+                    const originalData = messagesMap.get(editingMessageId);
+                    if (originalData) {
+                        const textElement = messageElement.querySelector('.text');
+                        const timeElement = messageElement.querySelector('.time');
+                        
+                        if (textElement) {
+                            textElement.innerHTML = linkify(originalData.text).replace(
+                                /[\u{1F600}-\u{1F64F}\u{1F300}-\u{1F5FF}\u{1F680}-\u{1F6FF}\u{1F1E0}-\u{1F1FF}\u{2600}-\u{26FF}\u{2700}-\u{27BF}]/gu, 
+                                match => `<span class="emoji">${match}</span>`
+                            );
+                        }
+                        
+                        // Убираем режим редактирования
+                        const messageDiv = messageElement.querySelector('.message');
+                        const editInput = messageElement.querySelector('.edit-input');
+                        const editControls = messageElement.querySelector('.edit-controls');
+                        
+                        if (messageDiv) messageDiv.classList.remove('editing');
+                        if (editInput) editInput.remove();
+                        if (editControls) editControls.remove();
+                    }
+                }
+                
+                editingMessageId = null;
+            }
+        }
+        
         // Функция создания элемента сообщения
-        function createMessageElement(messageData) {
+        function createMessageElement(messageData, messageId) {
             const isMyMessage = messageData.senderId === userId;
             const container = document.createElement('div');
             container.className = `message-container ${isMyMessage ? 'my' : 'other'}`;
+            container.setAttribute('data-message-id', messageId);
             
             const avatarColor = getAvatarColor(messageData.sender);
             const firstLetter = getFirstLetter(messageData.sender);
@@ -1095,30 +1544,71 @@
             processedText = processedText.replace(/[\u{1F600}-\u{1F64F}\u{1F300}-\u{1F5FF}\u{1F680}-\u{1F6FF}\u{1F1E0}-\u{1F1FF}\u{2600}-\u{26FF}\u{2700}-\u{27BF}]/gu, 
                 match => `<span class="emoji">${match}</span>`);
             
+            // Время с отметкой редактирования
+            let timeText = new Date(messageData.timestamp).toLocaleTimeString('ru-RU', {hour: '2-digit', minute:'2-digit'});
+            let editedBadge = '';
+            if (messageData.edited) {
+                editedBadge = '<span class="edited-badge">(ред.)</span>';
+            }
+            
             messageDiv.innerHTML = `
                 <div class="sender">${messageData.sender}</div>
                 <div class="text">${processedText}</div>
-                <div class="time">${new Date(messageData.timestamp).toLocaleTimeString('ru-RU', {hour: '2-digit', minute:'2-digit'})}</div>
+                <div class="time">
+                    <span>${timeText}</span>
+                    ${editedBadge}
+                </div>
             `;
             
             // Добавляем элементы в правильном порядке
             if (isMyMessage) {
-                // Свои сообщения: сообщение слева, аватарка справа
                 container.appendChild(messageDiv);
                 container.appendChild(avatar);
             } else {
-                // Чужие сообщения: аватарка слева, сообщение справа
                 container.appendChild(avatar);
                 container.appendChild(messageDiv);
             }
             
+            // Обработчик клика для открытия меню
+            messageDiv.addEventListener('click', (e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                
+                // Закрываем другие меню
+                closeEmojiPicker();
+                closeMenu();
+                
+                // Показываем контекстное меню
+                const rect = messageDiv.getBoundingClientRect();
+                const x = e.clientX;
+                const y = e.clientY;
+                
+                showMessageMenu(messageId, messageData, x, y);
+            });
+            
             return container;
         }
         
-        // Загрузка сообщений
-        messagesRef.orderByChild('timestamp').limitToLast(50).on('value', (snapshot) => {
-            messagesContainer.innerHTML = '';
+        // Функция отправки сообщения
+        function sendMessage() {
+            const text = messageInput.value.trim();
+            if (!text || !userId) return;
             
+            messagesRef.push({
+                text: text,
+                sender: userName,
+                senderId: userId,
+                timestamp: firebase.database.ServerValue.TIMESTAMP,
+                edited: false
+            }).then(() => {
+                messageInput.value = '';
+                messageInput.focus();
+                closeEmojiPicker();
+            });
+        }
+        
+        // Загрузка и обновление сообщений
+        messagesRef.orderByChild('timestamp').limitToLast(50).on('value', (snapshot) => {
             if (!snapshot.exists()) {
                 messagesContainer.innerHTML = `
                     <div class="message-container other">
@@ -1128,21 +1618,87 @@
                         </div>
                     </div>
                 `;
+                messagesMap.clear();
                 return;
             }
             
             const messages = [];
             snapshot.forEach((child) => {
-                messages.push(child.val());
+                const messageData = {
+                    id: child.key,
+                    ...child.val()
+                };
+                messages.push(messageData);
+                
+                // Обновляем локальную карту сообщений
+                messagesMap.set(child.key, child.val());
             });
             
             messages.sort((a, b) => (a.timestamp || 0) - (b.timestamp || 0));
             
-            messages.forEach(msg => {
-                messagesContainer.appendChild(createMessageElement(msg));
-            });
+            // Если есть редактируемое сообщение, не обновляем его
+            if (editingMessageId) {
+                // Удаляем все сообщения кроме редактируемого
+                const messageElements = document.querySelectorAll('[data-message-id]');
+                messageElements.forEach(element => {
+                    const messageId = element.getAttribute('data-message-id');
+                    if (messageId !== editingMessageId && !messages.find(m => m.id === messageId)) {
+                        element.remove();
+                    }
+                });
+                
+                // Добавляем/обновляем остальные сообщения
+                messages.forEach(msg => {
+                    if (msg.id === editingMessageId) {
+                        return; // Пропускаем редактируемое сообщение
+                    }
+                    
+                    const existingElement = document.querySelector(`[data-message-id="${msg.id}"]`);
+                    if (!existingElement) {
+                        messagesContainer.appendChild(createMessageElement(msg, msg.id));
+                    } else {
+                        // Обновляем существующее сообщение
+                        const isMyMessage = msg.senderId === userId;
+                        const textElement = existingElement.querySelector('.text');
+                        const timeElement = existingElement.querySelector('.time');
+                        
+                        if (textElement) {
+                            let processedText = linkify(msg.text);
+                            processedText = processedText.replace(/[\u{1F600}-\u{1F64F}\u{1F300}-\u{1F5FF}\u{1F680}-\u{1F6FF}\u{1F1E0}-\u{1F1FF}\u{2600}-\u{26FF}\u{2700}-\u{27BF}]/gu, 
+                                match => `<span class="emoji">${match}</span>`);
+                            textElement.innerHTML = processedText;
+                        }
+                        
+                        if (timeElement) {
+                            let timeText = new Date(msg.timestamp).toLocaleTimeString('ru-RU', {hour: '2-digit', minute:'2-digit'});
+                            let editedBadge = '';
+                            if (msg.edited) {
+                                editedBadge = '<span class="edited-badge">(ред.)</span>';
+                            }
+                            timeElement.innerHTML = `
+                                <span>${timeText}</span>
+                                ${editedBadge}
+                            `;
+                        }
+                    }
+                });
+            } else {
+                // Полная перерисовка
+                messagesContainer.innerHTML = '';
+                messages.forEach(msg => {
+                    messagesContainer.appendChild(createMessageElement(msg, msg.id));
+                });
+            }
             
             // Прокручиваем вниз с небольшой задержкой
+            setTimeout(() => {
+                messagesContainer.scrollTop = messagesContainer.scrollHeight;
+            }, 100);
+        });
+        
+        // Обработчик для добавления новых сообщений
+        messagesRef.orderByChild('timestamp').limitToLast(1).on('child_added', (snapshot) => {
+            // Автоматическая прокрутка при новом сообщении
             setTimeout(() => {
                 messagesContainer.scrollTop = messagesContainer.scrollHeight;
             }, 100);
@@ -1192,7 +1748,29 @@
         // Обработчики событий
         sendBtn.addEventListener('click', sendMessage);
         messageInput.addEventListener('keypress', (e) => {
-            if (e.key === 'Enter') sendMessage();
+            if (e.key === 'Enter' && !e.shiftKey) {
+                e.preventDefault();
+                sendMessage();
+            }
+        });
+        
+        // Закрытие всех меню при клике вне их
+        document.addEventListener('click', (e) => {
+            if (isEmojiPickerOpen && !emojiPicker.contains(e.target) && e.target !== emojiToggle) {
+                closeEmojiPicker();
+            }
+            if (isMenuOpen && !sidebar.contains(e.target) && e.target !== menuToggle) {
+                closeMenu();
+            }
+        });
+        
+        // Обработка кликов по ссылкам для безопасности
+        document.addEventListener('click', function(e) {
+            if (e.target.tagName === 'A' && e.target.href) {
+                // Открываем ссылку в новой вкладке безопасно
+                e.preventDefault();
+                window.open(e.target.href, '_blank', 'noopener,noreferrer');
+            }
         });
         
         // Очистка при закрытии страницы
@@ -1207,15 +1785,6 @@
             checkSavedUser();
             if (!userName) {
                 usernameInput.focus();
-            }
-        });
-        
-        // Обработка кликов по ссылкам для безопасности
-        document.addEventListener('click', function(e) {
-            if (e.target.tagName === 'A' && e.target.href) {
-                // Открываем ссылку в новой вкладке безопасно
-                e.preventDefault();
-                window.open(e.target.href, '_blank', 'noopener,noreferrer');
             }
         });
     </script>
