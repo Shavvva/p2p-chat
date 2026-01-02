@@ -8,7 +8,7 @@
         * { margin: 0; padding: 0; box-sizing: border-box; }
         
         body {
-            font-family: Arial, sans-serif;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
             height: 100vh;
             background: #0a0a0a;
             color: #e0e0e0;
@@ -59,7 +59,7 @@
         .auth-button {
             width: 100%;
             padding: 12px;
-            background: #0066cc;
+            background: #3390ec;
             color: white;
             border: none;
             border-radius: 5px;
@@ -68,7 +68,7 @@
         }
         
         .auth-button:hover {
-            background: #0055aa;
+            background: #2a7bd8;
         }
         
         .auth-button:disabled {
@@ -172,7 +172,7 @@
             width: 30px;
             height: 30px;
             border-radius: 50%;
-            background: #0066cc;
+            background: #3390ec;
             display: flex;
             align-items: center;
             justify-content: center;
@@ -180,7 +180,33 @@
             color: white;
         }
         
-        /* Кнопка поиска в стиле Telegram */
+        /* Кнопка меню */
+        .menu-toggle {
+            background: none;
+            border: none;
+            cursor: pointer;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s;
+            position: relative;
+            color: #a0a0a0;
+            font-size: 20px;
+        }
+        
+        .menu-toggle:hover {
+            background: rgba(255, 255, 255, 0.05);
+            color: #ffffff;
+        }
+        
+        .menu-toggle:active {
+            transform: scale(0.95);
+        }
+        
+        /* Точная иконка поиска из Telegram */
         .search-toggle {
             background: none;
             border: none;
@@ -194,7 +220,6 @@
             transition: all 0.2s;
             position: relative;
             color: #a0a0a0;
-            font-size: 22px;
         }
         
         .search-toggle:hover {
@@ -209,6 +234,19 @@
         .search-toggle.active {
             color: #3390ec;
             background: rgba(51, 144, 236, 0.1);
+        }
+        
+        /* SVG иконка поиска как в Telegram */
+        .search-icon {
+            width: 20px;
+            height: 20px;
+            position: relative;
+        }
+        
+        .search-icon svg {
+            width: 100%;
+            height: 100%;
+            fill: currentColor;
         }
         
         /* Поле поиска в хедере */
@@ -270,7 +308,7 @@
             border: none;
             color: #a0a0a0;
             cursor: pointer;
-            font-size: 20px;
+            font-size: 18px;
             width: 36px;
             height: 36px;
             display: flex;
@@ -348,15 +386,6 @@
         .search-nav-btn:disabled {
             opacity: 0.3;
             cursor: not-allowed;
-        }
-        
-        .menu-toggle {
-            background: none;
-            border: none;
-            color: white;
-            font-size: 20px;
-            cursor: pointer;
-            display: none;
         }
         
         .container {
@@ -470,13 +499,13 @@
         }
         
         .message-container.my .message {
-            background: #0066cc;
+            background: #3390ec;
             color: white;
             border-bottom-right-radius: 5px;
         }
         
         .message-container.my .message:hover {
-            background: #0055aa;
+            background: #2a7bd8;
         }
         
         .message-container.other .message {
@@ -485,8 +514,8 @@
         }
         
         .message.editing {
-            background: rgba(0, 102, 204, 0.3) !important;
-            border: 1px solid #0066cc !important;
+            background: rgba(51, 144, 236, 0.3) !important;
+            border: 1px solid #3390ec !important;
         }
         
         .message .search-match {
@@ -556,7 +585,7 @@
         /* Блок ответа на сообщение */
         .reply-block {
             background: rgba(255, 255, 255, 0.1);
-            border-left: 3px solid #0066cc;
+            border-left: 3px solid #3390ec;
             padding: 8px 12px;
             margin-bottom: 8px;
             border-radius: 8px;
@@ -635,17 +664,20 @@
             border: none;
             color: #888;
             cursor: pointer;
-            font-size: 18px;
+            font-size: 20px;
             padding: 0;
-            width: 20px;
-            height: 20px;
+            width: 24px;
+            height: 24px;
             display: flex;
             align-items: center;
             justify-content: center;
             flex-shrink: 0;
+            border-radius: 50%;
+            transition: background 0.2s;
         }
         
         .cancel-reply:hover {
+            background: rgba(255, 255, 255, 0.1);
             color: #ff4444;
         }
         
@@ -704,6 +736,44 @@
         .edited-badge {
             font-size: 10px;
             opacity: 0.7;
+            color: #a0a0a0;
+        }
+        
+        /* Индикаторы отправки сообщений (галочки) */
+        .message-status {
+            display: flex;
+            align-items: center;
+            gap: 2px;
+            margin-left: 4px;
+        }
+        
+        .status-icon {
+            font-size: 13px;
+            line-height: 1;
+        }
+        
+        .status-check {
+            color: #a0a0a0;
+        }
+        
+        .status-check.delivered {
+            color: #3390ec;
+        }
+        
+        .status-check.read {
+            color: #3390ec;
+        }
+        
+        .double-check {
+            position: relative;
+        }
+        
+        .double-check::after {
+            content: '';
+            position: absolute;
+            left: 1px;
+            top: 0;
+            font-size: 13px;
         }
         
         /* Меню действий для сообщения */
@@ -714,7 +784,7 @@
             border-radius: 8px;
             box-shadow: 0 4px 15px rgba(0,0,0,0.3);
             z-index: 1000;
-            min-width: 140px;
+            min-width: 160px;
             overflow: hidden;
             display: none;
         }
@@ -724,17 +794,17 @@
         }
         
         .message-menu-item {
-            padding: 10px 15px;
+            padding: 12px 16px;
             background: none;
             border: none;
             color: #e0e0e0;
             cursor: pointer;
-            font-size: 13px;
+            font-size: 14px;
             text-align: left;
             width: 100%;
             display: flex;
             align-items: center;
-            gap: 8px;
+            gap: 10px;
             transition: background 0.2s;
         }
         
@@ -742,12 +812,8 @@
             background: #3a3a3a;
         }
         
-        .message-menu-item.react {
-            color: #ffcc00;
-        }
-        
         .message-menu-item.reply {
-            color: #66b3ff;
+            color: #3390ec;
         }
         
         .message-menu-item.edit {
@@ -760,6 +826,12 @@
         
         .message-menu-item.delete:hover {
             background: rgba(255, 107, 107, 0.1);
+        }
+        
+        .menu-icon {
+            font-size: 16px;
+            width: 20px;
+            text-align: center;
         }
         
         /* Режим редактирования */
@@ -793,12 +865,13 @@
         }
         
         .edit-btn {
-            padding: 4px 12px;
+            padding: 6px 12px;
             border: none;
             border-radius: 4px;
             font-size: 12px;
             cursor: pointer;
             transition: all 0.2s;
+            font-weight: 500;
         }
         
         .save-btn {
@@ -843,9 +916,10 @@
             background: #2a2a2a;
             color: white;
             font-size: 14px;
+            font-family: inherit;
         }
         
-        /* Иконка смайлика ☺ */
+        /* Иконка смайлика */
         .emoji-toggle {
             position: absolute;
             left: 12px;
@@ -861,17 +935,18 @@
             justify-content: center;
             padding: 0;
             z-index: 10;
-            font-size: 22px;
-            color: #888;
+            font-size: 20px;
+            color: #a0a0a0;
             transition: color 0.2s;
+            border-radius: 50%;
         }
         
         .emoji-toggle:hover {
-            color: #66b3ff;
+            color: #3390ec;
         }
         
         .emoji-toggle.active {
-            color: #66b3ff;
+            color: #3390ec;
         }
         
         .emoji-picker {
@@ -926,7 +1001,7 @@
         }
         
         .send-icon {
-            background: #0066cc;
+            background: #3390ec;
             color: white;
             border: none;
             width: 40px;
@@ -936,12 +1011,18 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 18px;
+            font-size: 20px;
             flex-shrink: 0;
+            transition: background 0.2s;
         }
         
         .send-icon:hover {
-            background: #0055aa;
+            background: #2a7bd8;
+        }
+        
+        .send-icon:disabled {
+            background: #555;
+            cursor: not-allowed;
         }
         
         h2 {
@@ -967,8 +1048,8 @@
         }
         
         .user-item.you {
-            background: rgba(0, 102, 204, 0.2);
-            border: 1px solid rgba(0, 102, 204, 0.3);
+            background: rgba(51, 144, 236, 0.2);
+            border: 1px solid rgba(51, 144, 236, 0.3);
         }
         
         .user-name { 
@@ -981,7 +1062,7 @@
             width: 32px;
             height: 32px;
             border-radius: 50%;
-            background: #0066cc;
+            background: #3390ec;
             display: flex;
             align-items: center;
             justify-content: center;
@@ -1065,7 +1146,7 @@
             .close-search {
                 width: 34px;
                 height: 34px;
-                font-size: 18px;
+                font-size: 16px;
             }
             
             .search-nav-btn {
@@ -1077,7 +1158,12 @@
             .search-toggle {
                 width: 36px;
                 height: 36px;
-                font-size: 20px;
+            }
+            
+            .menu-toggle {
+                width: 36px;
+                height: 36px;
+                font-size: 18px;
             }
             
             .emoji-picker {
@@ -1108,7 +1194,7 @@
             .send-icon {
                 width: 36px;
                 height: 36px;
-                font-size: 16px;
+                font-size: 18px;
             }
             
             .message {
@@ -1139,7 +1225,7 @@
             }
             
             .message-menu {
-                min-width: 120px;
+                min-width: 140px;
             }
             
             .reply-block {
@@ -1210,7 +1296,10 @@
     <header class="hidden" id="main-header">
         <div class="header-left">
             <button class="menu-toggle" id="menu-toggle">☰</button>
-            <h1>Мессенджер</h1>
+            <div class="user-info">
+                <div class="user-avatar" id="user-avatar">?</div>
+                <span id="current-username">Гость</span>
+            </div>
         </div>
         
         <div class="search-header-left">
@@ -1225,11 +1314,14 @@
         </div>
         
         <div class="header-right">
-            <button class="search-toggle" id="search-toggle" title="Поиск">🔍</button>
-            <div class="user-info">
-                <div class="user-avatar" id="user-avatar">?</div>
-                <span id="current-username">Гость</span>
-            </div>
+            <button class="search-toggle" id="search-toggle" title="Поиск">
+                <div class="search-icon">
+                    <!-- SVG иконка поиска как в Telegram -->
+                    <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/>
+                    </svg>
+                </div>
+            </button>
         </div>
         
         <div class="search-controls">
@@ -1299,15 +1391,15 @@
     <!-- Контекстное меню для сообщений -->
     <div class="message-menu" id="message-menu">
         <button class="message-menu-item reply" id="menu-reply">
-            <span>↩️</span>
+            <span class="menu-icon">↩️</span>
             <span>Ответить</span>
         </button>
         <button class="message-menu-item edit" id="menu-edit">
-            <span>✏️</span>
+            <span class="menu-icon">✏️</span>
             <span>Редактировать</span>
         </button>
         <button class="message-menu-item delete" id="menu-delete">
-            <span>🗑️</span>
+            <span class="menu-icon">🗑️</span>
             <span>Удалить</span>
         </button>
     </div>
@@ -1357,9 +1449,9 @@
         const searchResultsInfo = document.getElementById('search-results-info');
         const searchResultsText = document.getElementById('search-results-text');
         const menuToggle = document.getElementById('menu-toggle');
-        const menuReactBtn = document.getElementById('menu-react');
         
         const messagesRef = database.ref('messages');
+        const messageStatusRef = database.ref('messageStatus');
         const reactionsRef = database.ref('reactions');
         const onlineUsersRef = database.ref('onlineUsers');
         let currentUserRef = null;
@@ -1386,7 +1478,8 @@
         let isEmojiPickerOpen = false;
         let currentContextMessage = null;
         let messagesMap = new Map();
-        let reactionsMap = new Map(); // Сохраняем реакции сообщений
+        let reactionsMap = new Map();
+        let messageStatusMap = new Map();
         
         // Набор эмодзи для панели
         const emojis = [
@@ -1409,7 +1502,7 @@
         // Основные реакции для быстрого доступа
         const quickReactions = ['👍', '❤️', '🔥', '🎉', '😊', '🤔', '😢'];
         
-        // Хранилище онлайн пользователей для быстрой проверки
+        // Хранилище онлайн пользователей
         let onlineUsersMap = new Map();
         
         // Инициализация эмодзи панели
@@ -1480,20 +1573,17 @@
             }
         }
         
-        // Функция добавления/удаления реакции при однократном нажатии
+        // Функция добавления/удаления реакции
         function toggleReaction(messageId) {
             if (!userId || !userName) return;
             
-            // Получаем текущие реакции пользователя для этого сообщения
             const userReactions = Array.from(reactionsMap.get(messageId) || [])
                 .filter(reaction => reaction.userId === userId);
             
             if (userReactions.length > 0) {
-                // Если уже есть реакция, удаляем ее
                 const reactionId = `${messageId}_${userId}`;
                 reactionsRef.child(reactionId).remove();
             } else {
-                // Если нет реакции, добавляем случайную из быстрых реакций
                 const randomEmoji = quickReactions[Math.floor(Math.random() * quickReactions.length)];
                 addReaction(messageId, randomEmoji);
             }
@@ -1506,7 +1596,6 @@
             const reactionId = `${messageId}_${userId}`;
             const reactionRef = reactionsRef.child(reactionId);
             
-            // Добавляем реакцию
             reactionRef.set({
                 messageId: messageId,
                 emoji: emoji,
@@ -1534,10 +1623,7 @@
             
             reactionsContainer.innerHTML = '';
             
-            // Получаем реакции для этого сообщения
             const messageReactions = reactionsMap.get(messageId) || [];
-            
-            // Группируем реакции по эмодзи
             const groupedReactions = {};
             
             messageReactions.forEach(reaction => {
@@ -1551,12 +1637,10 @@
                 groupedReactions[reaction.emoji].users.push(reaction.userId);
             });
             
-            // Сортируем по количеству реакций
             const sortedEmojis = Object.keys(groupedReactions).sort((a, b) => {
                 return groupedReactions[b].count - groupedReactions[a].count;
             });
             
-            // Добавляем реакции
             sortedEmojis.forEach(emoji => {
                 const reactionData = groupedReactions[emoji];
                 const isMyReaction = reactionData.users.includes(userId);
@@ -1656,6 +1740,71 @@
                     resolve(isAvailable);
                 });
             });
+        }
+        
+        // Функция для обновления статуса сообщения
+        function updateMessageStatus(messageId, status) {
+            if (!messageId || !userId) return;
+            
+            if (!messageStatusMap.has(messageId)) {
+                messageStatusMap.set(messageId, {});
+            }
+            
+            messageStatusMap.get(messageId)[userId] = status;
+            
+            const messageData = messagesMap.get(messageId);
+            if (messageData && messageData.senderId === userId) {
+                messageStatusRef.child(messageId).child(userId).set({
+                    status: status,
+                    timestamp: firebase.database.ServerValue.TIMESTAMP
+                });
+            }
+        }
+        
+        // Функция для получения HTML статуса сообщения
+        function getMessageStatusHtml(status) {
+            switch(status) {
+                case 'delivered':
+                    return `<span class="status-icon status-check delivered">✓</span>`;
+                case 'read':
+                    return `<span class="status-icon status-check read double-check">✓✓</span>`;
+                default:
+                    return `<span class="status-icon status-check">✓</span>`;
+            }
+        }
+        
+        // Функция для обновления отображения статуса сообщения
+        function updateMessageStatusDisplay(messageId) {
+            const messageElement = document.querySelector(`[data-message-id="${messageId}"]`);
+            if (!messageElement) return;
+            
+            const timeElement = messageElement.querySelector('.time');
+            if (!timeElement) return;
+            
+            const messageData = messagesMap.get(messageId);
+            if (!messageData || messageData.senderId !== userId) return;
+            
+            const statuses = messageStatusMap.get(messageId) || {};
+            let highestStatus = 'sent';
+            
+            Object.values(statuses).forEach(status => {
+                if (status === 'read' && highestStatus !== 'read') {
+                    highestStatus = 'read';
+                } else if (status === 'delivered' && highestStatus === 'sent') {
+                    highestStatus = 'delivered';
+                }
+            });
+            
+            const editedBadge = messageData.edited ? '<span class="edited-badge">(ред.)</span>' : '';
+            const timeText = new Date(messageData.timestamp).toLocaleTimeString('ru-RU', {hour: '2-digit', minute:'2-digit'});
+            
+            timeElement.innerHTML = `
+                <span>${timeText}</span>
+                <div class="message-status">
+                    ${getMessageStatusHtml(highestStatus)}
+                    ${editedBadge}
+                </div>
+            `;
         }
         
         // Обновляем карту онлайн пользователей
@@ -1891,7 +2040,6 @@
             isSearchActive = true;
             searchInput.focus();
             
-            // Закрываем другие панели
             closeEmojiPicker();
             closeMessageMenu();
             closeMenu();
@@ -1908,7 +2056,6 @@
             currentSearchIndex = -1;
             searchQuery = '';
             
-            // Обновляем сообщения без подсветки
             loadMessages();
         }
         
@@ -1918,7 +2065,6 @@
                 msg.classList.remove('search-highlight', 'search-current');
             });
             
-            // Удаляем подсветку текста
             const searchMatches = document.querySelectorAll('.search-match');
             searchMatches.forEach(match => {
                 const parent = match.parentNode;
@@ -1929,7 +2075,6 @@
         function performSearch() {
             const query = searchInput.value.trim().toLowerCase();
             
-            // Разрешаем поиск по одному символу
             if (!query || query.length < 1) {
                 searchResultsInfo.classList.add('active');
                 searchResultsText.textContent = 'Введите хотя бы 1 символ для поиска';
@@ -1943,7 +2088,6 @@
             searchResults = [];
             currentSearchIndex = -1;
             
-            // Ищем сообщения в локальной карте
             messagesMap.forEach((messageData, messageId) => {
                 const text = stripHtml(messageData.text).toLowerCase();
                 const sender = messageData.sender.toLowerCase();
@@ -1958,7 +2102,6 @@
                 }
             });
             
-            // Сортируем по времени (новые сверху)
             searchResults.sort((a, b) => (b.data.timestamp || 0) - (a.data.timestamp || 0));
             
             if (searchResults.length === 0) {
@@ -1970,11 +2113,9 @@
                 return;
             }
             
-            // Показываем результаты
             showSearchResults();
             navigateToSearchResult(0);
             
-            // Показываем уведомление о количестве результатов
             searchResultsInfo.classList.add('active');
             searchResultsText.textContent = `Найдено ${searchResults.length} сообщений`;
             setTimeout(() => {
@@ -1987,13 +2128,11 @@
         function showSearchResults() {
             clearSearchHighlights();
             
-            // Подсвечиваем найденные сообщения
             searchResults.forEach(result => {
                 const messageElement = document.querySelector(`[data-message-id="${result.id}"]`);
                 if (messageElement) {
                     messageElement.classList.add('search-highlight');
                     
-                    // Подсвечиваем текст в сообщении
                     const textElement = messageElement.querySelector('.text');
                     if (textElement) {
                         const originalText = stripHtml(textElement.innerHTML);
@@ -2010,11 +2149,9 @@
         function navigateToSearchResult(index) {
             if (searchResults.length === 0) return;
             
-            // Ограничиваем индекс
             if (index < 0) index = 0;
             if (index >= searchResults.length) index = searchResults.length - 1;
             
-            // Снимаем выделение с предыдущего результата
             if (currentSearchIndex >= 0 && currentSearchIndex < searchResults.length) {
                 const prevElement = document.querySelector(`[data-message-id="${searchResults[currentSearchIndex].id}"]`);
                 if (prevElement) {
@@ -2025,24 +2162,20 @@
             
             currentSearchIndex = index;
             
-            // Выделяем текущий результат
             const currentResult = searchResults[currentSearchIndex];
             const currentElement = document.querySelector(`[data-message-id="${currentResult.id}"]`);
             if (currentElement) {
                 currentElement.classList.remove('search-highlight');
                 currentElement.classList.add('search-current');
                 
-                // Прокручиваем к сообщению
                 currentElement.scrollIntoView({ 
                     behavior: 'smooth', 
                     block: 'center' 
                 });
                 
-                // Обновляем информацию
                 searchResultsInfo.classList.add('active');
                 searchResultsText.textContent = `${currentSearchIndex + 1} из ${searchResults.length}`;
                 
-                // Обновляем состояние кнопок навигации
                 searchPrev.disabled = currentSearchIndex === 0;
                 searchNext.disabled = currentSearchIndex === searchResults.length - 1;
             }
@@ -2055,14 +2188,12 @@
         searchPrev.addEventListener('click', () => navigateToSearchResult(currentSearchIndex - 1));
         searchNext.addEventListener('click', () => navigateToSearchResult(currentSearchIndex + 1));
         
-        // Поиск по нажатию Enter
         searchInput.addEventListener('keypress', (e) => {
             if (e.key === 'Enter') {
                 performSearch();
             }
         });
         
-        // Закрытие поиска по Escape
         document.addEventListener('keydown', (e) => {
             if (e.key === 'Escape' && isSearchActive) {
                 closeSearchPanel();
@@ -2297,18 +2428,7 @@
                         messageDiv.classList.remove('editing');
                     }
                     
-                    const timeElement = messageElement.querySelector('.time');
-                    if (timeElement) {
-                        const timeText = new Date(messageData.timestamp).toLocaleTimeString('ru-RU', {hour: '2-digit', minute:'2-digit'});
-                        let editedBadge = '';
-                        if (messageData.edited) {
-                            editedBadge = '<span class="edited-badge">(ред.)</span>';
-                        }
-                        timeElement.innerHTML = `
-                            <span>${timeText}</span>
-                            ${editedBadge}
-                        `;
-                    }
+                    updateMessageStatusDisplay(messageId);
                 }
             }
             
@@ -2368,6 +2488,8 @@
                         if (messageDiv) messageDiv.classList.remove('editing');
                         if (editInput) editInput.remove();
                         if (editControls) editControls.remove();
+                        
+                        updateMessageStatusDisplay(editingMessageId);
                     }
                 }
                 
@@ -2392,7 +2514,6 @@
             const messageDiv = document.createElement('div');
             messageDiv.className = `message`;
             
-            // Добавляем блок ответа если есть
             let replyBlock = '';
             if (messageData.replyTo) {
                 const replyMessage = messagesMap.get(messageData.replyTo.messageId);
@@ -2410,26 +2531,34 @@
                 }
             }
             
-            // Преобразуем текст с ссылками
             let processedText = linkify(messageData.text);
             
-            // Подсвечиваем текст если идет поиск
             if (isSearchActive && searchQuery) {
                 processedText = highlightText(stripHtml(processedText), searchQuery);
             }
             
-            // Добавляем классы для эмодзи
             processedText = processedText.replace(/[\u{1F600}-\u{1F64F}\u{1F300}-\u{1F5FF}\u{1F680}-\u{1F6FF}\u{1F1E0}-\u{1F1FF}\u{2600}-\u{26FF}\u{2700}-\u{27BF}]/gu, 
                 match => `<span class="emoji">${match}</span>`);
             
-            // Время с отметкой редактирования
-            let timeText = new Date(messageData.timestamp).toLocaleTimeString('ru-RU', {hour: '2-digit', minute:'2-digit'});
-            let editedBadge = '';
-            if (messageData.edited) {
-                editedBadge = '<span class="edited-badge">(ред.)</span>';
+            const timeText = new Date(messageData.timestamp).toLocaleTimeString('ru-RU', {hour: '2-digit', minute:'2-digit'});
+            const editedBadge = messageData.edited ? '<span class="edited-badge">(ред.)</span>' : '';
+            
+            let statusHtml = '';
+            if (isMyMessage) {
+                const statuses = messageStatusMap.get(messageId) || {};
+                let highestStatus = 'sent';
+                
+                Object.values(statuses).forEach(status => {
+                    if (status === 'read' && highestStatus !== 'read') {
+                        highestStatus = 'read';
+                    } else if (status === 'delivered' && highestStatus === 'sent') {
+                        highestStatus = 'delivered';
+                    }
+                });
+                
+                statusHtml = getMessageStatusHtml(highestStatus);
             }
             
-            // Создаем контейнер для реакций
             const reactionsDiv = document.createElement('div');
             reactionsDiv.className = 'reactions';
             
@@ -2439,11 +2568,13 @@
                 <div class="text">${processedText}</div>
                 <div class="time">
                     <span>${timeText}</span>
-                    ${editedBadge}
+                    <div class="message-status">
+                        ${statusHtml}
+                        ${editedBadge}
+                    </div>
                 </div>
             `;
             
-            // Добавляем контейнер реакций после времени
             messageDiv.appendChild(reactionsDiv);
             
             if (isMyMessage) {
@@ -2454,10 +2585,8 @@
                 container.appendChild(messageDiv);
             }
             
-            // Обработчик одинарного нажатия для реакции
             let tapCount = 0;
             messageDiv.addEventListener('click', (e) => {
-                // Если клик по ссылке, пропускаем
                 if (e.target.tagName === 'A' || e.target.closest('a') || 
                     e.target.classList.contains('reaction') || 
                     e.target.closest('.reaction')) {
@@ -2470,13 +2599,10 @@
                 tapCount++;
                 
                 if (tapCount === 1) {
-                    // Первое нажатие - ждем возможного второго нажатия
                     tapTimeout = setTimeout(() => {
-                        // Если не было второго нажатия - это одинарный клик (реакция)
                         if (tapCount === 1) {
                             toggleReaction(messageId);
                             
-                            // Анимация нажатия
                             messageDiv.style.transform = 'scale(0.98)';
                             setTimeout(() => {
                                 messageDiv.style.transform = '';
@@ -2485,7 +2611,6 @@
                         tapCount = 0;
                     }, 300);
                 } else if (tapCount === 2) {
-                    // Второе нажатие - двойной клик (меню)
                     clearTimeout(tapTimeout);
                     
                     closeEmojiPicker();
@@ -2500,7 +2625,6 @@
                 }
             });
             
-            // На мобильных - долгое нажатие для меню
             messageDiv.addEventListener('touchstart', (e) => {
                 lastTappedMessage = messageId;
                 lastTapTime = Date.now();
@@ -2511,10 +2635,8 @@
                 const tapDuration = currentTime - lastTapTime;
                 
                 if (tapDuration < 500 && lastTappedMessage === messageId) {
-                    // Короткое касание - реакция
                     toggleReaction(messageId);
                     
-                    // Анимация нажатия
                     messageDiv.style.transform = 'scale(0.98)';
                     setTimeout(() => {
                         messageDiv.style.transform = '';
@@ -2536,7 +2658,6 @@
                 showMessageMenu(messageId, messageData, x, y);
             });
             
-            // Обработчик для кнопки закрытия ответа
             const closeReplyBtn = messageDiv.querySelector('.close-reply');
             if (closeReplyBtn) {
                 closeReplyBtn.addEventListener('click', (e) => {
@@ -2583,15 +2704,7 @@
                         }
                         
                         if (timeElement) {
-                            let timeText = new Date(editingMessage.timestamp).toLocaleTimeString('ru-RU', {hour: '2-digit', minute:'2-digit'});
-                            let editedBadge = '';
-                            if (editingMessage.edited) {
-                                editedBadge = '<span class="edited-badge">(ред.)</span>';
-                            }
-                            timeElement.innerHTML = `
-                                <span>${timeText}</span>
-                                ${editedBadge}
-                            `;
+                            updateMessageStatusDisplay(editingMessageId);
                         }
                     }
                 }
@@ -2611,9 +2724,9 @@
                 });
             }
             
-            // Обновляем реакции для всех сообщений
             messages.forEach(msg => {
                 updateMessageReactions(msg.id);
+                updateMessageStatusDisplay(msg.id);
             });
             
             setTimeout(() => {
@@ -2651,7 +2764,7 @@
             }, 100);
         });
         
-        // Обработчик для изменений в сообщениях (редактирование)
+        // Обработчик для изменений в сообщениях
         messagesRef.on('child_changed', (snapshot) => {
             const messageId = snapshot.key;
             const messageData = snapshot.val();
@@ -2672,15 +2785,7 @@
                     }
                     
                     if (timeElement) {
-                        let timeText = new Date(messageData.timestamp).toLocaleTimeString('ru-RU', {hour: '2-digit', minute:'2-digit'});
-                        let editedBadge = '';
-                        if (messageData.edited) {
-                            editedBadge = '<span class="edited-badge">(ред.)</span>';
-                        }
-                        timeElement.innerHTML = `
-                            <span>${timeText}</span>
-                            ${editedBadge}
-                        `;
+                        updateMessageStatusDisplay(messageId);
                     }
                 }
             }
@@ -2691,6 +2796,7 @@
             const messageId = snapshot.key;
             
             messagesMap.delete(messageId);
+            messageStatusMap.delete(messageId);
             
             const messageElement = document.querySelector(`[data-message-id="${messageId}"]`);
             if (messageElement) {
@@ -2700,6 +2806,32 @@
                         messageElement.remove();
                     }
                 }, 300);
+            }
+        });
+        
+        // Загрузка и обновление статусов сообщений
+        messageStatusRef.on('value', (snapshot) => {
+            messageStatusMap.clear();
+            
+            if (snapshot.exists()) {
+                snapshot.forEach((child) => {
+                    const messageId = child.key;
+                    
+                    child.forEach((userStatus) => {
+                        const userId = userStatus.key;
+                        const statusData = userStatus.val();
+                        
+                        if (!messageStatusMap.has(messageId)) {
+                            messageStatusMap.set(messageId, {});
+                        }
+                        
+                        messageStatusMap.get(messageId)[userId] = statusData.status;
+                    });
+                });
+                
+                messageStatusMap.forEach((statuses, messageId) => {
+                    updateMessageStatusDisplay(messageId);
+                });
             }
         });
         
@@ -2719,19 +2851,16 @@
                     reactionsMap.get(messageId).push(reaction);
                 });
                 
-                // Обновляем отображение реакций для всех сообщений
                 reactionsMap.forEach((reactions, messageId) => {
                     updateMessageReactions(messageId);
                 });
                 
-                // Обновляем сообщения без реакций
                 messagesMap.forEach((messageData, messageId) => {
                     if (!reactionsMap.has(messageId)) {
                         updateMessageReactions(messageId);
                     }
                 });
             } else {
-                // Если нет реакций, очищаем все
                 messagesMap.forEach((messageData, messageId) => {
                     updateMessageReactions(messageId);
                 });
@@ -2788,6 +2917,7 @@
             const text = messageInput.value.trim();
             if (!text || !userId) return;
             
+            const messageId = messagesRef.push().key;
             const messageData = {
                 text: text,
                 sender: userName,
@@ -2804,11 +2934,23 @@
                 };
             }
             
-            messagesRef.push(messageData).then(() => {
+            messagesRef.child(messageId).set(messageData).then(() => {
                 messageInput.value = '';
                 cancelReply();
                 messageInput.focus();
                 closeEmojiPicker();
+                
+                updateMessageStatus(messageId, 'sent');
+                
+                setTimeout(() => {
+                    updateMessageStatus(messageId, 'delivered');
+                    
+                    setTimeout(() => {
+                        if (onlineUsersMap.has(userId)) {
+                            updateMessageStatus(messageId, 'read');
+                        }
+                    }, 2000);
+                }, 1000);
             });
         }
         
