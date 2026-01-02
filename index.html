@@ -155,7 +155,8 @@
         .search-controls {
             display: none;
             align-items: center;
-            gap: 10px;
+            gap: 12px;
+            margin-left: 8px;
         }
         
         .search-active .search-controls {
@@ -307,6 +308,7 @@
             display: flex;
             align-items: center;
             gap: 10px;
+            margin-right: 12px;
         }
         
         .search-input {
@@ -341,6 +343,7 @@
             border-radius: 50%;
             transition: all 0.2s;
             flex-shrink: 0;
+            margin-right: 5px;
         }
         
         .close-search:hover {
@@ -848,20 +851,11 @@
             background: #3a3a3a;
         }
         
-        .message-menu-item.reply {
-            color: #3390ec;
-        }
-        
-        .message-menu-item.edit {
-            color: #00cc66;
-        }
-        
+        /* Все пункты меню теперь белым цветом */
+        .message-menu-item.reply,
+        .message-menu-item.edit,
         .message-menu-item.delete {
-            color: #ff6b6b;
-        }
-        
-        .message-menu-item.delete:hover {
-            background: rgba(255, 107, 107, 0.1);
+            color: #e0e0e0;
         }
         
         .menu-item-icon {
@@ -1145,6 +1139,19 @@
             .tg-icon {
                 width: 18px;
                 height: 18px;
+            }
+            
+            .search-input-wrapper {
+                margin-right: 8px;
+            }
+            
+            .search-controls {
+                gap: 6px;
+                margin-left: 6px;
+            }
+            
+            .close-search {
+                margin-right: 3px;
             }
             
             .container {
@@ -1486,7 +1493,7 @@
 
     <!-- Контекстное меню для сообщений -->
     <div class="message-menu" id="message-menu">
-        <button class="message-menu-item reply" id="menu-reply">
+        <button class="message-menu-item" id="menu-reply">
             <span class="menu-item-icon">
                 <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                     <path d="M10 9V5l-7 7 7 7v-4.1c5 0 8.5 1.6 11 5.1-1-5-4-10-11-11z"/>
@@ -1494,7 +1501,7 @@
             </span>
             <span>Ответить</span>
         </button>
-        <button class="message-menu-item edit" id="menu-edit">
+        <button class="message-menu-item" id="menu-edit">
             <span class="menu-item-icon">
                 <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                     <path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04c.39-.39.39-1.02 0-1.41l-2.34-2.34c-.39-.39-1.02-.39-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z"/>
@@ -1502,7 +1509,7 @@
             </span>
             <span>Редактировать</span>
         </button>
-        <button class="message-menu-item delete" id="menu-delete">
+        <button class="message-menu-item" id="menu-delete">
             <span class="menu-item-icon">
                 <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                     <path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"/>
