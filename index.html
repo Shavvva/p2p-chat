@@ -415,6 +415,51 @@
             cursor: not-allowed;
         }
         
+        /* Разделители дат */
+        .date-divider {
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 20px 0;
+            opacity: 0.8;
+        }
+
+        .date-divider::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            right: 0;
+            top: 50%;
+            height: 1px;
+            background: linear-gradient(90deg, transparent 0%, #333 15%, #333 85%, transparent 100%);
+        }
+
+        .date-label {
+            position: relative;
+            background: #2a2a2a;
+            padding: 6px 16px;
+            border-radius: 20px;
+            font-size: 13px;
+            color: #a0a0a0;
+            border: 1px solid #333;
+            z-index: 1;
+            font-weight: 500;
+            backdrop-filter: blur(10px);
+        }
+
+        .date-divider.today .date-label {
+            background: rgba(51, 144, 236, 0.2);
+            color: #66b3ff;
+            border-color: rgba(51, 144, 236, 0.3);
+        }
+
+        .date-divider.yesterday .date-label {
+            background: rgba(255, 107, 107, 0.1);
+            color: #ff8c8c;
+            border-color: rgba(255, 107, 107, 0.2);
+        }
+        
         .container {
             display: flex;
             flex: 1;
@@ -1130,6 +1175,7 @@
             z-index: 150;
         }
         
+        /* Адаптация для мобильных */
         @media (max-width: 768px) {
             .tg-btn {
                 width: 36px;
@@ -1184,6 +1230,16 @@
                 padding-bottom: 20px;
                 gap: 12px;
                 -webkit-overflow-scrolling: touch;
+            }
+            
+            /* Разделители дат на мобильных */
+            .date-divider {
+                margin: 15px 0;
+            }
+            
+            .date-label {
+                padding: 5px 14px;
+                font-size: 12px;
             }
             
             .input-area {
@@ -1429,6 +1485,10 @@
         
         <main class="chat-area">
             <div class="messages" id="messages-container">
+                <!-- Сообщения с разделителями дат будут добавлены через JavaScript -->
+                <div class="date-divider today">
+                    <div class="date-label">Сегодня</div>
+                </div>
                 <div class="message-container other">
                     <div class="message-avatar other avatar-color-0">С</div>
                     <div class="message other">
@@ -1557,7 +1617,6 @@
         const currentUsername = document.getElementById('current-username');
         const searchToggle = document.getElementById('search-toggle');
         const searchInput = document.getElementById('search-input');
-
         const closeSearch = document.getElementById('close-search');
         const searchPrev = document.getElementById('search-prev');
         const searchNext = document.getElementById('search-next');
@@ -1596,6 +1655,10 @@
         let reactionsMap = new Map();
         let messageStatusMap = new Map();
         
+        // Мапы для хранения сообщений по датам и разделителей
+        let messagesByDate = new Map();
+        let dateDividers = new Map();
+        
         // Набор эмодзи для панели
         const emojis = [
             { emoji: '😊', name: 'Улыбка' },
@@ -1619,6 +1682,85 @@
         
         // Хранилище онлайн пользователей
         let onlineUsersMap = new Map();
+        
+        // Функция для форматирования даты как в Telegram
+        function formatDateDivider(timestamp) {
+            const date = new Date(timestamp);
+            const today = new Date();
+            const yesterday = new Date(today);
+            yesterday.setDate(yesterday.getDate() - 1);
+            
+            const isToday = date.getDate() === today.getDate() && 
+                           date.getMonth() === today.getMonth() && 
+                           date.getFullYear() === today.getFullYear();
+            const isYesterday = date.getDate() === yesterday.getDate() && 
+                               date.getMonth() === yesterday.getMonth() && 
+                               date.getFullYear() === yesterday.getFullYear();
+            
+            if (isToday) {
+                return { dateKey: date.toDateString(), label: "Сегодня", className: "today" };
+            } else if (isYesterday) {
+                return { dateKey: date.toDateString(), label: "Вчера", className: "yesterday" };
+            } else {
+                const months = [
+                    'января', 'февраля', 'марта', 'апреля', 'мая', 'июня',
+                    'июля', 'августа', 'сентября', 'октября', 'ноября', 'декабря'
+                ];
+                const day = date.getDate();
+                const month = months[date.getMonth()];
+                const year = date.getFullYear();
+                
+                const currentYear = new Date().getFullYear();
+                if (year === currentYear) {
+                    return { dateKey: date.toDateString(), label: `${day} ${month}`, className: "older" };
+                } else {
+                    return { dateKey: date.toDateString(), label: `${day} ${month} ${year}`, className: "older" };
+                }
+            }
+        }
+        
+        // Функция для создания разделителя даты
+        function createDateDivider(dateInfo) {
+            const divider = document.createElement('div');
+            divider.className = `date-divider ${dateInfo.className}`;
+            divider.innerHTML = `<div class="date-label">${dateInfo.label}</div>`;
+            divider.setAttribute('data-date-key', dateInfo.dateKey);
+            return divider;
+        }
+        
+        // Функция для проверки и удаления пустых разделителей дат
+        function checkAndRemoveEmptyDateDivider(removedMessageId) {
+            if (!messagesMap.size) return;
+            
+            // Получаем дату удаленного сообщения
+            const allMessages = Array.from(messagesMap.entries()).map(([id, data]) => ({
+                id: id,
+                ...data
+            }));
+            
+            const dateGroups = new Map();
+            allMessages.forEach(msg => {
+                if (!msg.timestamp) return;
+                const dateInfo = formatDateDivider(msg.timestamp);
+                if (!dateGroups.has(dateInfo.dateKey)) {
+                    dateGroups.set(dateInfo.dateKey, []);
+                }
+                dateGroups.get(dateInfo.dateKey).push(msg);
+            });
+            
+            // Удаляем разделители для дат, в которых больше нет сообщений
+            dateDividers.forEach((divider, dateKey) => {
+                if (!dateGroups.has(dateKey)) {
+                    if (divider.parentNode === messagesContainer) {
+                        divider.classList.add('deleting');
+                        setTimeout(() => {
+                            divider.remove();
+                        }, 300);
+                    }
+                    dateDividers.delete(dateKey);
+                }
+            });
+        }
         
         // Инициализация эмодзи панели
         function initEmojiPicker() {
@@ -2299,7 +2441,6 @@
         // Обработчики для поиска
         searchToggle.addEventListener('click', openSearchPanel);
         closeSearch.addEventListener('click', closeSearchPanel);
-
         searchPrev.addEventListener('click', () => navigateToSearchResult(currentSearchIndex - 1));
         searchNext.addEventListener('click', () => navigateToSearchResult(currentSearchIndex + 1));
         
@@ -2412,6 +2553,7 @@
                         setTimeout(() => {
                             if (messageElement.parentNode) {
                                 messageElement.remove();
+                                checkAndRemoveEmptyDateDivider(messageId);
                             }
                         }, 300);
                     });
@@ -2792,7 +2934,7 @@
             return container;
         }
         
-        // Функция загрузки сообщений
+        // Функция загрузки сообщений с разделителями дат
         function loadMessages() {
             if (!messagesMap.size) return;
             
@@ -2803,7 +2945,24 @@
             
             messages.sort((a, b) => (a.timestamp || 0) - (b.timestamp || 0));
             
+            // Группируем сообщения по датам
+            messagesByDate.clear();
+            messages.forEach(msg => {
+                if (!msg.timestamp) return;
+                
+                const dateInfo = formatDateDivider(msg.timestamp);
+                if (!messagesByDate.has(dateInfo.dateKey)) {
+                    messagesByDate.set(dateInfo.dateKey, {
+                        info: dateInfo,
+                        messages: []
+                    });
+                }
+                messagesByDate.get(dateInfo.dateKey).messages.push(msg);
+            });
+            
+            // Создаем контейнер для сообщений
             if (editingMessageId) {
+                // Если есть редактируемое сообщение, сохраняем его
                 const editingMessage = messages.find(m => m.id === editingMessageId);
                 if (editingMessage) {
                     const messageElement = document.querySelector(`[data-message-id="${editingMessageId}"]`);
@@ -2824,26 +2983,54 @@
                     }
                 }
                 
-                messages.forEach(msg => {
-                    if (msg.id === editingMessageId) return;
+                // Очищаем контейнер и перерисовываем все
+                messagesContainer.innerHTML = '';
+                
+                messagesByDate.forEach((dateData, dateKey) => {
+                    // Добавляем разделитель даты
+                    const divider = createDateDivider(dateData.info);
+                    messagesContainer.appendChild(divider);
+                    dateDividers.set(dateKey, divider);
                     
-                    const existingElement = document.querySelector(`[data-message-id="${msg.id}"]`);
-                    if (!existingElement) {
-                        messagesContainer.appendChild(createMessageElement(msg, msg.id));
-                    }
+                    // Добавляем сообщения для этой даты
+                    dateData.messages.forEach(msg => {
+                        if (msg.id === editingMessageId) {
+                            const existingElement = document.querySelector(`[data-message-id="${editingMessageId}"]`);
+                            if (existingElement) {
+                                messagesContainer.appendChild(existingElement);
+                            } else {
+                                messagesContainer.appendChild(createMessageElement(msg, msg.id));
+                            }
+                        } else {
+                            messagesContainer.appendChild(createMessageElement(msg, msg.id));
+                        }
+                    });
                 });
             } else {
+                // Полная перерисовка
                 messagesContainer.innerHTML = '';
-                messages.forEach(msg => {
-                    messagesContainer.appendChild(createMessageElement(msg, msg.id));
+                dateDividers.clear();
+                
+                messagesByDate.forEach((dateData, dateKey) => {
+                    // Добавляем разделитель даты
+                    const divider = createDateDivider(dateData.info);
+                    messagesContainer.appendChild(divider);
+                    dateDividers.set(dateKey, divider);
+                    
+                    // Добавляем сообщения для этой даты
+                    dateData.messages.forEach(msg => {
+                        messagesContainer.appendChild(createMessageElement(msg, msg.id));
+                    });
                 });
             }
             
+            // Обновляем реакции и статусы
             messages.forEach(msg => {
                 updateMessageReactions(msg.id);
                 updateMessageStatusDisplay(msg.id);
             });
             
+            // Прокручиваем вниз
             setTimeout(() => {
                 messagesContainer.scrollTop = messagesContainer.scrollHeight;
             }, 100);
@@ -2853,6 +3040,9 @@
         messagesRef.orderByChild('timestamp').limitToLast(100).on('value', (snapshot) => {
             if (!snapshot.exists()) {
                 messagesContainer.innerHTML = `
+                    <div class="date-divider today">
+                        <div class="date-label">Сегодня</div>
+                    </div>
                     <div class="message-container other">
                         <div class="message-avatar other avatar-color-0">С</div>
                         <div class="message other">
@@ -2861,10 +3051,13 @@
                     </div>
                 `;
                 messagesMap.clear();
+                messagesByDate.clear();
+                dateDividers.clear();
                 return;
             }
             
             messagesMap.clear();
+            messagesByDate.clear();
             snapshot.forEach((child) => {
                 messagesMap.set(child.key, child.val());
             });
@@ -2874,11 +3067,45 @@
         
         // Обработчик для добавления новых сообщений
         messagesRef.orderByChild('timestamp').limitToLast(1).on('child_added', (snapshot) => {
+            const newMessage = snapshot.val();
+            const newMessageId = snapshot.key;
+            
+            if (!newMessage || !newMessage.timestamp) return;
+            
+            const dateInfo = formatDateDivider(newMessage.timestamp);
+            const dateKey = dateInfo.dateKey;
+            
+            // Если для этой даты еще нет разделителя
+            if (!dateDividers.has(dateKey)) {
+                // Находим куда вставить разделитель (перед сообщением)
+                const allMessages = Array.from(messagesMap.entries())
+                    .map(([id, data]) => ({ id, ...data }))
+                    .sort((a, b) => (a.timestamp || 0) - (b.timestamp || 0));
+                
+                // Определяем индекс для вставки
+                const insertIndex = allMessages.findIndex(msg => {
+                    const msgDate = formatDateDivider(msg.timestamp);
+                    return msgDate.dateKey === dateKey;
+                });
+                
+                if (insertIndex !== -1) {
+                    // Вставляем разделитель
+                    setTimeout(() => {
+                        const firstMessageOfDate = document.querySelector(`[data-message-id="${allMessages[insertIndex].id}"]`);
+                        if (firstMessageOfDate && firstMessageOfDate.parentNode === messagesContainer) {
+                            const divider = createDateDivider(dateInfo);
+                            messagesContainer.insertBefore(divider, firstMessageOfDate);
+                            dateDividers.set(dateKey, divider);
+                        }
+                    }, 50);
+                }
+            }
+            
             setTimeout(() => {
                 messagesContainer.scrollTop = messagesContainer.scrollHeight;
             }, 100);
         });
-        
+
         // Обработчик для изменений в сообщениях
         messagesRef.on('child_changed', (snapshot) => {
             const messageId = snapshot.key;
@@ -2919,6 +3146,7 @@
                 setTimeout(() => {
                     if (messageElement.parentNode) {
                         messageElement.remove();
+                        checkAndRemoveEmptyDateDivider(messageId);
                     }
                 }, 300);
             }
