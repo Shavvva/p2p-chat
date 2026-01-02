@@ -279,30 +279,7 @@
             border-color: #3390ec;
             box-shadow: 0 0 0 2px rgba(51, 144, 236, 0.2);
         }
-        
-        .search-btn {
-            background: #3390ec;
-            color: white;
-            border: none;
-            padding: 8px 16px;
-            border-radius: 20px;
-            cursor: pointer;
-            font-size: 14px;
-            transition: background 0.2s;
-            font-weight: 500;
-            height: 36px;
-            white-space: nowrap;
-        }
-        
-        .search-btn:hover {
-            background: #2a7bd8;
-        }
-        
-        .search-btn:disabled {
-            background: #555;
-            cursor: not-allowed;
-        }
-        
+               
         .close-search {
             background: rgba(255, 255, 255, 0.08);
             border: none;
@@ -1325,7 +1302,6 @@
         </div>
         
         <div class="search-controls">
-            <button class="search-btn" id="search-btn">Найти</button>
             <div class="search-nav">
                 <button class="search-nav-btn" id="search-prev" title="Предыдущий результат">◀</button>
                 <button class="search-nav-btn" id="search-next" title="Следующий результат">▶</button>
@@ -1442,7 +1418,7 @@
         const currentUsername = document.getElementById('current-username');
         const searchToggle = document.getElementById('search-toggle');
         const searchInput = document.getElementById('search-input');
-        const searchBtn = document.getElementById('search-btn');
+
         const closeSearch = document.getElementById('close-search');
         const searchPrev = document.getElementById('search-prev');
         const searchNext = document.getElementById('search-next');
@@ -2184,7 +2160,7 @@
         // Обработчики для поиска
         searchToggle.addEventListener('click', openSearchPanel);
         closeSearch.addEventListener('click', closeSearchPanel);
-        searchBtn.addEventListener('click', performSearch);
+
         searchPrev.addEventListener('click', () => navigateToSearchResult(currentSearchIndex - 1));
         searchNext.addEventListener('click', () => navigateToSearchResult(currentSearchIndex + 1));
         
