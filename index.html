@@ -230,12 +230,12 @@
         
         /* Меню иконка (три точки) */
        .tg-icon svg {
-    		width: 100%;
-    		height: 100%;
-    		fill: currentColor;
-    		stroke: currentColor;
-    		stroke-width: 0;
-	}        
+            width: 100%;
+            height: 100%;
+            fill: currentColor;
+            stroke: currentColor;
+            stroke-width: 0;
+        }        
         /* Иконка стрелки назад */
         .back-icon {
             width: 20px;
@@ -1165,6 +1165,107 @@
             flex-shrink: 0;
         }
         
+        /* ПАНЕЛЬ ВЫБОРА РЕАКЦИЙ */
+        .reactions-panel {
+            position: fixed;
+            background: #2a2a2a;
+            border: 1px solid #333;
+            border-radius: 20px;
+            box-shadow: 0 8px 25px rgba(0,0,0,0.5);
+            z-index: 2000;
+            display: none;
+            flex-wrap: wrap;
+            gap: 5px;
+            padding: 10px;
+            max-width: 280px;
+            animation: reactionsPanelAppear 0.2s ease-out;
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+        }
+        
+        @keyframes reactionsPanelAppear {
+            from {
+                opacity: 0;
+                transform: scale(0.9) translateY(10px);
+            }
+            to {
+                opacity: 1;
+                transform: scale(1) translateY(0);
+            }
+        }
+        
+        .reactions-panel.active {
+            display: flex;
+        }
+        
+        .reaction-option {
+            width: 38px;
+            height: 38px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 22px;
+            cursor: pointer;
+            border-radius: 50%;
+            transition: all 0.2s;
+            background: transparent;
+            border: none;
+            position: relative;
+        }
+        
+        .reaction-option:hover {
+            background: rgba(255, 255, 255, 0.1);
+            transform: scale(1.15);
+        }
+        
+        .reaction-option:active {
+            transform: scale(0.95);
+        }
+        
+        .reaction-option.my-reaction-option {
+            background: rgba(51, 144, 236, 0.2);
+            border: 1px solid rgba(51, 144, 236, 0.4);
+        }
+        
+        .reaction-option .reaction-tooltip {
+            position: absolute;
+            bottom: 100%;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(0, 0, 0, 0.8);
+            color: white;
+            padding: 4px 8px;
+            border-radius: 6px;
+            font-size: 11px;
+            white-space: nowrap;
+            margin-bottom: 5px;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.2s;
+            pointer-events: none;
+        }
+        
+        .reaction-option:hover .reaction-tooltip {
+            opacity: 1;
+            visibility: visible;
+        }
+        
+        /* Подложка для закрытия панели реакций */
+        .reactions-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: transparent;
+            z-index: 1999;
+            display: none;
+        }
+        
+        .reactions-overlay.active {
+            display: block;
+        }
+        
         .mobile-overlay {
             display: none;
             position: fixed;
@@ -1332,6 +1433,21 @@
                 font-size: 12px;
             }
             
+            /* Панель реакций на мобильных */
+            .reactions-panel {
+                max-width: 90%;
+                bottom: 20px;
+                left: 50%;
+                transform: translateX(-50%);
+                justify-content: center;
+            }
+            
+            .reaction-option {
+                width: 42px;
+                height: 42px;
+                font-size: 24px;
+            }
+            
             /* Улучшенные ссылки на мобильных */
             .text a {
                 word-break: break-word;
@@ -1481,6 +1597,9 @@
     <div class="menu-overlay" id="menu-overlay"></div>
     <div class="mobile-overlay" id="mobile-overlay"></div>
     
+    <!-- Подложка для закрытия панели реакций -->
+    <div class="reactions-overlay" id="reactions-overlay"></div>
+    
     <div class="container hidden" id="main-container">
         <aside class="sidebar" id="sidebar">
             <h2>Участники (<span id="online-count">0</span>)</h2>
@@ -1497,7 +1616,7 @@
                     <div class="message-avatar other avatar-color-0">С</div>
                     <div class="message other">
                         <div class="sender">Система</div>
-                        <div class="text">Добро пожаловать в чат! Нажмите на иконку ☺ чтобы открыть панель эмодзи. Нажмите на сообщение, чтобы открыть меню. Используйте поиск 🔍 для быстрого нахождения сообщений. Чтобы поставить реакцию на сообщение, просто нажмите на него один раз! 👍</div>
+                        <div class="text">Добро пожаловать в чат! Нажмите на иконку ☺ чтобы открыть панель эмодзи. Нажмите на сообщение, чтобы открыть меню или выбрать реакцию. Нажмите на сообщение один раз, чтобы поставить случайную реакцию, или дважды, чтобы выбрать реакцию из меню. Используйте поиск 🔍 для быстрого нахождения сообщений.</div>
                         <div class="time">12:00</div>
                     </div>
                 </div>
@@ -1559,6 +1678,14 @@
             </span>
             <span>Ответить</span>
         </button>
+        <button class="message-menu-item" id="menu-react">
+            <span class="menu-item-icon">
+                <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M12 2C6.47 2 2 6.47 2 12s4.47 10 10 10 10-4.47 10-10S17.53 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8zm-2-4c0-1.1.9-2 2-2s2 .9 2 2-.9 2-2 2-2-.9-2-2zm8-6c0-1.1-.9-2-2-2s-2 .9-2 2 .9 2 2 2 2-.9 2-2z"/>
+                </svg>
+            </span>
+            <span>Добавить реакцию</span>
+        </button>
         <button class="message-menu-item" id="menu-edit">
             <span class="menu-item-icon">
                 <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
@@ -1575,6 +1702,11 @@
             </span>
             <span>Удалить</span>
         </button>
+    </div>
+    
+    <!-- Панель выбора реакций -->
+    <div class="reactions-panel" id="reactions-panel">
+        <!-- Реакции будут добавлены через JavaScript -->
     </div>
 
     <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-app-compat.js"></script>
@@ -1602,7 +1734,8 @@
         let lastTapTime = 0;
         let tapTimeout = null;
         let lastTappedMessage = null;
-        let isSidebarVisible = true; // Состояние видимости сайдбара на ПК
+        let isSidebarVisible = true;
+        let currentReactionPanelMessageId = null;
         
         // Элементы DOM
         const authModal = document.getElementById('auth-modal');
@@ -1622,6 +1755,8 @@
         const searchResultsInfo = document.getElementById('search-results-info');
         const searchResultsText = document.getElementById('search-results-text');
         const menuToggle = document.getElementById('menu-toggle');
+        const reactionsPanel = document.getElementById('reactions-panel');
+        const reactionsOverlay = document.getElementById('reactions-overlay');
         
         const messagesRef = database.ref('messages');
         const messageStatusRef = database.ref('messageStatus');
@@ -1641,6 +1776,7 @@
         const emojiPicker = document.getElementById('emoji-picker');
         const messageMenu = document.getElementById('message-menu');
         const menuReplyBtn = document.getElementById('menu-reply');
+        const menuReactBtn = document.getElementById('menu-react');
         const menuEditBtn = document.getElementById('menu-edit');
         const menuDeleteBtn = document.getElementById('menu-delete');
         const replyIndicator = document.getElementById('reply-indicator');
@@ -1649,6 +1785,7 @@
         
         let isMenuOpen = false;
         let isEmojiPickerOpen = false;
+        let isReactionsPanelOpen = false;
         let currentContextMessage = null;
         let messagesMap = new Map();
         let reactionsMap = new Map();
@@ -1676,8 +1813,27 @@
             { emoji: '✨', name: 'Блестки' }
         ];
         
-        // Основные реакции для быстрого доступа
-        const quickReactions = ['👍', '❤️', '🔥', '🎉', '😊', '🤔', '😢'];
+        // Реакции для быстрого доступа (как в Telegram)
+        const quickReactions = [
+            { emoji: '👍', name: 'Палец вверх' },
+            { emoji: '👎', name: 'Палец вниз' },
+            { emoji: '❤️', name: 'Сердце' },
+            { emoji: '🔥', name: 'Огонь' },
+            { emoji: '🥰', name: 'Влюбленное лицо' },
+            { emoji: '😍', name: 'Влюбленный' },
+            { emoji: '🤩', name: 'Звездные глаза' },
+            { emoji: '😊', name: 'Улыбка' },
+            { emoji: '😂', name: 'Смех' },
+            { emoji: '🤣', name: 'Катаюсь со смеху' },
+            { emoji: '😎', name: 'Круто' },
+            { emoji: '🥳', name: 'Тусовщик' },
+            { emoji: '😢', name: 'Плач' },
+            { emoji: '😭', name: 'Громкий плач' },
+            { emoji: '🤔', name: 'Размышление' },
+            { emoji: '🎉', name: 'Праздник' },
+            { emoji: '✨', name: 'Блестки' },
+            { emoji: '🙏', name: 'Спасибо' }
+        ];
         
         // Хранилище онлайн пользователей
         let onlineUsersMap = new Map();
@@ -1782,6 +1938,94 @@
             });
         }
         
+        // Инициализация панели реакций
+        function initReactionsPanel() {
+            reactionsPanel.innerHTML = '';
+            
+            quickReactions.forEach(reaction => {
+                const reactionElement = document.createElement('button');
+                reactionElement.className = 'reaction-option';
+                reactionElement.innerHTML = `
+                    ${reaction.emoji}
+                    <div class="reaction-tooltip">${reaction.name}</div>
+                `;
+                
+                reactionElement.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    if (currentReactionPanelMessageId) {
+                        addReaction(currentReactionPanelMessageId, reaction.emoji);
+                        closeReactionsPanel();
+                    }
+                });
+                
+                reactionsPanel.appendChild(reactionElement);
+            });
+        }
+        
+        // Обновление стилей реакций на панели
+        function updateReactionsPanel(messageId) {
+            const reactionOptions = reactionsPanel.querySelectorAll('.reaction-option');
+            
+            if (!messageId) return;
+            
+            const userReactions = Array.from(reactionsMap.get(messageId) || [])
+                .filter(reaction => reaction.userId === userId);
+            
+            reactionOptions.forEach(option => {
+                const emoji = option.textContent.trim();
+                const isMyReaction = userReactions.some(r => r.emoji === emoji);
+                
+                option.classList.toggle('my-reaction-option', isMyReaction);
+            });
+        }
+        
+        // Открытие панели реакций
+        function openReactionsPanel(messageId, messageData, x, y) {
+            currentReactionPanelMessageId = messageId;
+            updateReactionsPanel(messageId);
+            
+            // Позиционирование панели
+            const panelWidth = reactionsPanel.offsetWidth || 280;
+            const panelHeight = reactionsPanel.offsetHeight || 120;
+            const viewportWidth = window.innerWidth;
+            const viewportHeight = window.innerHeight;
+            
+            let posX = x - panelWidth / 2;
+            let posY = y - panelHeight - 20;
+            
+            // Корректировка позиции, чтобы панель не выходила за границы экрана
+            if (posX < 10) posX = 10;
+            if (posX + panelWidth > viewportWidth - 10) posX = viewportWidth - panelWidth - 10;
+            if (posY < 10) posY = y + 20;
+            if (posY + panelHeight > viewportHeight - 10) posY = viewportHeight - panelHeight - 10;
+            
+            reactionsPanel.style.left = posX + 'px';
+            reactionsPanel.style.top = posY + 'px';
+            
+            reactionsPanel.classList.add('active');
+            reactionsOverlay.classList.add('active');
+            isReactionsPanelOpen = true;
+            
+            // На мобильных устройствах центрируем панель
+            if (window.innerWidth <= 768) {
+                reactionsPanel.style.left = '50%';
+                reactionsPanel.style.top = 'auto';
+                reactionsPanel.style.bottom = '80px';
+                reactionsPanel.style.transform = 'translateX(-50%)';
+            }
+            
+            document.body.style.overflow = 'hidden';
+        }
+        
+        // Закрытие панели реакций
+        function closeReactionsPanel() {
+            reactionsPanel.classList.remove('active');
+            reactionsOverlay.classList.remove('active');
+            isReactionsPanelOpen = false;
+            currentReactionPanelMessageId = null;
+            document.body.style.overflow = '';
+        }
+        
         // Вставить эмодзи в поле ввода
         function insertEmoji(emoji) {
             const cursorPos = messageInput.selectionStart;
@@ -1808,6 +2052,7 @@
             if (isEmojiPickerOpen) {
                 closeMenu();
                 closeMessageMenu();
+                closeReactionsPanel();
                 setTimeout(() => {
                     document.addEventListener('click', closeEmojiPickerOnClickOutside);
                 }, 10);
@@ -1840,8 +2085,8 @@
                 const reactionId = `${messageId}_${userId}`;
                 reactionsRef.child(reactionId).remove();
             } else {
-                const randomEmoji = quickReactions[Math.floor(Math.random() * quickReactions.length)];
-                addReaction(messageId, randomEmoji);
+                const randomReaction = quickReactions[Math.floor(Math.random() * quickReactions.length)];
+                addReaction(messageId, randomReaction.emoji);
             }
         }
         
@@ -2185,6 +2430,7 @@
             });
             
             initEmojiPicker();
+            initReactionsPanel();
             
             setTimeout(() => {
                 messageInput.focus();
@@ -2237,6 +2483,7 @@
                 });
                 
                 initEmojiPicker();
+                initReactionsPanel();
                 
                 setTimeout(() => {
                     messageInput.focus();
@@ -2297,6 +2544,7 @@
             
             closeEmojiPicker();
             closeMessageMenu();
+            closeReactionsPanel();
             if (isSearchActive) closeSearchPanel();
         });
         
@@ -2306,10 +2554,12 @@
             mobileOverlay.classList.remove('active');
             closeEmojiPicker();
             closeMessageMenu();
+            closeReactionsPanel();
             if (isSearchActive) closeSearchPanel();
         });
         
         menuOverlay.addEventListener('click', closeMessageMenu);
+        reactionsOverlay.addEventListener('click', closeReactionsPanel);
         
         function closeMenu() {
             isMenuOpen = false;
@@ -2329,6 +2579,7 @@
             
             closeEmojiPicker();
             closeMessageMenu();
+            closeReactionsPanel();
             closeMenu();
         }
         
@@ -2483,6 +2734,10 @@
         document.addEventListener('keydown', (e) => {
             if (e.key === 'Escape' && isSearchActive) {
                 closeSearchPanel();
+            } else if (e.key === 'Escape' && isReactionsPanelOpen) {
+                closeReactionsPanel();
+            } else if (e.key === 'Escape' && messageMenu.classList.contains('active')) {
+                closeMessageMenu();
             }
         });
         
@@ -2500,6 +2755,7 @@
             
             const isMyMessage = messageData.senderId === userId;
             menuReplyBtn.style.display = 'flex';
+            menuReactBtn.style.display = 'flex';
             menuEditBtn.style.display = isMyMessage ? 'flex' : 'none';
             menuDeleteBtn.style.display = isMyMessage ? 'flex' : 'none';
             
@@ -2521,6 +2777,14 @@
         menuReplyBtn.addEventListener('click', () => {
             if (currentContextMessage) {
                 replyToMessage(currentContextMessage.id, currentContextMessage.data);
+                closeMessageMenu();
+            }
+        });
+        
+        menuReactBtn.addEventListener('click', () => {
+            if (currentContextMessage) {
+                const rect = messageMenu.getBoundingClientRect();
+                openReactionsPanel(currentContextMessage.id, currentContextMessage.data, rect.left, rect.top);
                 closeMessageMenu();
             }
         });
@@ -2880,71 +3144,14 @@
                 container.appendChild(messageDiv);
             }
             
-            let tapCount = 0;
-            messageDiv.addEventListener('click', (e) => {
-                if (e.target.tagName === 'A' || e.target.closest('a') || 
-                    e.target.classList.contains('reaction') || 
-                    e.target.closest('.reaction')) {
-                    return;
-                }
-                
-                e.preventDefault();
-                e.stopPropagation();
-                
-                tapCount++;
-                
-                if (tapCount === 1) {
-                    tapTimeout = setTimeout(() => {
-                        if (tapCount === 1) {
-                            toggleReaction(messageId);
-                            
-                            messageDiv.style.transform = 'scale(0.98)';
-                            setTimeout(() => {
-                                messageDiv.style.transform = '';
-                            }, 150);
-                        }
-                        tapCount = 0;
-                    }, 300);
-                } else if (tapCount === 2) {
-                    clearTimeout(tapTimeout);
-                    
-                    closeEmojiPicker();
-                    closeMenu();
-                    
-                    const rect = messageDiv.getBoundingClientRect();
-                    const x = e.clientX;
-                    const y = e.clientY;
-                    
-                    showMessageMenu(messageId, messageData, x, y);
-                    tapCount = 0;
-                }
-            });
-            
-            messageDiv.addEventListener('touchstart', (e) => {
-                lastTappedMessage = messageId;
-                lastTapTime = Date.now();
-            });
-            
-            messageDiv.addEventListener('touchend', (e) => {
-                const currentTime = Date.now();
-                const tapDuration = currentTime - lastTapTime;
-                
-                if (tapDuration < 500 && lastTappedMessage === messageId) {
-                    toggleReaction(messageId);
-                    
-                    messageDiv.style.transform = 'scale(0.98)';
-                    setTimeout(() => {
-                        messageDiv.style.transform = '';
-                    }, 150);
-                }
-            });
-            
+
             messageDiv.addEventListener('contextmenu', (e) => {
                 e.preventDefault();
                 e.stopPropagation();
                 
                 closeEmojiPicker();
                 closeMenu();
+                closeReactionsPanel();
                 
                 const rect = messageDiv.getBoundingClientRect();
                 const x = e.clientX;
@@ -3259,6 +3466,11 @@
             
             reactionsMap.get(messageId).push(reaction);
             updateMessageReactions(messageId);
+            
+            // Обновляем панель реакций если она открыта
+            if (currentReactionPanelMessageId === messageId) {
+                updateReactionsPanel(messageId);
+            }
         });
         
         reactionsRef.on('child_changed', (snapshot) => {
@@ -3275,6 +3487,11 @@
                 }
                 
                 updateMessageReactions(messageId);
+                
+                // Обновляем панель реакций если она открыта
+                if (currentReactionPanelMessageId === messageId) {
+                    updateReactionsPanel(messageId);
+                }
             }
         });
         
@@ -3290,6 +3507,11 @@
                 );
                 
                 updateMessageReactions(messageId);
+                
+                // Обновляем панель реакций если она открыта
+                if (currentReactionPanelMessageId === messageId) {
+                    updateReactionsPanel(messageId);
+                }
             }
         });
         
