@@ -228,14 +228,6 @@
             stroke-width: 0;
         }
         
-        /* Меню иконка (три точки) */
-       .tg-icon svg {
-            width: 100%;
-            height: 100%;
-            fill: currentColor;
-            stroke: currentColor;
-            stroke-width: 0;
-        }        
         /* Иконка стрелки назад */
         .back-icon {
             width: 20px;
@@ -383,6 +375,133 @@
             cursor: not-allowed;
         }
         
+        /* Панель закрепленного сообщения (под хедером, как в Telegram) */
+        .pinned-message-panel {
+            position: fixed;
+            top: 60px;
+            left: 0;
+            right: 0;
+            background: rgba(42, 42, 42, 0.95);
+            border-bottom: 1px solid #333;
+            z-index: 99;
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            display: none;
+            padding: 8px 15px;
+            animation: slideDown 0.3s ease;
+            height: 52px;
+        }
+        
+        @keyframes slideDown {
+            from {
+                opacity: 0;
+                transform: translateY(-100%);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        .pinned-message-panel.active {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        
+        .pinned-message-content {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            flex: 1;
+            min-width: 0;
+            cursor: pointer;
+        }
+        
+        .pinned-message-avatar {
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 11px;
+            font-weight: bold;
+            flex-shrink: 0;
+            color: white;
+        }
+        
+        .pinned-message-info {
+            flex: 1;
+            min-width: 0;
+        }
+        
+        .pinned-message-title {
+            font-size: 12px;
+            font-weight: 500;
+            color: #a0a0a0;
+            margin-bottom: 2px;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+        
+        .pinned-message-text {
+            font-size: 13px;
+            color: #ffffff;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            font-weight: 400;
+        }
+        
+        .unpin-btn {
+            background: rgba(255, 255, 255, 0.08);
+            border: none;
+            color: #888;
+            cursor: pointer;
+            width: 32px;
+            height: 32px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            transition: all 0.2s;
+            flex-shrink: 0;
+            margin-left: 10px;
+        }
+        
+        .unpin-btn:hover {
+            background: rgba(255, 68, 68, 0.1);
+            color: #ff4444;
+        }
+        
+        /* Стиль для закрепленного сообщения в чате */
+        .message.pinned {
+            border-left: 3px solid #3390ec;
+            position: relative;
+        }
+        
+        .message.pinned::before {
+            content: '';
+            position: absolute;
+            left: -3px;
+            top: 0;
+            bottom: 0;
+            width: 3px;
+            background: #3390ec;
+            border-radius: 3px 0 0 3px;
+        }
+        
+        .pin-icon {
+            position: absolute;
+            top: 12px;
+            right: 12px;
+            color: #3390ec;
+            font-size: 12px;
+            opacity: 0.7;
+        }
+        
         /* Разделители дат */
         .date-divider {
             position: relative;
@@ -422,6 +541,11 @@
             overflow: hidden;
             margin-top: 60px;
             height: calc(100vh - 60px);
+        }
+        
+        .container.with-pinned {
+            margin-top: 112px; /* 60px хедер + 52px панель закрепленного сообщения */
+            height: calc(100vh - 112px);
         }
         
         .sidebar {
@@ -897,7 +1021,9 @@
         /* Все пункты меню теперь белым цветом */
         .message-menu-item.reply,
         .message-menu-item.edit,
-        .message-menu-item.delete {
+        .message-menu-item.delete,
+        .message-menu-item.pin,
+        .message-menu-item.unpin {
             color: #e0e0e0;
         }
         
@@ -1304,6 +1430,11 @@
                 height: calc(100vh - 60px);
             }
             
+            .container.with-pinned {
+                margin-top: 112px;
+                height: calc(100vh - 112px);
+            }
+            
             .sidebar {
                 position: fixed;
                 top: 60px;
@@ -1313,6 +1444,11 @@
                 transform: translateX(-100%);
                 z-index: 90;
                 height: calc(100vh - 60px);
+            }
+            
+            .container.with-pinned .sidebar {
+                top: 112px;
+                height: calc(100vh - 112px);
             }
             
             .sidebar.active { transform: translateX(0); }
@@ -1336,14 +1472,11 @@
                 -webkit-overflow-scrolling: touch;
             }
             
-            /* Разделители дат на мобильных */
-            .date-divider {
-                margin: 15px 0;
-            }
-            
-            .date-label {
-                padding: 5px 14px;
-                font-size: 12px;
+            /* Панель закрепленного сообщения на мобильных */
+            .pinned-message-panel {
+                top: 60px;
+                padding: 8px 12px;
+                height: 52px;
             }
             
             .input-area {
@@ -1357,21 +1490,19 @@
             }
             
             .search-results-info {
-                top: 70px;
+                top: 112px; /* Учитываем панель закрепленного сообщения */
                 font-size: 12px;
                 padding: 8px 16px;
+            }
+            
+            .container.with-pinned .search-results-info {
+                top: 112px;
             }
             
             .search-input {
                 height: 38px;
                 font-size: 14px;
                 padding: 8px 12px;
-            }
-            
-            .search-btn {
-                height: 34px;
-                padding: 6px 12px;
-                font-size: 13px;
             }
             
             .close-search {
@@ -1588,6 +1719,31 @@
         </div>
     </header>
     
+    <!-- Панель закрепленного сообщения (как в Telegram) -->
+    <div class="pinned-message-panel hidden" id="pinned-message-panel">
+        <div class="pinned-message-content" id="pinned-message-content">
+            <div class="pinned-message-avatar" id="pinned-message-avatar"></div>
+            <div class="pinned-message-info">
+                <div class="pinned-message-title">
+                    <div class="tg-icon">
+                        <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M16 12V4h1V2H7v2h1v8l-2 2v2h5.2v6h1.6v-6H18v-2l-2-2z"/>
+                        </svg>
+                    </div>
+                    <span>Закрепленное сообщение</span>
+                </div>
+                <div class="pinned-message-text" id="pinned-message-text"></div>
+            </div>
+        </div>
+        <button class="unpin-btn" id="unpin-btn" title="Открепить">
+            <div class="tg-icon">
+                <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/>
+                </svg>
+            </div>
+        </button>
+    </div>
+    
     <!-- Информация о результатах поиска -->
     <div class="search-results-info" id="search-results-info">
         <span id="search-results-text"></span>
@@ -1686,6 +1842,22 @@
             </span>
             <span>Добавить реакцию</span>
         </button>
+        <button class="message-menu-item" id="menu-pin">
+            <span class="menu-item-icon">
+                <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M16 12V4h1V2H7v2h1v8l-2 2v2h5.2v6h1.6v-6H18v-2l-2-2z"/>
+                </svg>
+            </span>
+            <span>Закрепить</span>
+        </button>
+        <button class="message-menu-item" id="menu-unpin" style="display: none;">
+            <span class="menu-item-icon">
+                <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M16 9V4h1V2H7v2h1v5l-2 2v2h5.2v6h1.6v-6H18v-2l-2-2zm-2 2h-4V4h4v7z"/>
+                </svg>
+            </span>
+            <span>Открепить</span>
+        </button>
         <button class="message-menu-item" id="menu-edit">
             <span class="menu-item-icon">
                 <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
@@ -1757,10 +1929,16 @@
         const menuToggle = document.getElementById('menu-toggle');
         const reactionsPanel = document.getElementById('reactions-panel');
         const reactionsOverlay = document.getElementById('reactions-overlay');
+        const pinnedMessagePanel = document.getElementById('pinned-message-panel');
+        const pinnedMessageContent = document.getElementById('pinned-message-content');
+        const pinnedMessageAvatar = document.getElementById('pinned-message-avatar');
+        const pinnedMessageText = document.getElementById('pinned-message-text');
+        const unpinBtn = document.getElementById('unpin-btn');
         
         const messagesRef = database.ref('messages');
         const messageStatusRef = database.ref('messageStatus');
         const reactionsRef = database.ref('reactions');
+        const pinnedMessageRef = database.ref('pinnedMessage'); // Теперь только одно сообщение
         const onlineUsersRef = database.ref('onlineUsers');
         let currentUserRef = null;
         
@@ -1777,6 +1955,8 @@
         const messageMenu = document.getElementById('message-menu');
         const menuReplyBtn = document.getElementById('menu-reply');
         const menuReactBtn = document.getElementById('menu-react');
+        const menuPinBtn = document.getElementById('menu-pin');
+        const menuUnpinBtn = document.getElementById('menu-unpin');
         const menuEditBtn = document.getElementById('menu-edit');
         const menuDeleteBtn = document.getElementById('menu-delete');
         const replyIndicator = document.getElementById('reply-indicator');
@@ -1790,6 +1970,7 @@
         let messagesMap = new Map();
         let reactionsMap = new Map();
         let messageStatusMap = new Map();
+        let currentPinnedMessage = null;
         
         // Мапы для хранения сообщений по датам и разделителей
         let messagesByDate = new Map();
@@ -2319,6 +2500,107 @@
             `;
         }
         
+        // Функция закрепления сообщения
+        function pinMessage(messageId, messageData) {
+            if (!userId || !userName) return;
+            
+            const pinData = {
+                messageId: messageId,
+                sender: messageData.sender,
+                senderId: messageData.senderId,
+                text: stripHtml(messageData.text).substring(0, 100),
+                timestamp: messageData.timestamp,
+                pinnedBy: userName,
+                pinnedAt: firebase.database.ServerValue.TIMESTAMP
+            };
+            
+            pinnedMessageRef.set(pinData).then(() => {
+                showNotification('Сообщение закреплено');
+            });
+        }
+        
+        // Функция открепления сообщения
+        function unpinMessage() {
+            pinnedMessageRef.remove().then(() => {
+                showNotification('Сообщение откреплено');
+            });
+        }
+        
+        // Обновление панели закрепленного сообщения
+        function updatePinnedPanel() {
+            if (!currentPinnedMessage) {
+                pinnedMessagePanel.classList.add('hidden');
+                pinnedMessagePanel.classList.remove('active');
+                mainContainer.classList.remove('with-pinned');
+                return;
+            }
+            
+            pinnedMessagePanel.classList.remove('hidden');
+            pinnedMessagePanel.classList.add('active');
+            mainContainer.classList.add('with-pinned');
+            
+            const avatarColor = getAvatarColor(currentPinnedMessage.sender);
+            const firstLetter = getFirstLetter(currentPinnedMessage.sender);
+            
+            pinnedMessageAvatar.className = `pinned-message-avatar avatar-color-${avatarColor}`;
+            pinnedMessageAvatar.textContent = firstLetter;
+            
+            pinnedMessageText.textContent = currentPinnedMessage.text + (currentPinnedMessage.text.length >= 100 ? '...' : '');
+            
+            // Обработчик клика для перехода к сообщению
+            pinnedMessageContent.onclick = () => {
+                const messageElement = document.querySelector(`[data-message-id="${currentPinnedMessage.messageId}"]`);
+                if (messageElement) {
+                    messageElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                    messageElement.style.backgroundColor = 'rgba(102, 179, 255, 0.2)';
+                    setTimeout(() => {
+                        messageElement.style.backgroundColor = '';
+                    }, 2000);
+                }
+            };
+        }
+        
+        // Функция для показа уведомлений
+        function showNotification(text) {
+            // Создаем временное уведомление
+            const notification = document.createElement('div');
+            notification.style.cssText = `
+                position: fixed;
+                top: 100px;
+                left: 50%;
+                transform: translateX(-50%);
+                background: rgba(51, 144, 236, 0.95);
+                color: white;
+                padding: 12px 20px;
+                border-radius: 20px;
+                font-size: 14px;
+                z-index: 2000;
+                box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
+                backdrop-filter: blur(10px);
+                animation: fadeInOut 2s ease;
+                pointer-events: none;
+            `;
+            
+            const style = document.createElement('style');
+            style.textContent = `
+                @keyframes fadeInOut {
+                    0% { opacity: 0; transform: translateX(-50%) translateY(-20px); }
+                    15% { opacity: 1; transform: translateX(-50%) translateY(0); }
+                    85% { opacity: 1; transform: translateX(-50%) translateY(0); }
+                    100% { opacity: 0; transform: translateX(-50%) translateY(-20px); }
+                }
+            `;
+            document.head.appendChild(style);
+            
+            notification.textContent = text;
+            document.body.appendChild(notification);
+            
+            setTimeout(() => {
+                notification.remove();
+                style.remove();
+            }, 2000);
+        }
+        
         // Обновляем карту онлайн пользователей
         onlineUsersRef.on('value', (snapshot) => {
             onlineUsersMap.clear();
@@ -2545,7 +2827,6 @@
             closeEmojiPicker();
             closeMessageMenu();
             closeReactionsPanel();
-            if (isSearchActive) closeSearchPanel();
         });
         
         mobileOverlay.addEventListener('click', () => {
@@ -2555,11 +2836,11 @@
             closeEmojiPicker();
             closeMessageMenu();
             closeReactionsPanel();
-            if (isSearchActive) closeSearchPanel();
         });
         
         menuOverlay.addEventListener('click', closeMessageMenu);
         reactionsOverlay.addEventListener('click', closeReactionsPanel);
+        unpinBtn.addEventListener('click', unpinMessage);
         
         function closeMenu() {
             isMenuOpen = false;
@@ -2754,8 +3035,12 @@
             messageMenu.style.top = y + 'px';
             
             const isMyMessage = messageData.senderId === userId;
+            const isPinned = currentPinnedMessage && currentPinnedMessage.messageId === messageId;
+            
             menuReplyBtn.style.display = 'flex';
             menuReactBtn.style.display = 'flex';
+            menuPinBtn.style.display = !isPinned ? 'flex' : 'none';
+            menuUnpinBtn.style.display = isPinned ? 'flex' : 'none';
             menuEditBtn.style.display = isMyMessage ? 'flex' : 'none';
             menuDeleteBtn.style.display = isMyMessage ? 'flex' : 'none';
             
@@ -2785,6 +3070,20 @@
             if (currentContextMessage) {
                 const rect = messageMenu.getBoundingClientRect();
                 openReactionsPanel(currentContextMessage.id, currentContextMessage.data, rect.left, rect.top);
+                closeMessageMenu();
+            }
+        });
+        
+        menuPinBtn.addEventListener('click', () => {
+            if (currentContextMessage) {
+                pinMessage(currentContextMessage.id, currentContextMessage.data);
+                closeMessageMenu();
+            }
+        });
+        
+        menuUnpinBtn.addEventListener('click', () => {
+            if (currentContextMessage) {
+                unpinMessage();
                 closeMessageMenu();
             }
         });
@@ -3064,6 +3363,11 @@
             
             const messageDiv = document.createElement('div');
             messageDiv.className = `message`;
+            
+            // Добавляем класс pinned если сообщение закреплено
+            if (currentPinnedMessage && currentPinnedMessage.messageId === messageId) {
+                messageDiv.classList.add('pinned');
+            }
             
             let replyBlock = '';
             if (messageData.replyTo) {
@@ -3513,6 +3817,32 @@
                     updateReactionsPanel(messageId);
                 }
             }
+        });
+        
+        // Загрузка и обновление закрепленного сообщения (одного)
+        pinnedMessageRef.on('value', (snapshot) => {
+            if (snapshot.exists()) {
+                currentPinnedMessage = snapshot.val();
+                updatePinnedPanel();
+            } else {
+                currentPinnedMessage = null;
+                updatePinnedPanel();
+            }
+            
+            // Обновляем отображение закрепленного сообщения в чате
+            messagesMap.forEach((messageData, messageId) => {
+                const messageElement = document.querySelector(`[data-message-id="${messageId}"]`);
+                if (messageElement) {
+                    const messageDiv = messageElement.querySelector('.message');
+                    if (messageDiv) {
+                        if (currentPinnedMessage && currentPinnedMessage.messageId === messageId) {
+                            messageDiv.classList.add('pinned');
+                        } else {
+                            messageDiv.classList.remove('pinned');
+                        }
+                    }
+                }
+            });
         });
         
         // Функция отправки сообщения
