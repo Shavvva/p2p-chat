@@ -229,45 +229,13 @@
         }
         
         /* Меню иконка (три точки) */
-        .menu-dots {
-            display: flex;
-            flex-direction: column;
-            gap: 3px;
-            width: 20px;
-            height: 20px;
-        }
-        
-        .menu-dot {
-            display: block;
-            width: 4px;
-            height: 4px;
-            border-radius: 50%;
-            background: currentColor;
-            opacity: 0.8;
-        }
-        
-        .menu-dots-vertical {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            gap: 3px;
-            width: 20px;
-            height: 20px;
-        }
-        
-        .menu-dots-vertical .menu-dot {
-            margin: 0 auto;
-        }
-        
-        .menu-dot:nth-child(2) {
-            margin-left: 8px;
-        }
-        
-        .menu-dot:nth-child(3) {
-            margin-left: 4px;
-        }
-        
+       .tg-icon svg {
+    		width: 100%;
+    		height: 100%;
+    		fill: currentColor;
+    		stroke: currentColor;
+    		stroke-width: 0;
+	}        
         /* Иконка стрелки назад */
         .back-icon {
             width: 20px;
@@ -1418,11 +1386,12 @@
     <header class="hidden" id="main-header">
         <div class="header-left">
             <button class="tg-btn" id="menu-toggle" title="Меню">
-                <div class="menu-dots-vertical">
-                    <span class="menu-dot"></span>
-                    <span class="menu-dot"></span>
-                    <span class="menu-dot"></span>
-                </div>
+                <div class="tg-icon">
+        		<!-- SVG иконка гамбургер-меню как в Telegram -->
+        		<svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+           	 	<path d="M3 18h18v-2H3v2zm0-5h18v-2H3v2zm0-7v2h18V6H3z"/>
+        		</svg>
+    		</div>
             </button>
             <div class="user-info">
                 <div class="user-avatar" id="user-avatar">?</div>
